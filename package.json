@@ -13,6 +13,8 @@
   "author": "Hernan Rajchert",
   "dependencies": {
     "markdown": "~0.5.0",
-    "underscore": "~1.5.2"
+    "underscore": "~1.5.2",
+    "ect": "~0.5.4",
+    "when": "~2.5.1"
   }
 }
