@@ -7,9 +7,9 @@ module.exports = function (Markdown) {
         var m = block.match( /^{%([\s\S]*)%}$/ );
 
         if ( !m ) {
-          return undefined;
+            return undefined;
         }
-        var jsonml = ['supercode', m[1]];
+        var jsonml = ["supercode", m[1]];
         return [jsonml];
     };
 

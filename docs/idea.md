@@ -14,6 +14,8 @@ flat files!
 Tiene que ser cortito y al pie, resolver un set de funcionalidades justas que permitan la elaboracion de cosas mas copadas encima, como puede ser el plugin de bracket o la tarea de grunt. Eso es mas que nada porque no quiero obligar a la gente a que use grunt o que use brackets.
 El proyecto estaria bueno que sea "utilizable como libreria". Entonces, si bien va a haber algun tipo de herramienta que compile un directorio y genere html, estaria bueno que se piense como libreria para que pueda ser utilizado por brackets para hacer un plugin, o tal vez ser incluido por un web server hecho con express, para que la documentacion sea realmente dinamica, y que responda ajax, o dios sabe que.  O tal vez la herramienta que genera el html le queda insuficiente a quien la use, y quiera generarse la suya, pero le guste el parser de md, o la resolucion de conflictos. Otra cosa en utilizable como libreria, es que pueda ser usada en conjunto con otras librerias como dox para incluir JSDoc, etc.
 
+Otra libreria a prestar atencion es esta https://github.com/philbooth/complexity-report
+
 
 ### Self used
 {: #self-used}

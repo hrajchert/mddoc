@@ -1,5 +1,5 @@
 {
-    "md_dir" : "docs",
-    "dest_folder": "dist",
+    "inputDir" : "docs",
+    "outputDir": "dist",
     "files" : ["index", "blog", "miniEstructura"]
 }

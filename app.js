@@ -2,9 +2,9 @@
 var markdown = require("markdown").markdown;
 
 // Configure my parser
-require('./src/md_parser.js')(markdown.Markdown);
+require("./src/md_parser.js")(markdown.Markdown);
 
-var _ = require('underscore');
+var _ = require("underscore");
 var fs = require("fs");
 var when = require("when");
 var keys = require("when/keys");
@@ -14,11 +14,11 @@ var settings = require("./documentor.json");
 
 function replaceSupercode (jsonml) {
     if ( jsonml[0] === "supercode" ) {
-        console.log ('we found supercode');
+        console.log ("we found supercode");
 
         var attr = JSON.parse("{"+jsonml[1]+"}");
 
-        return replaceCodeFromFile(jsonml, attr['src'], attr["line"] );
+        return replaceCodeFromFile(jsonml, attr.src, attr.line );
     } else {
         // console.log ('not this one');
         var promises = [];
@@ -35,33 +35,33 @@ function replaceSupercode (jsonml) {
 function replaceCodeFromFile(jsonml, file, lineNumber) {
     var deferred = when.defer();
 
-    fs.readFile(file, 'utf8', function(err, data) {
+    fs.readFile(file, "utf8", function(err, data) {
         if (err) {
             return deferred.reject(err);
         }
 
         var lines = data.split("\n");
         var numbers = lineNumber.split("-");
-        if ( numbers.length != 2 ) {
-            return deferred.reject('The line number wasnt correctly spelled');
+        if ( numbers.length !== 2 ) {
+            return deferred.reject("The line number wasnt correctly spelled");
         }
 
         var firstLine = parseInt(numbers[0]);
         var lastLine = parseInt(numbers[1]);
 
-        if (typeof firstLine !== 'number' || typeof lastLine !== 'number') {
-            return deferred.reject('Those arent numbers cowboy');
+        if (typeof firstLine !== "number" || typeof lastLine !== "number") {
+            return deferred.reject("Those arent numbers cowboy");
         }
 
         if (firstLine > lastLine) {
-            return deferred.reject('lastLine cannot be bigger than firstLine');
+            return deferred.reject("lastLine cannot be bigger than firstLine");
         }
         var ans = lines[firstLine - 1];
         for (var i=firstLine + 1; i <= lastLine;i++) {
             ans += "\n" + lines[ i - 1 ];
         }
 
-        jsonml[0] = 'code_block';
+        jsonml[0] = "code_block";
         jsonml[1] = ans;
         deferred.resolve();
     });
@@ -102,7 +102,7 @@ function doWalkDir(dir) {
             // We need to create a file info object because of how the scope in
             // js works. TODO: Add more documentation about this later! But not in the code!
             var fileInfo = {
-                file: dir + '/' + files[i],
+                file: dir + "/" + files[i],
                 defer: when.defer()
             };
             // Because checking if the file is a directory or not is async, we need to hold
@@ -142,13 +142,13 @@ function checkIfDirectory(err, stat) {
 
 function doParse(completeFileName) {
     var deferred = when.defer();
-    fs.readFile(completeFileName, 'utf8', function(err, md) {
-        console.log('doparsing ' + completeFileName);
+    fs.readFile(completeFileName, "utf8", function(err, md) {
+        console.log("doparsing " + completeFileName);
         if (err) {
-            console.log('super err' + err);
+            console.log("super err " + err);
             return deferred.reject(err);
         }
-        var parsedMd = markdown.parse(md, 'miMkd');
+        var parsedMd = markdown.parse(md, "miMkd");
         replaceSupercode(parsedMd).then(function(){
             deferred.resolve(parsedMd);
         });
@@ -159,10 +159,10 @@ function doParse(completeFileName) {
 function parseMd (settings) {
     var deferred = when.defer();
 
-    walkDir(settings.md_dir).then(function(files) {
+    walkDir(settings.inputDir).then(function(files) {
         var mdre = /(.*)\.md$/;
         var mds = {};
-        var dirNameLength = settings.md_dir.length;
+        var dirNameLength = settings.inputDir.length;
         for (var i = 0; i<files.length;i++) {
             var m = files[i].substr(dirNameLength+1).match(mdre);
 
@@ -181,8 +181,8 @@ function parseMd (settings) {
     return deferred.promise;
 }
 
-var ECT = require('ect');
-var renderer = ECT({ root : settings.md_dir });
+var ECT = require("ect");
+var renderer = ECT({ root : settings.inputDir });
 
 var parseMdPromise = parseMd(settings);
 
@@ -190,20 +190,24 @@ function renderedFileWroteHandler(err) {
     if (err) {
         throw err;
     }
-    console.log('We wrote ' + this.outputFile);
+    console.log("We wrote " + this.outputFile);
+}
+
+function getHtml() {
+    return renderer.render(this.inputFile, this.data);
 }
 
 parseMdPromise.then(function(mds){
-    console.log('The input is parsed');
-    mds.getHtml = function(md_template) {
+    console.log("The input is parsed");
+    mds.getHtml = function(mdTemplate) {
         var tree;
-        if (!mds.hasOwnProperty(md_template)) {
-            throw 'We Couldnt find a md template with the name ' + md_template;
+        if (!mds.hasOwnProperty(mdTemplate)) {
+            throw "We Couldnt find a md template with the name " + mdTemplate;
         }
         try {
-            tree = markdown.toHTMLTree(mds[md_template]);
+            tree = markdown.toHTMLTree(mds[mdTemplate]);
         }catch (e) {
-            throw 'Couldnt create html for template ' + md_template;
+            throw "Couldnt create html for template " + mdTemplate;
         }
 
         return markdown.renderJsonML(tree);
@@ -214,11 +218,10 @@ parseMdPromise.then(function(mds){
     for (var i=0; i<settings.files.length; i++) {
         try {
             var renderObject = {
-                inputFile: settings.files[i] + '.ect',
-                outputFile: settings.dest_folder + "/" + settings.files[i] + '.html',
-                getHtml: function () {
-                    return renderer.render(this.inputFile, data);
-                }
+                inputFile: settings.files[i] + ".ect",
+                outputFile: settings.outputDir + "/" + settings.files[i] + ".html",
+                getHtml: getHtml,
+                data: data
             };
 
 
@@ -234,7 +237,7 @@ parseMdPromise.then(function(mds){
 });
 
 parseMdPromise.otherwise(function(err){
-    console.log('Could not parse the markdown\'s');
+    console.log("Could not parse the markdown's");
     console.log(err);
 });
 

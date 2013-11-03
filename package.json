@@ -16,5 +16,10 @@
     "underscore": "~1.5.2",
     "ect": "~0.5.4",
     "when": "~2.5.1"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.7.1",
+    "grunt-contrib-watch": "~0.5.3"
   }
 }
