@@ -15,7 +15,8 @@
     "markdown": "~0.5.0",
     "underscore": "~1.5.2",
     "ect": "~0.5.4",
-    "when": "~2.5.1"
+    "when": "~2.5.1",
+    "esprima": "~1.0.4"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
