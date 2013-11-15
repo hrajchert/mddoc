@@ -9,7 +9,7 @@ module.exports = function (Markdown) {
         if ( !m ) {
             return undefined;
         }
-        var jsonml = ["supercode", m[1]];
+        var jsonml = ["supercode", m[1], block.lineNumber];
         return [jsonml];
     };
 

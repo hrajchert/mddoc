@@ -124,6 +124,7 @@ Each file `xxx.md.json` is the output of parsin the md file, and its json will b
                     "to" : 49
                 },
                 "refhash" : "SDG@#E!SCVB",
+                "refline" : "5",
                 "codehash" : "ASDF@#@$432D",
                 "status" : "resolved?pending?outdated?...."
             },
@@ -135,16 +136,68 @@ Each file `xxx.md.json` is the output of parsin the md file, and its json will b
 
 This metadata will be constructed in two turns, when interpreting the markdown itself, and after each src file is "harvested".
 
-#### Ref
+#### version
+#### filehash
 
-##### name
+#### refs > name
+
 
 Optional name of the reference. This is useful in a couple of ways. For one part, when writting your markdowns, you may want to repeat a reference but you don't want to repeat the code to reference it, which is cumbersome and as a bonus, this way you can update all your references to that code in one place. For other part, it can reduce the amount of metadata that is generated, because we are not going to do snippet optimization to see if two refs are equal, or something along those lines.
 
 I have to figure out if I want this name to be global or not. In principle I think it could be a global name, but
 if the name starts with _ its local to the file.
 
-####
+#### refs > src
+The source file that is being referenced.
+
+# question, do I neeed to add something more than type to distinguish if the reference is only a named reference pointer? not the definition itself
+
+The definition itself can/must be like a normal ref with a name on it. The other one should have like a status, if it was found or not, diferent of the status of the reference itself. The status of the reference itself is to see if the reference is outdated or not, in this case (maybe using the same field or not), the status should represent if the pointer was found or not. It should be something similar to a two pass.
+
+Algo me dice que tengo que probar si puedo guardar la referencia al jsonml para que despues sea mas facil el remplazo, pero hacerlo de una manera que no se guarde en la metadata. Por ejemplo cuando busco las referencias, generar de alguna manera un hash table con key igual al hash de la referencia o algo y value igual al jsonml, para luego hacer un facil remplazo. El hash este deberia ser un poco distinto, porque no deberia haber colisiones. Tal vez mas que hash, hacer un src:line
+#### refs > type
+For now, include or reference, indicates if this a reference that should be replaced in code, or just a reference, so that you can "tie" code with documentation.
+
+#### refs > ref
+
+This is the actual reference. So Far I see the following options:
+
+* Line number
+* Plain text
+* Find regex
+
+The ref can eventually have a resolver or type or something to indicate which code reader should be used.
+Line number can be used with no problem with any type of files, but is quite limiting. Plain text and regex
+can leverage on the fact we know the Javascript AST trough esprima, or cheerio (eventually). So you can put something like
+
+    "ref" : {
+        "resolver" : "esprima",
+        "text" : "if (!mds.hasOwnProperty(mdTemplate)) {",
+        "parent" : "BlockStatement",
+        // "children": "...",
+        "skip" : "something weird to navigate AST here"
+    }
+
+I would love to have a skip, so you can add `...` instead of the full code, and just skim the code.
+
+#### refs > char
+This is generated on a second turn, and its the char location in the source code of the referenced code.
+Cannot remember why did I wanted here.
+
+#### refs > refhash
+The hash of the reference by itself, not the ref field, but the whole thing that goes inside the reference block. Its
+an easy way to see if the reference has changed or not
+
+#### refs > refline
+The line number where this reference was found. Its a good way to point to the markup from a tool, or show
+an error or conflict in the grunt task
+
+#### refs > codehash
+#### refs > status
+
+
+
+## hrCode
 
 The code ref char object will be either provider or created after the source is read.
 
@@ -191,3 +244,27 @@ You search for a literal text to find, and then you can navigate the AST up and 
 ### Find regex
 Same as plain text but with regular expressions.
 
+> Creo que hay que poner algo al respecto del AST reader para otros lenguajes. Si es html se puede usar el dom con cheerio, ver que onda
+con otros lenguajes.
+
+
+# Como hago el remplazo de codigo?
+Pareceria pertenecer a la etapa del render.
+Requiero tener una lista de jsonml, los snippets ya cargados y las diferencias calculadas.
+En caso de solo querer saber las diferencias, ni se haria esta etapa. Cuando me piden hacer el renderHtml de un markdown, me fijo en que
+referencias hay, y la referencia guarda un vinculo al jsonML, en ese momento, con todo ya cargado, lo unico que tengo que hacer es
+el replace.
+Si hay una diferencia entre codigo viejo y actual, yo tengo que mostrar el viejo hasta que se marque una resolucion
+
+# Para que me sirve guardar un ref pointer en hrCode y para que en hrMd
+en hrCode para las herramientas tipo code viewer, que requiero ver todos los lugares donde un codigo es referenciado. Solo lo marco como
+LOC.
+en hrMd para hacer la inclusion o referencia en si
+
+# Que deberia imprimir cuando es solo una referencia?, sin inclusion
+Cuando tiene inclusion, lo remplazo por un bloque codigo y ya.
+Con solo una referencia, me tiento a decir que poner un span vacio con una clase. Tal vez estaria piola poder definir de alguna manera
+como queres que sea remplazado, inyectando tu propio replacer, y poder poner por ejemplo, un link a un code viewer con linea y codigo.
+
+
+No se si ya lo puse en otro lado, pero queria recordarme que quiero guardar hash como clases css para hacer referencias en el html

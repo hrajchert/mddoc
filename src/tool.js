@@ -1,5 +1,5 @@
 var markdown = require("markdown").markdown;
-var parseMd = require("./markdown_reader").parseMd;
+var MarkdownReader = require("./markdown_reader").MarkdownReader;
 var    fs = require("fs");
 var _ = require("underscore");
 
@@ -12,7 +12,12 @@ exports.run = function(settings) {
     var ECT = require("ect");
     var renderer = ECT({ root : settings.inputDir });
 
-    var parseMdPromise = parseMd(settings);
+    // Initialize the empty metadata
+    var metadata = {};
+
+    var mdReader = new MarkdownReader(metadata, settings);
+
+    var parseMdPromise = mdReader.parse();
 
     function renderedFileWroteHandler(err) {
         if (err) {
@@ -25,15 +30,17 @@ exports.run = function(settings) {
         return renderer.render(this.inputFile, this.data);
     }
 
-    parseMdPromise.then(function(mds){
+
+    parseMdPromise.then(function(){
+        debugger;
         console.log("The input is parsed");
-        mds.getHtml = function(mdTemplate) {
+        metadata.jsonml.getHtml = function(mdTemplate) {
             var tree;
-            if (!mds.hasOwnProperty(mdTemplate)) {
+            if (!metadata.jsonml.hasOwnProperty(mdTemplate)) {
                 throw "We Couldnt find a md template with the name " + mdTemplate;
             }
             try {
-                tree = markdown.toHTMLTree(mds[mdTemplate]);
+                tree = markdown.toHTMLTree(metadata.jsonml[mdTemplate]);
             }catch (e) {
                 console.log(e);
                 throw "Couldnt create html for template " + mdTemplate;
@@ -42,7 +49,7 @@ exports.run = function(settings) {
             return markdown.renderJsonML(tree);
         };
 
-        var data = { documentor : mds };
+        var data = { documentor : metadata.jsonml };
 
         for (var i=0; i<settings.files.length; i++) {
             try {
@@ -56,7 +63,7 @@ exports.run = function(settings) {
 
                 fs.writeFile(renderObject.outputFile,
                              renderObject.getHtml(),
-                             _.bind(renderedFileWroteHandler,renderObject));
+                             renderedFileWroteHandler.bind(renderObject));
 
             } catch (e) {
                 console.log(e);
@@ -65,8 +72,8 @@ exports.run = function(settings) {
         }
     });
 
-    parseMdPromise.otherwise(function(err){
-        console.log("Could not parse the markdown's");
-        console.log(err);
+    parseMdPromise.otherwise(function(mdErr){
+        console.log("Could not parse the markdown: " + mdErr.reader.completeFileName);
+        console.log(mdErr.err);
     });
 };

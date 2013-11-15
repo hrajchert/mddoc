@@ -5,14 +5,13 @@ var fs = require("fs"),
     when = require("when");
 
 
-
 var sourceFile = "src/tool.js";
 
-// var stringToFind = "function getHtml()";
+var stringToFind = "function getHtml()";
 // var stringToFind = "{ root : settings.input";
 // var stringToFind = "mds.getHtml = function(mdTemplate)";
 // var stringToFind = "parseMdPromise.then(function(mds){";
-var stringToFind = "if (!mds.hasOwnProperty(mdTemplate)) {";
+// var stringToFind = "if (!mds.hasOwnProperty(mdTemplate)) {";
 // var stringToFind = "parseMdPromise.then(function(mds){ss";
 
 

@@ -1,5 +1,5 @@
 {
     "inputDir" : "docs",
     "outputDir": "dist",
-    "files" : ["index", "blog", "miniEstructura", "comment_programmig"]
+    "files" : ["index", "blog", "miniEstructura", "comment_programming"]
 }

@@ -4,5 +4,7 @@ This part of the code is in charge of telling markdown-js that anything that goe
 
 {%
     "src" : "src/markdown_parser.js",
-    "line" : "2-19"
+    "ref" : {
+        "line" : "2-19"
+    }
 %}
