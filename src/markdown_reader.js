@@ -2,13 +2,11 @@ var markdown = require("markdown").markdown,
     walkDir = require("./utils").walkDir,
     when = require("when"),
     crypto = require("crypto"),
-    fs = require("fs");
+    fs = require("fs"),
+    colors = require("colors");
 
 // Configure my parser
 require("./markdown_parser.js")(markdown.Markdown);
-
-// TODO: This shouldnt be here
-var replaceSupercode = require("./code_includer").replaceSupercode;
 
 
 var MarkdownFileReader = function (plainFileName, completeFileName) {
@@ -19,7 +17,7 @@ var MarkdownFileReader = function (plainFileName, completeFileName) {
 MarkdownFileReader.prototype.parse = function () {
     var deferred = when.defer();
 
-    console.log("parsing " + this.completeFileName);
+    console.log("parsing ".yellow + this.completeFileName.grey);
 
     fs.readFile(this.completeFileName, "utf8", function(err, md) {
 
@@ -35,20 +33,13 @@ MarkdownFileReader.prototype.parse = function () {
 
         // Indicate the job is done
         deferred.resolve(this);
-
-        // this.getReferences();
-        // // Remove this
-        // replaceSupercode(this.jsonml).then(function(jsonml) {
-        //     this.jsonml = jsonml;
-        //     deferred.resolve(this);
-        // }.bind(this));
     }.bind(this));
     return deferred.promise;
 };
 
 function doGetReferences (jsonml, references) {
     if ( jsonml[0] === "supercode" ) {
-        console.log ("we found supercode2");
+        // console.log ("we found supercode2");
 
         // Get the attributes from the jsonml
         var attr = JSON.parse("{"+jsonml[1]+"}");
@@ -67,7 +58,8 @@ function doGetReferences (jsonml, references) {
             "refhash" : crypto.createHash("md5").update(jsonml[1]).digest("hex"),
             // TODO: Check this out later
             "status" : "pending",
-            "jsonml" : jsonml
+            "jsonml" : jsonml,
+            "type" : "include"
         };
         // TODO: eventually this could be removed, i think
         jsonml.splice(2);
@@ -107,6 +99,9 @@ MarkdownReader.prototype.parse = function() {
 
     return walkDir(this.settings.inputDir).then(function(files) {
         this.metadata.jsonml = {};
+        // Make sure the jsonml doesnt get saved into disk
+        Object.defineProperty(this.metadata, "jsonml",{enumerable:false});
+
         this.metadata.hrMd = {};
         this.metadata.hrCode = {};
         var promises = [];
@@ -124,8 +119,6 @@ MarkdownReader.prototype.parse = function() {
                 var plainFileName = m[1],
                     completeFileName =  files[i];
 
-
-                console.log(completeFileName + " is a MD file");
                 var mkTask = new MarkdownFileReader(plainFileName, completeFileName);
 
                 promises.push(
@@ -133,7 +126,7 @@ MarkdownReader.prototype.parse = function() {
                     mkTask.parse()
                     // Then get the metadata out of it
                     .then(this.analyzeMarkdownFileReader.bind(this))
-                    // If anything fails, apend the failing reader
+                    // If anything fails, append the failing reader
                     .otherwise(mkTask.handleMdError.bind(mkTask))
                 );
             }
@@ -142,10 +135,13 @@ MarkdownReader.prototype.parse = function() {
     }.bind(this));
 };
 
+// TODO: I dont like messing with different metadata in one place if that place is not a metadata object.
 MarkdownReader.prototype.analyzeMarkdownFileReader = function (mdFileReader) {
     var meta = this.metadata;
-    // The jsonml goes directly
+    // The jsonml goes directly (TODO: DO i need this?)
     meta.jsonml[mdFileReader.plainFileName] = mdFileReader.jsonml;
+    // Make sure
+
     var refs = mdFileReader.getReferences();
     // The hrMd represents the metadata of this file
     meta.hrMd[mdFileReader.plainFileName] = {
@@ -157,20 +153,41 @@ MarkdownReader.prototype.analyzeMarkdownFileReader = function (mdFileReader) {
     // For each reference, add it in hrCode in its proper "file"
     for (var i = 0; i < refs.length ; i++  ) {
         var ref = refs[i];
+        // Make sure the jsonml doesnt get saved into disk
+        Object.defineProperty(ref,"jsonml",{enumerable:false});
 
-        // TODO: Remove this!
-        ref.jsonml[0]        = "code_block";
-        ref.jsonml[1]        = "super crazy block";
 
         // TODO: unset somewhere the jsonml from the ref, probably in a writetodisk stage
 
-        console.log(mdFileReader.plainFileName + ": " + ref.lineNumber );
-        if (typeof meta.hrCode[ref.src] === "undefined") {
-            meta.hrCode[ref.src] = {
+        // console.log(mdFileReader.plainFileName + ": " + ref.lineNumber );
+        var hrCodeSrc = meta.hrCode[ref.src];
+
+        if (typeof hrCodeSrc === "undefined") {
+            hrCodeSrc = meta.hrCode[ref.src] = {
                 "version" : "0.0.1",
-                // TODO: Me quede aca, completar comment programming.
+                "refs" : {}
             };
         }
+        // TODO: I wont be creating a ref when setting a global var
+        var loc = {
+            "file": mdFileReader.completeFileName,
+            "md": mdFileReader.plainFileName,
+            "line" : ref.lineNumber
+        };
+        // Add a reference to this ref, so we can later resolve it, but dont make it enumerable, so
+        // it doesnt serialize
+        Object.defineProperty(loc, "mdRef", {value: ref, enumerable:false});
+
+        var hrCodeRef = {
+            "loc" : [loc],
+            "query" : ref.ref,
+            "refhash" : ref.refhash
+        };
+        if (typeof hrCodeSrc.refs[ref.refhash] !== "undefined") {
+            throw "Duplicated reference";
+            // TODO: Instead of err, warn but add loc
+        }
+        hrCodeSrc.refs[ref.refhash] = hrCodeRef;
     }
     // meta.hrCode
 

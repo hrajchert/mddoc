@@ -47,6 +47,15 @@ There will be a configuration merge between defaults, user configuration, comman
 This will create a JsonML from all the markdowns in the `inputDir` folder. Inside I will have standard JsonML elements,
 and the custom ones I'll create for referencing
 
+The class in charge of reading all the markdonws and generate the metadata from it is `MarkdownReader`. The method that walks into the `inputDir`
+folder is `MarkdownReader.parse`
+
+{%
+    "src" : "src/markdown_reader.js",
+    "ref" : {
+        "text" : "MarkdownReader.prototype.parse = function() {"
+    }
+%}
 
 ## build metadata
 crear una estructura intermedia donde interprete las referencias. En principio en esta etapa no deberia hacer el replace de los includes, sino mantener una referencia a cual nodo es para referir, y cual es para incluir. Parte de interpretar las diferencias va a ser el leer la descripcion y obtener el snippet de codigo y un eventual nodo AST.
@@ -125,8 +134,9 @@ Each file `xxx.md.json` is the output of parsin the md file, and its json will b
                 },
                 "refhash" : "SDG@#E!SCVB",
                 "refline" : "5",
-                "codehash" : "ASDF@#@$432D",
+                "snippetHash" : "ASDF@#@$432D",
                 "status" : "resolved?pending?outdated?...."
+                "found" : true
             },
             {
                 // ...
@@ -192,13 +202,36 @@ an easy way to see if the reference has changed or not
 The line number where this reference was found. Its a good way to point to the markup from a tool, or show
 an error or conflict in the grunt task
 
-#### refs > codehash
+#### refs > snippetHash
 #### refs > status
+#### refs > found
+This indicates if the reference was found or not. I still have to figure it out how to relate with status.
+In a first approach, I would say that found implies if it was found on this run or not, while status refers
+to the conflict management.
 
 
 
 ## hrCode
 
+    {
+        "version" : "0.0.1",
+        "filehash" : "!@#FFSF",
+        "refs" : {
+            "refhash@DSD#FG#" : {
+                "loc" : [{"md":"...", "line":"..."}],
+                "query" : {
+                    ...
+                },
+                "found": true,
+                "snippet" : "...",
+                "snippetHash" : "@!SAFSDF"
+            }
+        }
+
+    }
+
+En principio si el key de los refs colisiona, no deberia haber problema, ya que es el refhash, y si coincide es porque es
+la misma referencia. A lo sumo deberia tirar un warning de que se deberia
 The code ref char object will be either provider or created after the source is read.
 
 
@@ -268,3 +301,6 @@ como queres que sea remplazado, inyectando tu propio replacer, y poder poner por
 
 
 No se si ya lo puse en otro lado, pero queria recordarme que quiero guardar hash como clases css para hacer referencias en el html
+
+Tener en cuenta esto para hacer diffs
+https://github.com/kpdecker/jsdiff

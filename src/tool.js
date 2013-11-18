@@ -1,8 +1,9 @@
 var markdown = require("markdown").markdown;
 var MarkdownReader = require("./markdown_reader").MarkdownReader;
+var CodeReader = require("./CodeReader").CodeReader;
 var    fs = require("fs");
 var _ = require("underscore");
-
+var colors = require("colors");
 
 
 
@@ -11,19 +12,32 @@ var _ = require("underscore");
 exports.run = function(settings) {
     var ECT = require("ect");
     var renderer = ECT({ root : settings.inputDir });
-
+    debugger;
     // Initialize the empty metadata
     var metadata = {};
 
     var mdReader = new MarkdownReader(metadata, settings);
+    var codeReader = new CodeReader(metadata, settings);
 
     var parseMdPromise = mdReader.parse();
+    parseMdPromise.otherwise(function(mdErr){
+        console.log("Could not parse the markdown: ".red + mdErr.reader.completeFileName);
+        console.log(mdErr.err);
+    });
+
+    var readCodePromise = parseMdPromise.then(function(){
+        return codeReader.read();
+    });
+    readCodePromise.otherwise(function(err) {
+        console.log("Could not read the code".red);
+        console.log(err);
+    });
 
     function renderedFileWroteHandler(err) {
         if (err) {
             throw err;
         }
-        console.log("We wrote " + this.outputFile);
+        console.log("We wrote ".green + this.outputFile.grey);
     }
 
     function getHtml() {
@@ -31,9 +45,27 @@ exports.run = function(settings) {
     }
 
 
-    parseMdPromise.then(function(){
+    readCodePromise.then(function(){
+        // Replace the code, clearly not going to be here.
+        var mdFile, refs, ref, snippet ;
         debugger;
-        console.log("The input is parsed");
+        for (mdFile in metadata.hrMd) {
+            refs = metadata.hrMd[mdFile].refs;
+            for (var i = 0; i < refs.length ; i++) {
+                ref = refs[i];
+                if (ref.found && ref.type === "include") {
+                    // TODO: add an includer / formatter
+                    snippet = metadata.hrCode[ref.src].refs[ref.refhash].snippet;
+                    ref.jsonml[0] = "code_block";
+                    ref.jsonml[1] = snippet;
+                }
+            }
+
+        }
+
+    }).then(function(){
+        debugger;
+        console.log("The input is parsed".cyan);
         metadata.jsonml.getHtml = function(mdTemplate) {
             var tree;
             if (!metadata.jsonml.hasOwnProperty(mdTemplate)) {
@@ -72,8 +104,18 @@ exports.run = function(settings) {
         }
     });
 
-    parseMdPromise.otherwise(function(mdErr){
-        console.log("Could not parse the markdown: " + mdErr.reader.completeFileName);
-        console.log(mdErr.err);
+    // TODO: This is obviously going to be at another location
+    readCodePromise.then(function(){
+        // Write down the metadata
+        var metadataFileName = settings.outputDir + "/metadata.json";
+        var metadataStr = JSON.stringify(metadata, null, "\t");
+        fs.writeFile(metadataFileName, metadataStr, function(err){
+            if (err) {
+                console.log("There was a problem writing the metadata".red + err);
+            }
+            console.log("Metadata written to ".green + metadataFileName.grey);
+        });
     });
+
+
 };

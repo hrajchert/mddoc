@@ -39,6 +39,9 @@ Si quiero que sea una documentacion mas dinamica, puedo hacer que sea una SPA he
 Que puedas crear plugin de brackets, codigo browseable, o lo que quieras
 unopinionated va de la mano con extensible.
 
+The other idea is that I want to make this mainly a Javascript Documentation tool, but give room to be extensible for other languages
+as well... Probably HTML is a second best.
+
 ### Non intrusive
 
 
@@ -57,12 +60,8 @@ Se puede llegar a inferir la vuelta, para herramientas como bracket o incluso pa
     // @someref
 
 
-### QUE SEA SIMPLE?
-Es un poco el concepto de los flat files
-Pareceria estar entongado con extensible, unopinado y no intrusive
-
-### que cualquier cosa que se pueda hacer con una extension, la pueda hacer un humano.
-### HUMAN READABLE
+### Human Readable
+The idea is that whatever that can be done by an extension tool, like a brackets plugin, can be done manually. In that regard, the metadata is a clearly documented Json file, and the documentation by itself is a mix of html and Markdown
 
 ### minimalistic, but not for now
 quiero que sea la minima expresion, y por eso sea eventualmente minimalista. Pero en un principio es mas facil poner todo en la misma bolsa de gatos e ir subdividiendo despues. Por ejemplo, planeo poner lo antes posible la grunt task, adentro del proyecto, pero esto suena que eventualmente ira en un proyecto externo.
