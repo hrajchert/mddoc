@@ -1,6 +1,7 @@
 var markdown = require("markdown").markdown;
 var MarkdownReader = require("./MarkdownReader").MarkdownReader;
 var CodeReader = require("./CodeReader").CodeReader;
+var CodeIncluder = require("./CodeIncluder").CodeIncluder;
 var    fs = require("fs");
 var _ = require("underscore");
 var colors = require("colors");
@@ -16,8 +17,12 @@ exports.run = function(settings) {
     // Initialize the empty metadata
     var metadata = {};
 
+    // Metadata
     var mdReader = new MarkdownReader(metadata, settings);
     var codeReader = new CodeReader(metadata, settings);
+
+    // Tool
+    var codeIncluder = new CodeIncluder(metadata);
 
     var parseMdPromise = mdReader.parse();
     parseMdPromise.otherwise(function(mdErr){
@@ -30,6 +35,28 @@ exports.run = function(settings) {
     });
     readCodePromise.otherwise(function(err) {
         console.log("Could not read the code".red);
+        console.log(err);
+    });
+    // TODO: This is obviously going to be at another location
+    readCodePromise.then(function(){
+        // Write down the metadata
+        var metadataFileName = settings.outputDir + "/metadata.json";
+        var metadataStr = JSON.stringify(metadata, null, "    ");
+        fs.writeFile(metadataFileName, metadataStr, function(err){
+            if (err) {
+                console.log("There was a problem writing the metadata".red + err);
+            }
+            console.log("Metadata written to ".green + metadataFileName.grey);
+        });
+    });
+
+    var codeIncludePromise = readCodePromise.then(function(){
+        return codeIncluder.include();
+    });
+
+
+    codeIncludePromise.otherwise(function(err) {
+        console.log("Could not include code".red);
         console.log(err);
     });
 
@@ -45,26 +72,7 @@ exports.run = function(settings) {
     }
 
 
-    readCodePromise.then(function(){
-        // Replace the code, clearly not going to be here.
-        var mdFile, refs, ref, snippet ;
-        debugger;
-        for (mdFile in metadata.hrMd) {
-            refs = metadata.hrMd[mdFile].refs;
-            for (var i = 0; i < refs.length ; i++) {
-                ref = refs[i];
-                if (ref.found && ref.type === "include") {
-                    // TODO: add an includer / formatter
-                    snippet = metadata.hrCode[ref.src].refs[ref.refhash].snippet;
-                    ref.jsonml[0] = "code_block";
-                    ref.jsonml[1] = snippet;
-                }
-            }
-
-        }
-
-    }).then(function(){
-        debugger;
+    codeIncludePromise.then(function(){
         console.log("The input is parsed".cyan);
         metadata.jsonml.getHtml = function(mdTemplate) {
             var tree;
@@ -104,18 +112,6 @@ exports.run = function(settings) {
         }
     });
 
-    // TODO: This is obviously going to be at another location
-    readCodePromise.then(function(){
-        // Write down the metadata
-        var metadataFileName = settings.outputDir + "/metadata.json";
-        var metadataStr = JSON.stringify(metadata, null, "    ");
-        fs.writeFile(metadataFileName, metadataStr, function(err){
-            if (err) {
-                console.log("There was a problem writing the metadata".red + err);
-            }
-            console.log("Metadata written to ".green + metadataFileName.grey);
-        });
-    });
 
 
 };
