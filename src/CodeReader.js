@@ -227,13 +227,14 @@ CodeFileReader.prototype.pre = function() {
     var findPromise = when.defer();
     console.log("reading code file ".blue + this.src.grey);
     fs.readFile(this.src, "utf8", function(err, source) {
-        this.source = source;
-        this.md5 = crypto.createHash("md5").update(source).digest("hex");
-
         // TODO: Change this
         if (err) {
             return findPromise.reject(err);
         }
+
+        this.source = source;
+        this.md5 = crypto.createHash("md5").update(source).digest("hex");
+
         // TODO: maybe change this only if needed.
         this.AST = esprima.parse(source, {range:true});
 
@@ -266,6 +267,8 @@ CodeReader.prototype.read = function () {
     // console.log(this.metadata.hrCode);
     when.all(promises).then(function(){
         deferred.resolve(this);
+    }, function(err){
+        deferred.reject(err);
     });
 
     return deferred.promise;

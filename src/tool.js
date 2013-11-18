@@ -1,5 +1,5 @@
 var markdown = require("markdown").markdown;
-var MarkdownReader = require("./markdown_reader").MarkdownReader;
+var MarkdownReader = require("./MarkdownReader").MarkdownReader;
 var CodeReader = require("./CodeReader").CodeReader;
 var    fs = require("fs");
 var _ = require("underscore");
@@ -108,7 +108,7 @@ exports.run = function(settings) {
     readCodePromise.then(function(){
         // Write down the metadata
         var metadataFileName = settings.outputDir + "/metadata.json";
-        var metadataStr = JSON.stringify(metadata, null, "\t");
+        var metadataStr = JSON.stringify(metadata, null, "    ");
         fs.writeFile(metadataFileName, metadataStr, function(err){
             if (err) {
                 console.log("There was a problem writing the metadata".red + err);

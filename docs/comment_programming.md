@@ -51,7 +51,7 @@ The class in charge of reading all the markdonws and generate the metadata from 
 folder is `MarkdownReader.parse`
 
 {%
-    "src" : "src/markdown_reader.js",
+    "src" : "src/MarkdownReader.js",
     "ref" : {
         "text" : "MarkdownReader.prototype.parse = function() {"
     }
