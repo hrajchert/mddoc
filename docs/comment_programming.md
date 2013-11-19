@@ -3,11 +3,11 @@ The library will be in charge of generating and interpreting the metadata
 
 For now the tool part should have a flow like this
 
-1. Leer la configuracion
-1. Generar la metadata
-1. Avisar los conflictos?
-1. Remplazar las inclusiones
-1. Generar html
+1. Read the configuration
+1. Generate the metadata
+1. Notify conflicts?
+1. Replace includes
+1. Generate HTML
 
 el Generar la metadata es lo que hace la libreria y esta compuesto de:
 

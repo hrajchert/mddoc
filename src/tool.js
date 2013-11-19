@@ -1,7 +1,7 @@
-var markdown = require("markdown").markdown;
 var MarkdownReader = require("./MarkdownReader").MarkdownReader;
 var CodeReader = require("./CodeReader").CodeReader;
 var CodeIncluder = require("./CodeIncluder").CodeIncluder;
+var HtmlWriter = require("./HtmlWriter").HtmlWriter;
 var    fs = require("fs");
 var _ = require("underscore");
 var colors = require("colors");
@@ -11,8 +11,6 @@ var colors = require("colors");
 
 
 exports.run = function(settings) {
-    var ECT = require("ect");
-    var renderer = ECT({ root : settings.inputDir });
     debugger;
     // Initialize the empty metadata
     var metadata = {};
@@ -23,6 +21,7 @@ exports.run = function(settings) {
 
     // Tool
     var codeIncluder = new CodeIncluder(metadata);
+    var htmlWriter = new HtmlWriter(metadata, settings);
 
     var parseMdPromise = mdReader.parse();
     parseMdPromise.otherwise(function(mdErr){
@@ -60,56 +59,10 @@ exports.run = function(settings) {
         console.log(err);
     });
 
-    function renderedFileWroteHandler(err) {
-        if (err) {
-            throw err;
-        }
-        console.log("We wrote ".green + this.outputFile.grey);
-    }
-
-    function getHtml() {
-        return renderer.render(this.inputFile, this.data);
-    }
 
 
     codeIncludePromise.then(function(){
-        console.log("The input is parsed".cyan);
-        metadata.jsonml.getHtml = function(mdTemplate) {
-            var tree;
-            if (!metadata.jsonml.hasOwnProperty(mdTemplate)) {
-                throw "We Couldnt find a md template with the name " + mdTemplate;
-            }
-            try {
-                tree = markdown.toHTMLTree(metadata.jsonml[mdTemplate]);
-            }catch (e) {
-                console.log(e);
-                throw "Couldnt create html for template " + mdTemplate;
-            }
-
-            return markdown.renderJsonML(tree);
-        };
-
-        var data = { documentor : metadata.jsonml };
-
-        for (var i=0; i<settings.files.length; i++) {
-            try {
-                var renderObject = {
-                    inputFile: settings.files[i] + ".ect",
-                    outputFile: settings.outputDir + "/" + settings.files[i] + ".html",
-                    getHtml: getHtml,
-                    data: data
-                };
-
-
-                fs.writeFile(renderObject.outputFile,
-                             renderObject.getHtml(),
-                             renderedFileWroteHandler.bind(renderObject));
-
-            } catch (e) {
-                console.log(e);
-            }
-
-        }
+        return htmlWriter.generate();
     });
 
 
