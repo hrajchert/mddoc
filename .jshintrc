@@ -14,7 +14,6 @@
     "quotmark": "double",
     "undef": "true",
     "node": true,
-    // Por ahora relajo esta.
     "unused": true,
     "maxparams": 4,
     "maxdepth": 3,
