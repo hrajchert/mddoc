@@ -3,15 +3,12 @@ var CodeReader = require("./CodeReader").CodeReader;
 var CodeIncluder = require("./CodeIncluder").CodeIncluder;
 var HtmlWriter = require("./HtmlWriter").HtmlWriter;
 var    fs = require("fs");
-var _ = require("underscore");
-var colors = require("colors");
-
+require("colors");
 
 
 
 
 exports.run = function(settings) {
-    debugger;
     // Initialize the empty metadata
     var metadata = {};
 
@@ -30,6 +27,7 @@ exports.run = function(settings) {
     });
 
     var readCodePromise = parseMdPromise.then(function(){
+    	debugger;
         return codeReader.read();
     });
     readCodePromise.otherwise(function(err) {

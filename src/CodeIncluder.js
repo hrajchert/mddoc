@@ -15,6 +15,11 @@ CodeIncluder.prototype.include = function () {
                 snippet = this.metadata.hrCode[ref.src].refs[ref.refhash].snippet;
                 ref.jsonml[0] = "code_block";
                 ref.jsonml[1] = snippet;
+            } else if (ref.found && ref.type === "reference") {
+                ref.jsonml[0] = "div";
+                ref.jsonml[1] = {"id": ref.refhash, "class":"code_ref"};
+                ref.jsonml[2] = "";
+
             }
         }
 

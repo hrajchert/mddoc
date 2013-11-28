@@ -130,3 +130,67 @@ Otra cosa, la metadata de los archivos, si esta gziped, casi que te diria que te
 
 
 el cuarto lo puse asi porque la idea es que no se tenga que modificar, a lo sumo un // @ref, pero voy a tratar de evitar que eso pase en lo posible
+
+
+
+# 19 Nov 2013
+Hoy estaba pensando sobre el tema de los refhash y refid. Me surgio en varios momentos la necesidad de identificar una referencia. Por un lado
+para el proceso de saber si una referencia esta desactualizada, y en otros casos, por tema de acceso y de referencia en si.
+El de si esta desactualizada esta bastante claro, para saber si una referencia esta desactualizada, me tengo que fijar si la referencia es la misma y si el codigo al que referencia cambio, en eso, esta la primera parte.
+
+De la otra tengo un par de cosas que ya pasaron, y otras que siento que van a pasar. Por ejemplo, en esta primera etapa, manejo las referencias en el `hrMd` como un array de referencias, y en el codigo como un hashmap de referencias. Por temas de acceso y de performance, guardo en memoria
+unas refencias privadas que no son bajada a la metadata. Por ejemplo, la referencia tiene un link al nodo jsonml que genero esa referencia. De este modo, cuando hago el code include, no necesito generar todo el jsonml de vuelta, ni nada por el estilo. Hago lo mismo cuando genero el LOC
+ de hrCode, mas que nada porque no quiero iterar el array de referencias del hrMd (aunque no sea muy pesado).
+
+ La parte que recuerdo de porque en `hrMd` puse un array en vez de un map, es que para id de una referencia, solo se me ocurria el hash md5 del contenido de la referencia en si. Y que eso podria no ser muy bueno, porque puede haber dos referencias con el mismo contenido, pero que no sean la misma referencia, o dos referencias que sean la misma, pero con distinto hash. Alli entra un poco el tema del nombre de una referencia.
+
+ Por un lado, dos referencias que tienen el mismo nombre, deberian ser la misma referencia, y el usuario tendria que cuidarse de que no colisionen (con warnings desde la herramienta). Pero no quiero obligar al usuario a tener que generar un nombre para la referencia si no quiere.
+
+ El problema se complica un poco mas, cuando entra en juego el hecho de que podes nombrar una referencia y despues usar el link nomas, ya sea para generar una sub referencia, o la misma en si. Por ejemplo, si tenes en un md
+
+    {%code_ref
+        "name" : "myref",
+        "src" : "..."
+        "ref" : {...}
+    %}
+
+Es la definicion de la referencia "myref", mientras que
+
+    {%code_ref
+        "name" : "myref"
+    %}
+
+o
+
+    <%code_ref myref %>
+
+Serian una forma practica de decir, aca tambien referencio al mismo codigo. Esto lo habia traido como idea por un lado para que si tengo varios
+puntos donde hablo de lo mismo, no tenga que reescribir la misma referencia en todos lados. Y mas aun, se me habia ocurrido hacer algo como
+esto (o una variacion)
+
+    {%code_ref
+        "name" : "myref",
+        "filter" : {
+            "include" : "blah",
+            "exclude" : "blah"
+        }
+    %}
+
+Como forma de hacer una sub referencia, y tal vez explicar un codigo poniendo includes parciales, donde digo la funcion XXX tiene 3 partes, la parte 1 hace esto, la parte 2 aquello, y la 3 blah. El tema de los filtros es casi independiente de si reutilizo la misma referencia o no. Tal vez usando un parent en vez de un name, ya que esto trae a la pregunta: Una subreferencia, es una referencia nueva, o sigue siendo parte de la
+otra referencia? Y mas aun, importa esto? Para mostrar que hubo una colision? Para guardar el snippet y mostrarlo? A lo sumo en este ultimo, donde
+claramente el snippet seria distinto.
+
+Parecido a este concepto, se me habia ocurrido tener como templates de referencia, y el tema de parent, podria hacer que use como template a la referencia padre y esta sea realmente una nueva referencia, y mas aun, se puedan usar cosas como
+
+    {%blog_ref
+        "src" : "...",
+        "ref" : {...}
+    %}
+
+Como forma de no tener que pasar como opcion el no quejarse, y como buena forma de extension. Ya que en la referencia, al ser un Object Literal, se encuentran las opciones de la misma, atributos CSS, etc. Y tal vez para no escribir todas las opciones, el poder cambiar de nombre de referencia como que template usar, pareceria una buena idea. Otras opciones que se me ocurrieron es, que renderer usar, etc.
+
+Viendo todo esto, en el viaje en bici se me habia ocurrido diferenciar del refhash y un posible refid y el refname. Y ver que reglas ponerle a cada uno.
+
+El refhash pareceria ser entonces un hash md5 de el texto de la referencia o del objecto ref en si, y tengo que ver los pros y contras de eso. En un principio implemente lo del texto, pero todo sugiere que tiene mas sentido del objeto. Ya que si cambio el template, va a haber cosas que no estan escritas, pero que influyen en decir, la referencia es la misma. Este es el sentido del refhash, ver si la referencia es la misma. En ese sentido, si tengo una named reference (le tengo que buscar otro nombre), y expando la referencia a su object literal, el hash del objeto deberia ser el mismo, por ende la referencia igual.
+
+Por otro lado esta el id, que intuyo en un principio, deberia ser unico por referencia, y eso incluye el uso de named reference. Si en un lugar defino la referencia `myref` y en otro lado la uso, cada una de esas referencias deberia tener un id distinto.

@@ -11,7 +11,7 @@ For now the tool part should have a flow like this
 
 el Generar la metadata es lo que hace la libreria y esta compuesto de:
 
-1. Leer los markdown
+1. Read the Markdowns
 1. Leer el codigo
 1. Leer la metadata anterior
 1. Salvar / Swapear la metadata
@@ -35,9 +35,6 @@ Acordarse de guardar por archivo el hash del archivo para ver si tiene que volve
 
 
 
-
-
-
 ## Read the configuration
 The configuration is a json file that holds the options for rendering the documentation
 There will be a configuration merge between defaults, user configuration, command line arguments
@@ -47,10 +44,11 @@ There will be a configuration merge between defaults, user configuration, comman
 This will create a JsonML from all the markdowns in the `inputDir` folder. Inside I will have standard JsonML elements,
 and the custom ones I'll create for referencing
 
+
 The class in charge of reading all the markdonws and generate the metadata from it is `MarkdownReader`. The method that walks into the `inputDir`
 folder is `MarkdownReader.parse`
 
-{%
+{%code_inc
     "src" : "src/MarkdownReader.js",
     "ref" : {
         "text" : "MarkdownReader.prototype.parse = function() {"

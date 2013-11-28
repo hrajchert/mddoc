@@ -2,8 +2,9 @@ var fs = require("fs"),
     crypto = require("crypto"),
     _ = require("underscore"),
     esprima = require("esprima"),
-    when = require("when"),
-    colors = require("colors");
+    when = require("when");
+
+require("colors");
 
 /**
  * This is a helper function that detects that
@@ -127,7 +128,7 @@ CodeFinderQueryJsText.prototype.execute = function() {
 
     this.queryRange = [charBegin, charEnd];
     var tree = [];
-    var c = this.findMinNode(this.codeFileReader.AST, tree);
+    this.findMinNode(this.codeFileReader.AST, tree);
     // console.log(c + " nodes where visited");
     // console.log("The minSize is " + this.minSize);
     // console.log("The min node is " + this.minNode.type);

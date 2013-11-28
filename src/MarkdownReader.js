@@ -2,8 +2,9 @@ var markdown = require("markdown").markdown,
     walkDir = require("./utils").walkDir,
     when = require("when"),
     crypto = require("crypto"),
-    fs = require("fs"),
-    colors = require("colors");
+    fs = require("fs");
+
+require("colors");
 
 // Configure my parser
 require("./markdown_parser.js")(markdown.Markdown);
@@ -38,7 +39,7 @@ MarkdownFileReader.prototype.parse = function () {
 };
 
 function doGetReferences (jsonml, references) {
-    if ( jsonml[0] === "supercode" ) {
+    if ( jsonml[0] === "code_reference" ) {
         // console.log ("we found supercode2");
 
         // Get the attributes from the jsonml
@@ -49,17 +50,24 @@ function doGetReferences (jsonml, references) {
             throw "Invalid reference\n" + jsonml[1] ;
         }
 
+        var type;
+        if (jsonml[2].type === "code_ref") {
+            type = "reference";
+        } else if (jsonml[2].type === "code_inc") {
+            type = "include";
+        }
+
         var ref = {
             "name" : attr.name?attr.name:false,
             "src" : attr.src,
             "ref" : attr.ref,
-            "lineNumber" : jsonml[2],
+            "lineNumber" : jsonml[2].lineNumber,
             // Create a hash from the reference itself
             "refhash" : crypto.createHash("md5").update(jsonml[1]).digest("hex"),
             // TODO: Check this out later
             "status" : "pending",
             "jsonml" : jsonml,
-            "type" : "include"
+            "type" : type
         };
         // TODO: eventually this could be removed, i think
         jsonml.splice(2);
