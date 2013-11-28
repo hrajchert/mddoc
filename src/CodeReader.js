@@ -289,6 +289,10 @@ CodeReader.prototype.updateMetadata = function (codeFileReader) {
 
             hrCode.refs[refhash].snippet = snippet;
             hrCode.refs[refhash].snippetHash = md5;
+            hrCode.refs[refhash].char = {
+                from: codeFileReader.results[refhash].range[0],
+                to: codeFileReader.results[refhash].range[1]
+            };
         }
     }
     // Update the hrMd part
