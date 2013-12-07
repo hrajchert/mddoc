@@ -67,51 +67,62 @@ var CodeFinderQueryJsText = function(codeFileReader, query) {
     this.query = query;
 };
 
+// Que es minimum
+// Expecificar el array de hijos en el nodo.
+// Poner en meta doc como es el arbol AST y lo min
+// Explicar que node es de entrada y tree de salida.
+// Ya no tengo que trackear el size,
 /**
  * Finds the minimum AST node that contains the queryRange. The queryRange is an array
- * stored in the object that contains as a first value the first character in the source file
- * to get, and as the second value the last character.
+ * stored in the object that contains the position of the found text. The queryRange has the following
+ * signature [firstCharacter, lastCharacter], where firstCharacter is the
+ * position of first character of the queried text, and lastCharacter is the last one.
  * @param  AST    node An esprima generated AST
  * @param  array  tree An empty array should be provided, the result will be the resulting tree from the root
  *                     till the minNode.
  * @return integer      The number of visited nodes to find the min one
  */
 CodeFinderQueryJsText.prototype.findMinNode = function findMinNode (node, tree) {
-    // Check that the value is a node and that we are still on the looking range
+    // Check that the value is a node and that we are still on the queryRange
     if (node === null || !_.isObject(node) || isOutOfRange(node.range, this.queryRange )){
         return 0;
     }
+    // If im here, im in range.
 
-    // I used to check if the node range was smaller or not, but if its in range (not out of range),
-    // the node will always be smaller and smaller in each children.
+    // Save this node as the smaller node that still contains the queryRange
+
     var size = node.range[1] - node.range[0];
     this.minSize = size;
     this.minNode = node;
     tree.push(node);
-    // console.log("Node! of type " + node.type);
-    // console.log(node.range);
 
-    // Lets count how many nodes we visit to get the minNode
+    // Count will hold the number of visited nodes from this node to the minNode,
+    // it starts with one, marking this node as visited.
     var count = 1;
-    var newNode = null;
+    var newNode;
     var nodesToSkip = ["range", "type"];
 
-    // Each node has attributes that can contain children nodes, we visit them here
+    // We traverse the node childrens using recursion
     for (var property in node) {
-        // Check is not one of the "no nodes"
+        // Skip attributes we know are not children nodes
         if (nodesToSkip.indexOf(property) !== -1) {
             continue;
         }
 
         newNode = node[property];
-        // Make sure its an array
+        // Make sure the attribute is an array (convert if needed), to
+        // treat all attributes as an array of children nodes.
         if (!_.isArray(newNode)) {
             newNode = [newNode];
         }
+
+        // For each child node call this function recursively and increase
+        // the visited node count.
         for (var i = 0; i < newNode.length; i++) {
             count += this.findMinNode(newNode[i], tree);
         }
     }
+    // Return how many nodes we visited to find the minNode
     return count;
 };
 
@@ -147,6 +158,7 @@ CodeFinderQueryJsText.prototype.execute = function() {
     return result;
 };
 
+exports.CodeFinderQueryJsText = CodeFinderQueryJsText;
 
 /**
  * Reads a file and find the references
@@ -161,6 +173,7 @@ var CodeFileReader = function(findOptions) {
     this.src = findOptions.src;
 
     this.references = findOptions.references;
+    this.verbose = findOptions.verbose;
 };
 
 /**
@@ -226,11 +239,15 @@ Object.defineProperty(CodeFileReader.prototype, "lines", {
 
 CodeFileReader.prototype.pre = function() {
     var findPromise = when.defer();
-    console.log("reading code file ".blue + this.src.grey);
+
+    if (this.verbose) {
+        console.log("reading code file ".blue + this.src.grey);
+    }
+
     fs.readFile(this.src, "utf8", function(err, source) {
         // TODO: Change this
         if (err) {
-            return findPromise.reject(err);
+            return findPromise.reject({type: err.code, msg: "Can't open " + this.src});
         }
 
         this.source = source;
@@ -245,6 +262,13 @@ CodeFileReader.prototype.pre = function() {
     return findPromise.promise;
 };
 
+CodeFileReader.prototype.handleError = function(err) {
+    return when.reject({
+        reader: this,
+        err: err
+    });
+};
+
 
 var CodeReader = function (metadata, settings) {
     this.metadata = metadata;
@@ -252,7 +276,6 @@ var CodeReader = function (metadata, settings) {
 };
 
 CodeReader.prototype.read = function () {
-    var deferred = when.defer();
     var hrCode = this.metadata.hrCode;
     var promises = [];
     var codeFileReader;
@@ -260,19 +283,21 @@ CodeReader.prototype.read = function () {
     for (var file in hrCode) {
         codeFileReader = new CodeFileReader({
             src: file,
-            references: hrCode[file].refs
+            references: hrCode[file].refs,
+            verbose: this.settings.verbose
         });
-        var p = codeFileReader.read().then(this.updateMetadata.bind(this));
-        promises.push(p);
+
+        promises.push(
+            // Read the file
+            codeFileReader.read()
+            // Then get the metadata out of it
+            .then(this.updateMetadata.bind(this))
+            // If anything fails, append the failing reader
+            .otherwise(codeFileReader.handleError.bind(codeFileReader))
+        );
     }
     // console.log(this.metadata.hrCode);
-    when.all(promises).then(function(){
-        deferred.resolve(this);
-    }, function(err){
-        deferred.reject(err);
-    });
-
-    return deferred.promise;
+    return when.all(promises);
 };
 
 CodeReader.prototype.updateMetadata = function (codeFileReader) {

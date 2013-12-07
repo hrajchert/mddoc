@@ -2,7 +2,7 @@
   "name": "mdDoc",
   "version": "0.0.0",
   "description": "This is a test for now",
-  "main": "mddoc",
+  "main": "index.js",
   "directories": {
     "doc": "docs"
   },
@@ -25,6 +25,10 @@
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.7.1",
-    "grunt-contrib-watch": "~0.5.3"
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-cafe-mocha": "~0.1.10",
+    "coffee-script": "~1.6.3",
+    "mocha": "~1.14.0",
+    "should": "~2.1.0"
   }
 }

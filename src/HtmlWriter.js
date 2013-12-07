@@ -1,6 +1,6 @@
 var fs = require("fs");
 
-var HtmlWriterFile = function (options, metadata) {
+var HtmlWriterFile = function (options) {
     if (!("inputFile" in options)) {
         throw "You need to specify an input file";
     }
@@ -11,9 +11,12 @@ var HtmlWriterFile = function (options, metadata) {
     this.inputFile = options.inputFile;
     this.outputFile = options.outputFile;
     this.renderer = options.renderer;
-    this.metadata = metadata;
+
 };
 
+HtmlWriterFile.prototype.setMetadata = function (metadata) {
+    this.metadata = metadata;
+};
 
 HtmlWriterFile.prototype.fileRendered = function(err) {
     if (err) {
@@ -68,12 +71,18 @@ HtmlWriter.prototype.generate = function(){
 
     for (var i=0; i< this.settings.files.length; i++) {
         try {
+            // Create the object in charge of rendering the html
             var renderObject = new HtmlWriterFile({
                 inputFile: this.settings.files[i] + ".ect",
                 outputFile: this.settings.outputDir + "/" + this.settings.files[i] + ".html",
                 renderer: this.renderer
 
-            }, this.metadata);
+            });
+
+            // Add the metadata to it
+            renderObject.setMetadata(this.metadata);
+
+            // Generate the html
             renderObject.render();
 
 

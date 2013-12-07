@@ -1,6 +1,13 @@
 Eventually this will be separated between library and application, for now they are together for simplicity.
 The library will be in charge of generating and interpreting the metadata
 
+{%code_ref
+    "src" : "index.js",
+    "ref" : {
+        "text" : "exports.tool = require(\"./src/tool\");"
+    }
+%}
+
 For now the tool part should have a flow like this
 
 1. Read the configuration

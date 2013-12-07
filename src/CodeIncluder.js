@@ -2,9 +2,14 @@
 var CodeIncluder = function(metadata) {
     this.metadata = metadata;
 };
-
+/*
+Este archivo muestra claramente cual es el problema de la metadata como "variable global"
+Para hacer el unit test tengo que precargar hrMd y jsonml, cuando en realidad yo requiero de
+dos helpers o servicios
+uno que recorra las referencias de los markdown y me de las referencias sin remplazar
+otro que me de los bloques de codigo a remplazar
+*/
 CodeIncluder.prototype.include = function () {
-    // Replace the code, clearly not going to be here.
     var mdFile, refs, ref, snippet ;
     for (mdFile in this.metadata.hrMd) {
         refs = this.metadata.hrMd[mdFile].refs;

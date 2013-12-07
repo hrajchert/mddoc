@@ -15,10 +15,16 @@ var MarkdownFileReader = function (plainFileName, completeFileName) {
     this.completeFileName = completeFileName;
 };
 
+MarkdownFileReader.prototype.setVerbose = function (v) {
+    this.verbose = v;
+};
+
 MarkdownFileReader.prototype.parse = function () {
     var deferred = when.defer();
 
-    console.log("parsing ".yellow + this.completeFileName.grey);
+    if (this.verbose) {
+        console.log("parsing ".yellow + this.completeFileName.grey);
+    }
 
     fs.readFile(this.completeFileName, "utf8", function(err, md) {
 
@@ -128,7 +134,7 @@ MarkdownReader.prototype.parse = function() {
                     completeFileName =  files[i];
 
                 var mkTask = new MarkdownFileReader(plainFileName, completeFileName);
-
+                mkTask.setVerbose(this.settings.verbose);
                 promises.push(
                     // Parse the file
                     mkTask.parse()
