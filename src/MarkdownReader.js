@@ -53,7 +53,7 @@ function doGetReferences (jsonml, references) {
         // Each attribute must have a src and a ref
 
         if (typeof attr.src === "undefined" || typeof attr.ref === "undefined") {
-            throw "Invalid reference\n" + jsonml[1] ;
+            throw new Error("Invalid reference\n" + jsonml[1]) ;
         }
 
         var type;
@@ -198,7 +198,7 @@ MarkdownReader.prototype.analyzeMarkdownFileReader = function (mdFileReader) {
             "refhash" : ref.refhash
         };
         if (typeof hrCodeSrc.refs[ref.refhash] !== "undefined") {
-            throw "Duplicated reference";
+            throw new Error("Duplicated reference");
             // TODO: Instead of err, warn but add loc
         }
         hrCodeSrc.refs[ref.refhash] = hrCodeRef;

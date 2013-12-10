@@ -2,10 +2,10 @@ var fs = require("fs");
 
 var HtmlWriterFile = function (options) {
     if (!("inputFile" in options)) {
-        throw "You need to specify an input file";
+        throw new Error("You need to specify an input file");
     }
     if (!("outputFile" in options)) {
-        throw "You need to specify an output file";
+        throw new Error("You need to specify an output file");
     }
 
     this.inputFile = options.inputFile;
@@ -51,13 +51,13 @@ function addRenderHelpers (metadata) {
     metadata.jsonml.getHtml = function(mdTemplate) {
         var tree;
         if (!metadata.jsonml.hasOwnProperty(mdTemplate)) {
-            throw "We Couldnt find a md template with the name " + mdTemplate;
+            throw new Error("We Couldnt find a md template with the name " + mdTemplate);
         }
         try {
             tree = markdown.toHTMLTree(metadata.jsonml[mdTemplate]);
         }catch (e) {
             console.log(e);
-            throw "Couldnt create html for template " + mdTemplate;
+            throw new Error("Couldnt create html for template " + mdTemplate);
         }
 
         return markdown.renderJsonML(tree);
@@ -65,8 +65,6 @@ function addRenderHelpers (metadata) {
 }
 
 HtmlWriter.prototype.generate = function(){
-
-
     addRenderHelpers(this.metadata);
 
     for (var i=0; i< this.settings.files.length; i++) {
@@ -87,6 +85,7 @@ HtmlWriter.prototype.generate = function(){
 
 
         } catch (e) {
+            // TODO: silent error :S
             console.log(e);
         }
 

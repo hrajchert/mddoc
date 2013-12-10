@@ -30,11 +30,20 @@ exports.run = function(settings) {
     var codeIncluder = new CodeIncluder(metadata);
     var htmlWriter = new HtmlWriter(metadata, settings);
 
+    function normalizeError(step, error) {
+        var errorObject = {step: step};
+        if (error instanceof Error) {
+            errorObject.err = {msg: error.message, stack: error.stack}
+        } else {
+            errorObject.err = error;
+        }
+        return errorObject;
+    }
     function mdReaderParse () {
         return mdReader.parse().otherwise(function(mdErr){
             console.log("Could not parse the markdown: ".red + mdErr.reader.completeFileName);
             console.log(mdErr.err);
-            return when.reject({step: "markdown parser", err: mdErr});
+            return when.reject(normalizeError("markdown parser", mdErr));
         });
     }
 
@@ -42,34 +51,46 @@ exports.run = function(settings) {
         return codeReader.read().otherwise(function(err) {
             console.log("Could not read the code".red);
             console.log(err);
-            return when.reject({step: "code reader", err: err});
+            return when.reject(normalizeError("code reader", err));
         });
     }
 
     function writeMetadata () {
         // TODO: This is obviously going to be at another location
-        // Write down the metadata
-        var metadataFileName = settings.outputDir + "/metadata.json";
-        var metadataStr = JSON.stringify(metadata, null, "    ");
-        fs.writeFile(metadataFileName, metadataStr, function(err){
-            if (err) {
-                console.log("There was a problem writing the metadata".red + err);
-            }
-            console.log("Metadata written to ".green + metadataFileName.grey);
-        });
+        try {
+            // Write down the metadata
+            var metadataFileName = settings.outputDir + "/metadata.json";
+            var metadataStr = JSON.stringify(metadata, null, "    ");
+            fs.writeFile(metadataFileName, metadataStr, function(err){
+                if (err) {
+                    console.log("There was a problem writing the metadata".red + err);
+                }
+                console.log("Metadata written to ".green + metadataFileName.grey);
+            });
 
-        return when.resolve();
+            return when.resolve();
+        } catch (e) {
+            return when.reject(normalizeError("write metadata", e));
+        }
     }
 
     function codeIncluderInclude() {
-        codeIncluder.include();
-        return when.resolve();
+        try {
+            codeIncluder.include();
+            return when.resolve();
+        } catch (e) {
+            return when.reject(normalizeError("code includer", e));
+        }
 
     }
 
     function htmlWriterGenerate() {
-        htmlWriter.generate();
-        return when.resolve();
+        try {
+            htmlWriter.generate();
+            return when.resolve();
+        } catch (e) {
+            return when.reject(normalizeError("Html Writter", e));
+        }
     }
 
     var steps = [

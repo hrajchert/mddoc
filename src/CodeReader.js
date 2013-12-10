@@ -26,22 +26,22 @@ var CodeFinderQueryLine = function (codeFileReader, query) {
     this.codeFileReader = codeFileReader;
 
     if ( !query.hasOwnProperty("line" )) {
-        throw "Line is mandatory!";
+        throw new Error("Line is mandatory!");
     }
 
     var numbers = query.line.split("-");
     if ( numbers.length !== 2 ) {
-        throw "The line number wasnt correctly spelled";
+        throw new Error("The line number wasnt correctly spelled");
     }
 
     this.firstLine = parseInt(numbers[0], 10);
     this.lastLine = parseInt(numbers[1], 10);
     if (isNaN(this.firstLine) || isNaN(this.lastLine)) {
-        throw "The line attribute should be a number";
+        throw new Error("The line attribute should be a number");
     }
 
     if (this.firstLine > this.lastLine) {
-        throw "Last line number cannot be bigger than first line number";
+        throw new Error("Last line number cannot be bigger than first line number");
     }
 };
 
@@ -168,7 +168,7 @@ exports.CodeFinderQueryJsText = CodeFinderQueryJsText;
  */
 var CodeFileReader = function(findOptions) {
     if ( typeof findOptions.src === "undefined") {
-        throw "You need to provide a source file";
+        throw new Error("You need to provide a source file");
     }
     this.src = findOptions.src;
 
