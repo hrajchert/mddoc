@@ -58,6 +58,7 @@ how is the AST for the code, something in this lines.
                         Expression Statement
                 Expression Statement
         Expression Statement
+{: nohighlight="true" }
 
 If I want to select the *for statement*, I could use a semi complicated regexp that gets it, but its easier and more powerful to somehow indicate
 the AST node that I want to reference. Take in account that if I select a node, I also select its childrens (I plan to add some types of filter)

@@ -1,0 +1,22 @@
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+  padding-bottom: 20px;
+}
+
+/* Fix to use angular-ui-bootstrap */
+.nav, .pagination, .carousel a { cursor: pointer; }
+
+
+.slide.ng-enter {
+    -webkit-transition: 0.3s ease all; /* Safari/Chrome */
+    transition: 0.3s ease all; /* All other modern browsers and IE10+ */
+
+    /* The animation preparation code */
+    opacity: 0;
+}
+
+.slide.ng-enter-active {
+    /* The animation code itself */
+    opacity: 1;
+}

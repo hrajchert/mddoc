@@ -1,8 +1,8 @@
 var MarkdownReader = require("./MarkdownReader").MarkdownReader;
 var CodeReader = require("./CodeReader").CodeReader;
 var CodeIncluder = require("./CodeIncluder").CodeIncluder;
-var HtmlWriter = require("./HtmlWriter").HtmlWriter;
-var    fs = require("fs");
+var Generator = require("./generator/Generator").Generator;
+var fs = require("fs");
 var when = require("when");
 var sequence = require("when/sequence");
 require("colors");
@@ -28,7 +28,7 @@ exports.run = function(settings) {
 
     // Tool
     var codeIncluder = new CodeIncluder(metadata);
-    var htmlWriter = new HtmlWriter(metadata, settings);
+    var outputGenerator = new Generator(metadata, settings);
 
     function normalizeError(step, error) {
         var errorObject = {step: step};
@@ -84,12 +84,12 @@ exports.run = function(settings) {
 
     }
 
-    function htmlWriterGenerate() {
+    function outputGenerate() {
         try {
-            htmlWriter.generate();
+            outputGenerator.generate();
             return when.resolve();
         } catch (e) {
-            return when.reject(normalizeError("Html Writter", e));
+            return when.reject(normalizeError("Output Generator", e));
         }
     }
 
@@ -98,7 +98,7 @@ exports.run = function(settings) {
         codeReaderRead,
         writeMetadata,
         codeIncluderInclude,
-        htmlWriterGenerate
+        outputGenerate
     ];
 
     return sequence(steps).then(function(){

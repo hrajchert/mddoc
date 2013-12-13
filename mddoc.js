@@ -2,11 +2,20 @@
 
 
 var tool = require("./src/tool");
+var utils = require("./src/utils");
 
-try {
-    var settings = require(process.cwd() + "/.mddoc.json");
-    tool.run(settings);
-}
-catch(e) {
-    console.log("No config file present");
-}
+utils.loadJson(process.cwd() + "/.mddoc.json").then(
+    function(settings) {
+        try {
+           tool.run(settings).otherwise(function(e){
+                console.error("There was a problem running the tool", e);
+           });
+        } catch (e) {
+            console.error("There was a problem running the tool", e);
+        }
+
+    },
+    function(err) {
+        console.log("There was a problem loading the settings", err);
+    }
+);
