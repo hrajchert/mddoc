@@ -1,4 +1,5 @@
-var app = angular.module('mddocApp', ['ui.router','ui.bootstrap', 'ngAnimate']);
+/* global angular, $, document, hljs */
+var app = angular.module("mddocApp", ["ui.router","ui.bootstrap", "ngAnimate"]);
 
 app.config(function($stateProvider, $urlRouterProvider) {
         // For any unmatched url, redirect to /
@@ -6,7 +7,7 @@ app.config(function($stateProvider, $urlRouterProvider) {
 
         // Now set up the states
         $stateProvider
-            .state('main', {
+            .state("main", {
                 url: "/",
                 views: {
                     jumbobar: {
@@ -48,24 +49,102 @@ app.config(function($stateProvider, $urlRouterProvider) {
                         templateUrl: "mini_estructura.html"
                     }
                 }
+            })
+            .state("fragment", {
+                url: "/fragment/{fragmentName:[a-zA-Z-_.\/]*}",
+                views: {
+                    container : {
+                        templateUrl: function (attrs) {
+                            return "fragment/" + attrs.fragmentName + ".html";
+                        }
+                    }
+                }
             });
 
-})
-.run(function() { // instance-injector
+    })
+    .run(function() { // instance-injector
     // This is an example of a run block.
     // You can have as many of these as you want.
     // You can only inject instances (not Providers)
     // into the run blocks
 });
 
-app.controller("mainCtrl", function($scope) {
+app.controller("mainCtrl", function($scope, $compile) {
     $scope.alert = function() {
-        alert("super alert");
-    }
+        var html = $compile("<concept-map></concept-map>")($scope);
+        $("body").append(html);
+    };
+//    $scope.alert();
 });
 
+app.directive("conceptMap", function($state) {
+    return {
+        restrict: "E",
+        scope: {},
+        templateUrl: "partials/concept-map.html",
+        link: function (scope, elem) {
+            function close() {
+                $(document).off("keyup", closeHandler);
+                elem.remove();
+            }
+            function closeHandler(e) {
+                if (e.keyCode === 27) {
+                    close();
+                }
+            }
 
-// Add syntax highlight to code blocks that have a pre
+            $(document).on("keyup", closeHandler);
+            scope.goToConcept = function(concept) {
+                close();
+                if (concept.hasOwnProperty("state") ) {
+                    $state.go(concept.state);
+                } else if (concept.hasOwnProperty("fragment") ) {
+                    $state.go("fragment", {fragmentName: concept.fragment});
+                }
+
+            };
+
+            scope.myConcepts = [{
+                title: "Text search",
+                description: "The search in text allows you to have more powerful references.",
+                fragment: "textSearch",
+                pos: {
+                    x: "25%",
+                    y: "25%"
+                }
+
+            },{
+                title: "References",
+                description: "A reference is what allows you to interconect code and documentation.",
+                fragment: "references",
+                pos: {
+                    x: "75%",
+                    y: "25%"
+                }
+            }, {
+                title: "Markdown Parser",
+                description: "File that parses markdown",
+                fragment: "src/md_parser",
+                pos: {
+                    x: "25%",
+                    y: "75%"
+                }
+            },
+            {
+                title: "Code Reader",
+                description: "File that reads code.",
+                fragment: "src/CodeReader.js",
+                pos: {
+                    x: "75%",
+                    y: "75%"
+                }
+            }];
+
+        }
+    };
+});
+
+// Add syntax highlight to code blocks that have a pre without the nohighlight attribute
 app.directive("code", function() {
     return {
         restrict: "E",
@@ -78,7 +157,7 @@ app.directive("code", function() {
 
             hljs.highlightBlock(elem[0]);
         }
-    }
+    };
 });
 
 /**
@@ -99,7 +178,7 @@ app.directive("navBtn", function($state) {
             });
 
             // If the state change to it, mark it as active, if not, remove that mark
-            scope.$on('$stateChangeSuccess', function(event, toState){
+            scope.$on("$stateChangeSuccess", function(event, toState){
                 if (toState.name === stateLink) {
                     $(elem).parent("li").addClass("active");
                 } else {
@@ -108,5 +187,5 @@ app.directive("navBtn", function($state) {
             });
         }
 
-    }
+    };
 });

@@ -35,7 +35,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Md Doc</a>
+                    <a class="navbar-brand" ng-click="alert()">Md Doc</a>
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
@@ -56,7 +56,7 @@
 
             </div>
             <footer>
-                <p>&copy; Company 2013</p>
+                <p>&copy; Kalite Systems 2014</p>
             </footer>
         </div>
 
@@ -72,19 +72,12 @@
         <script src="js/angular-ui-router.js"></script>
         <script src="js/angular-ui-bootstrap-0.7.0.js"></script>
         <script src="js/angular-ui-bootstrap-tpls-0.7.0.js"></script>
-        <script src="js/app.js"></script>
         <script src="http://yandex.st/highlightjs/7.5/highlight.min.js"></script>
-        <script>
-        $(document).ready(function() {
-            // Highlight code blocks that doesnt have attribute nohighlight
-//            setTimeout(function() {
-//            $('pre:not([nohighlight=true]) code').each(function(i, e) {
-////                debugger;
-//                hljs.highlightBlock(e)
-//            });
-//
-//            },1000);
-        });
+
+        <script src="js/app.js"></script>
+        <script type="text/javascript">
+            var fragments =<%- @documentor.exportFragmentJson() %>;
         </script>
+
     </body>
 </html>

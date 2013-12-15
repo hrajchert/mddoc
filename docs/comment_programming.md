@@ -31,11 +31,14 @@ Leer los markdown a su vez se divide en
 en la interpretacion del JsonML se construye una intencion de leer archivos de codigo
 
 En principio hablo de swapear la metadata y de leer la metadata anterior porque siento que la generacion de la documentacion
-debe ser un proceso "comiteable". Pero con un concepto de comit mas arriba que el comit the git/svn. Me gustaria en principio que cada vez que se corra la documentacion se genere en un lugar temporal, y solo si se corre como `documentor --save` o algo asi, se salve la metadata y se empieze a fijar el tema de los cambios.
+debe ser un proceso "comiteable". Pero con un concepto de comit mas arriba que el comit the git/svn. Me gustaria en principio que cada
+vez que se corra la documentacion se genere en un lugar temporal, y solo si se corre como `mddoc --save` o algo asi, se salve la metadata
+y se empieze a fijar el tema de los cambios.
 
 
 Deberia poder regenerar la documentación solamente leyendo la metadata? Osea, sin releer ni los archivos ni el codigo.
-> Por un lado suena interesante como concepto, pero trae como problema que tendria que guardar el JsonML como metadata tmb, cosa que no quiero hacer. Si no guardo el JsonML tendria que estar fijandome si el archivo en el cual estoy basado, cambio o no. Osea, en un principio parece que no.
+> Por un lado suena interesante como concepto, pero trae como problema que tendria que guardar el JsonML como metadata tmb, cosa que no quiero hacer.
+Si no guardo el JsonML tendria que estar fijandome si el archivo en el cual estoy basado, cambio o no. Osea, en un principio parece que no.
 
 
 Acordarse de guardar por archivo el hash del archivo para ver si tiene que volverse a procesar o no.
@@ -63,11 +66,16 @@ folder is `MarkdownReader.parse`
 %}
 
 ## build metadata
-crear una estructura intermedia donde interprete las referencias. En principio en esta etapa no deberia hacer el replace de los includes, sino mantener una referencia a cual nodo es para referir, y cual es para incluir. Parte de interpretar las diferencias va a ser el leer la descripcion y obtener el snippet de codigo y un eventual nodo AST.
+crear una estructura intermedia donde interprete las referencias. En principio en esta etapa no deberia hacer el replace de los includes, sino mantener
+una referencia a cual nodo es para referir, y cual es para incluir. Parte de interpretar las diferencias va a ser el leer la descripcion y obtener el snippet
+de codigo y un eventual nodo AST.
 
-Este paso intermedio creo que puede generar el Arbol de metadata y como un arbol de lectura. Si es que el arbol de metadata no incluye a ambos. Creo en principio que si los incluiria.
+Este paso intermedio creo que puede generar el Arbol de metadata y como un arbol de lectura. Si es que el arbol de metadata no incluye a ambos. Creo en
+principio que si los incluiria.
 
-El arbol de metadata podria tener entonces informacion de los markdowns, e informacion del codigo, como dos grandes ramas. Las dos informaciones la saca de los markdowns en si, pero, la del codigo va a ser utilizada por ejemplo, para leer una sola vez cada archivo (y ejecutar esprima una sola vez), en vez de hacerlo cada vez que se encuentre una referencia. Despues la metadata puede ser usada para los otros tools.
+El arbol de metadata podria tener entonces informacion de los markdowns, e informacion del codigo, como dos grandes ramas. Las dos informaciones la saca
+de los markdowns en si, pero, la del codigo va a ser utilizada por ejemplo, para leer una sola vez cada archivo (y ejecutar esprima una sola vez),
+en vez de hacerlo cada vez que se encuentre una referencia. Despues la metadata puede ser usada para los otros tools.
 
 
 ### interpret markdown
@@ -75,7 +83,8 @@ Aca es donde creo la primera etapa de hrMd
 
 ## Change detector
 
-hacer el change detector comparando la ultima metadata y esta metadata. Aca tengo que descular un poco el asunto de la metadata, porque la idea no es crear el "arbol json de metadata" desde cero, sino que hay parte que si, y parte que es incremental. Todavia no se cual.
+hacer el change detector comparando la ultima metadata y esta metadata. Aca tengo que descular un poco el asunto de la metadata, porque la idea
+no es crear el "arbol json de metadata" desde cero, sino que hay parte que si, y parte que es incremental. Todavia no se cual.
 
 
 ## replace code includes
@@ -104,7 +113,8 @@ coderef vs codeinc
 Each index.json indicates the structure from that folder to all its childrens. It should probably reference the whole "medatada package".
 Each package its started with a prefix indicating vendor (to avoid collitions) and then the name of the package.
 
-The template system and the eventual application that resolve REST calls from a possible angular.js application should receive a mix of the metadata itself (or a way to read a single or multiple files at once), and some helper closures that can help in the interpretation of the package.
+The template system and the eventual application that resolve REST calls from a possible angular.js application should receive a mix of the metadata
+itself (or a way to read a single or multiple files at once), and some helper closures that can help in the interpretation of the package.
 
 Each json should have a documentor version number indicating with which version of the program/library, this metadata was made.
 
@@ -157,7 +167,10 @@ This metadata will be constructed in two turns, when interpreting the markdown i
 #### refs > name
 
 
-Optional name of the reference. This is useful in a couple of ways. For one part, when writting your markdowns, you may want to repeat a reference but you don't want to repeat the code to reference it, which is cumbersome and as a bonus, this way you can update all your references to that code in one place. For other part, it can reduce the amount of metadata that is generated, because we are not going to do snippet optimization to see if two refs are equal, or something along those lines.
+Optional name of the reference. This is useful in a couple of ways. For one part, when writting your markdowns, you may want to repeat a reference
+but you don't want to repeat the code to reference it, which is cumbersome and as a bonus, this way you can update all your references to that code
+in one place. For other part, it can reduce the amount of metadata that is generated, because we are not going to do snippet optimization to see
+if two refs are equal, or something along those lines.
 
 I have to figure out if I want this name to be global or not. In principle I think it could be a global name, but
 if the name starts with _ its local to the file.
@@ -167,11 +180,17 @@ The source file that is being referenced.
 
 # question, do I neeed to add something more than type to distinguish if the reference is only a named reference pointer? not the definition itself
 
-The definition itself can/must be like a normal ref with a name on it. The other one should have like a status, if it was found or not, diferent of the status of the reference itself. The status of the reference itself is to see if the reference is outdated or not, in this case (maybe using the same field or not), the status should represent if the pointer was found or not. It should be something similar to a two pass.
+The definition itself can/must be like a normal ref with a name on it. The other one should have like a status, if it was found or not, diferent of
+the status of the reference itself. The status of the reference itself is to see if the reference is outdated or not, in this case (maybe using the
+same field or not), the status should represent if the pointer was found or not. It should be something similar to a two pass.
 
-Algo me dice que tengo que probar si puedo guardar la referencia al jsonml para que despues sea mas facil el remplazo, pero hacerlo de una manera que no se guarde en la metadata. Por ejemplo cuando busco las referencias, generar de alguna manera un hash table con key igual al hash de la referencia o algo y value igual al jsonml, para luego hacer un facil remplazo. El hash este deberia ser un poco distinto, porque no deberia haber colisiones. Tal vez mas que hash, hacer un src:line
+Algo me dice que tengo que probar si puedo guardar la referencia al jsonml para que despues sea mas facil el remplazo, pero hacerlo de una manera que no
+se guarde en la metadata. Por ejemplo cuando busco las referencias, generar de alguna manera un hash table con key igual al hash de la referencia o
+algo y value igual al jsonml, para luego hacer un facil remplazo. El hash este deberia ser un poco distinto, porque no deberia haber colisiones. Tal vez
+mas que hash, hacer un src:line
 #### refs > type
-For now, include or reference, indicates if this a reference that should be replaced in code, or just a reference, so that you can "tie" code with documentation.
+For now, include or reference, indicates if this a reference that should be replaced in code, or just a reference, so that you can "tie" code
+with documentation.
 
 #### refs > ref
 
@@ -249,12 +268,17 @@ Como me doy cuenta si una referencia es la misma?
 > En principio haciendole un hash al termino de referencia en si.
 
 Utilizo el nombre de la referencia o solo la parte ref?
-> En principio me veo tentado a usar el nombre de la referencia, pero parte de mi instinto me dice que no es necesario. Una referencia es igual a otra si el hash de la busqueda es el mismo, pero si la referencia queda desactualizada, la forma de sincronizarlo es cambiando la forma de buscar, lo cual haria que la referencia ya no sea la misma de antes.
+> En principio me veo tentado a usar el nombre de la referencia, pero parte de mi instinto me dice que no es necesario. Una referencia es igual a otra
+si el hash de la busqueda es el mismo, pero si la referencia queda desactualizada, la forma de sincronizarlo es cambiando la forma de buscar, lo cual
+haria que la referencia ya no sea la misma de antes.
 
 Que pasa si el proyecto es muy grande? todo en memoria o que?
-> Por ahora intuyo que la metadata deberia estar en memoria, y serializarse a un archivo, mas que nada por "performance last". Pero suena que puede irse de mambo muy pronto. Performance last porque tenerlo en memoria es lo mas facil, y es dificil definir a priori si hay que hacer como alguna especie de swap, y con que granularidad.
+> Por ahora intuyo que la metadata deberia estar en memoria, y serializarse a un archivo, mas que nada por "performance last". Pero suena que puede
+irse de mambo muy pronto. Performance last porque tenerlo en memoria es lo mas facil, y es dificil definir a priori si hay que hacer como alguna
+especie de swap, y con que granularidad.
 
-Solo quiero notificar de desactualizacion una vez en el grunt, despues que aparezca en alguna pagina, o que el usuario de la libreria pueda pedir por las referencias desactualizadas
+Solo quiero notificar de desactualizacion una vez en el grunt, despues que aparezca en alguna pagina, o que el usuario de la libreria pueda pedir
+por las referencias desactualizadas
 
 
 
@@ -264,9 +288,11 @@ The code reader receives a list of files to read and where those files should be
 
 The code reader will process each file, one by one (or all at once, depends of memory and such).
 
-For each code file to read, it will generate an AST, and try to find all references. It will then store in the `hrSnippets` metadata a copy of the relevant snippets and AST nodes.
+For each code file to read, it will generate an AST, and try to find all references. It will then store in the `hrSnippets` metadata a copy of the
+relevant snippets and AST nodes.
 
-For each code reference, the code reader will generate a character location inside the file, that will help future tools in showing up what parts of code is documented, and help select the correct AST node.
+For each code reference, the code reader will generate a character location inside the file, that will help future tools in showing up what parts
+of code is documented, and help select the correct AST node.
 
 The code reader should also perform a hash on the snippet.
 

@@ -33,7 +33,7 @@ exports.run = function(settings) {
     function normalizeError(step, error) {
         var errorObject = {step: step};
         if (error instanceof Error) {
-            errorObject.err = {msg: error.message, stack: error.stack}
+            errorObject.err = {msg: error.message, stack: error.stack};
         } else {
             errorObject.err = error;
         }

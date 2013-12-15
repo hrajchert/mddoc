@@ -1,6 +1,7 @@
 var fs = require("fs");
 var utils = require("../../utils");
 var walkDir = utils.walkDir;
+var _ = require ("underscore");
 
 
 var HtmlWriterFile = function (options) {
@@ -30,7 +31,7 @@ HtmlWriterFile.prototype.fileRendered = function(err) {
 
 
 HtmlWriterFile.prototype.render = function() {
-    var html = this.renderer.render(this.inputFile, {documentor: this.metadata.jsonml});
+    var html = this.renderer.render(this.inputFile, {documentor: this.metadata.helpers});
     fs.writeFile(this.outputFile, html , this.fileRendered.bind(this));
 };
 
@@ -40,7 +41,10 @@ HtmlWriterFile.prototype.render = function() {
 var markdown = require("markdown").markdown;
 
 function addRenderHelpers (metadata) {
-    metadata.jsonml.getHtml = function(mdTemplate) {
+    if (!("helpers" in metadata)) {
+        metadata.helpers = {};
+    }
+    metadata.helpers.getHtml = function(mdTemplate) {
         var tree;
         if (!metadata.jsonml.hasOwnProperty(mdTemplate)) {
             throw new Error("We Couldn't find a md template with the name " + mdTemplate);
@@ -54,7 +58,13 @@ function addRenderHelpers (metadata) {
 
         return markdown.renderJsonML(tree);
     };
+
+    metadata.helpers.exportFragmentJson = function() {
+        return JSON.stringify(metadata.renderedFragments, null, "   ");
+    };
 }
+
+
 
 var HtmlWriter = function (metadata, settings) {
     this.metadata = metadata;
@@ -71,19 +81,19 @@ HtmlWriter.prototype.copyAssets = function () {
     var inputDir = this.settings.templateDir,
         outputDir = this.settings.outputDir;
     return walkDir(inputDir).then(function(files) {
-        var mdre = /\/(css|js|images|fonts)\//;
+        // Not sure about the partials one...
+        var assetRe = /\/(css|js|images|fonts|partials)\//;
 
         // Precalculate the lenght of the name of the input dir
         var dirNameLength = inputDir.length;
 
         for (var i = 0; i<files.length;i++) {
-            var m = files[i].match(mdre);
+            var m = files[i].match(assetRe);
             if (m) {
-                debugger;
                 var copyOptions = {
                     inputFilename: files[i],
                     outputFilename: outputDir + "/" + files[i].substr(dirNameLength+1)
-                }
+                };
                 console.log(copyOptions.inputFilename.grey + " => ".green + copyOptions.outputFilename.grey);
 
                 // Copy the file
@@ -98,11 +108,37 @@ HtmlWriter.prototype.copyAssets = function () {
             }
         }
     });
-}
+};
 
 HtmlWriter.prototype.generate = function(){
     if (this.settings.copyAssets) {
         this.copyAssets();
+    }
+
+    this.metadata.renderedFragments = {};
+    // TODO: This shouldnt be here, not this hardcoded:
+    // For each markdown, create the html fragment
+    for (var mdTemplate in this.metadata.jsonml) {
+        // TODO: refactor this as well, as is copy pasted from the helper
+
+        try {
+            if (_.isFunction(this.metadata.jsonml[mdTemplate]) ) {
+                // This is because of the template function, iuuuuu
+                continue;
+            }
+            var tree = markdown.toHTMLTree(this.metadata.jsonml[mdTemplate]);
+            var html = markdown.renderJsonML(tree);
+
+            var outputFilename = this.settings.outputDir + "/fragment/" + mdTemplate + ".html";
+            this.metadata.renderedFragments[mdTemplate] = "fragment/" + mdTemplate + ".html";
+
+            utils.writeFileCreateDir(outputFilename, html).otherwise(function(err) {
+                console.error("There was a problem writing the file", err);
+            });
+
+        } catch (e) {
+            console.log("Problem with " + mdTemplate);
+        }
     }
 
     addRenderHelpers(this.metadata);
@@ -126,10 +162,9 @@ HtmlWriter.prototype.generate = function(){
             // TODO: silent error :S
             console.error(e);
         }
-
     }
 };
 
 exports.constructor = function (metadata, settings) {
     return new HtmlWriter(metadata, settings);
-}
+};
