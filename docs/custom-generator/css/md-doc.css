@@ -7,7 +7,7 @@ body {
 /* Fix to use angular-ui-bootstrap */
 .nav, .pagination, .carousel a { cursor: pointer; }
 
-
+/* Efects of changing pages */
 .slide.ng-enter {
     -webkit-transition: 0.3s ease all; /* Safari/Chrome */
     transition: 0.3s ease all; /* All other modern browsers and IE10+ */
@@ -21,6 +21,40 @@ body {
     opacity: 1;
 }
 
+
+/* Documentation various */
+/* TODO: Replace with less variables and stuff */
+.done {
+    background-color: #dff0d8;
+}
+
+.not-done {
+    background-color: #f2dede;
+}
+
+.almost-done {
+    background-color: #fcf8e3;
+}
+
+.question {
+    display: block;
+    font-style: normal;
+    font-weight: bold;
+}
+.question, .answer {
+    margin: 20px 0;
+    padding: 20px;
+    border-left: 3px solid #eee;
+    background-color: #faf8f0;
+    border-color: #faebcc;
+}
+
+
+
+
+
+
+/* Concept map */
 concept-map {
     position: fixed;
     width: 100%;

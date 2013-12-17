@@ -17,7 +17,9 @@
         <link href="css/md-doc.css" rel="stylesheet">
 
         <!-- Syntax highlighting -->
-        <link rel="stylesheet" href="http://yandex.st/highlightjs/7.5/styles/default.min.css" />
+<!--        <link rel="stylesheet" href="http://yandex.st/highlightjs/7.5/styles/default.min.css" />-->
+        <link rel="stylesheet" href="css/highlightjs-7.5.min.css" />
+
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -72,7 +74,7 @@
         <script src="js/angular-ui-router.js"></script>
         <script src="js/angular-ui-bootstrap-0.7.0.js"></script>
         <script src="js/angular-ui-bootstrap-tpls-0.7.0.js"></script>
-        <script src="http://yandex.st/highlightjs/7.5/highlight.min.js"></script>
+        <script src="js/highlightjs-7.5.js"></script>
 
         <script src="js/app.js"></script>
         <script type="text/javascript">

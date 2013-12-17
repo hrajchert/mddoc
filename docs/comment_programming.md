@@ -10,36 +10,37 @@ The library will be in charge of generating and interpreting the metadata
 
 For now the tool part should have a flow like this
 
-1. Read the configuration
-1. Generate the metadata
-1. Notify conflicts?
-1. Replace includes
-1. Generate HTML
+1. Read the configuration *done*{: .done }
+1. Generate the metadata  *almost*{: .almost-done }
+1. Notify conflicts?      *not done*{: .not-done}
+1. Replace includes       *done*{: .done }
+1. Generate HTML          *done*{: .done }
 
-el Generar la metadata es lo que hace la libreria y esta compuesto de:
+the generation of the metadata is the responsability of the library and it means to:
 
-1. Read the Markdowns
-1. Leer el codigo
-1. Leer la metadata anterior
-1. Salvar / Swapear la metadata
+1. Read the Markdowns         *done*{: .done }
+1. Read the code              *done*{: .done }
+1. Read old metadata          *not done*{: .not-done}
+1. Save / Swap the metadata   *almost*{: .almost-done }
 
 Leer los markdown a su vez se divide en
 
-1. Parsear los markdown
-1. Interpretar los JsonML
+1. Parsear los markdown       *done*{: .done }
+1. Interpretar los JsonML     *done*{: .done }
 
 en la interpretacion del JsonML se construye una intencion de leer archivos de codigo
 
-En principio hablo de swapear la metadata y de leer la metadata anterior porque siento que la generacion de la documentacion
+En principio hablo de swapear la metadata y de leer la metadata anterior porque siento que la **generacion** de la documentacion
 debe ser un proceso "comiteable". Pero con un concepto de comit mas arriba que el comit the git/svn. Me gustaria en principio que cada
 vez que se corra la documentacion se genere en un lugar temporal, y solo si se corre como `mddoc --save` o algo asi, se salve la metadata
 y se empieze a fijar el tema de los cambios.
 
 
-Deberia poder regenerar la documentación solamente leyendo la metadata? Osea, sin releer ni los archivos ni el codigo.
-> Por un lado suena interesante como concepto, pero trae como problema que tendria que guardar el JsonML como metadata tmb, cosa que no quiero hacer.
-Si no guardo el JsonML tendria que estar fijandome si el archivo en el cual estoy basado, cambio o no. Osea, en un principio parece que no.
+*Deberia poder regenerar la documentación solamente leyendo la metadata? Osea, sin releer ni los archivos ni el codigo?*{: .question}
 
+Por un lado suena interesante como concepto, pero trae como problema que tendria que guardar el JsonML como metadata tmb, cosa que no quiero hacer.
+Si no guardo el JsonML tendria que estar fijandome si el archivo en el cual estoy basado, cambio o no. Osea, en un principio parece que no.
+{: .answer}
 
 Acordarse de guardar por archivo el hash del archivo para ver si tiene que volverse a procesar o no.
 
@@ -58,7 +59,7 @@ and the custom ones I'll create for referencing
 The class in charge of reading all the markdonws and generate the metadata from it is `MarkdownReader`. The method that walks into the `inputDir`
 folder is `MarkdownReader.parse`
 
-{%code_inc
+{%code_ref
     "src" : "src/MarkdownReader.js",
     "ref" : {
         "text" : "MarkdownReader.prototype.parse = function() {"
@@ -137,7 +138,7 @@ Each file `xxx.md.json` is the output of parsin the md file, and its json will b
             {
                 "name": false,
                 "src" : "src/app.js",
-                "type" : "include/reference"
+                "directive" : "code_ref/code_inc/code_warning/etc"
                 "ref" : {
                     // whatever the user has introduced directly
                     "line" : "3-4"
@@ -178,19 +179,21 @@ if the name starts with _ its local to the file.
 #### refs > src
 The source file that is being referenced.
 
-# question, do I neeed to add something more than type to distinguish if the reference is only a named reference pointer? not the definition itself
+Do I neeed to add something more than type to distinguish if the reference is only a named reference pointer? not the definition itself
+{: .question}
 
 The definition itself can/must be like a normal ref with a name on it. The other one should have like a status, if it was found or not, diferent of
 the status of the reference itself. The status of the reference itself is to see if the reference is outdated or not, in this case (maybe using the
 same field or not), the status should represent if the pointer was found or not. It should be something similar to a two pass.
+{: .answer}
 
 Algo me dice que tengo que probar si puedo guardar la referencia al jsonml para que despues sea mas facil el remplazo, pero hacerlo de una manera que no
 se guarde en la metadata. Por ejemplo cuando busco las referencias, generar de alguna manera un hash table con key igual al hash de la referencia o
 algo y value igual al jsonml, para luego hacer un facil remplazo. El hash este deberia ser un poco distinto, porque no deberia haber colisiones. Tal vez
 mas que hash, hacer un src:line
-#### refs > type
-For now, include or reference, indicates if this a reference that should be replaced in code, or just a reference, so that you can "tie" code
-with documentation.
+#### refs > directive
+It gives semantics to the reference, why are we refering to this code, is this a warning? a todo? do we want to include it? etc...
+It will tell the rest of the library and tools how to render the ref, or how to treat it (in a tool).
 
 #### refs > ref
 
@@ -255,27 +258,45 @@ to the conflict management.
     }
 
 En principio si el key de los refs colisiona, no deberia haber problema, ya que es el refhash, y si coincide es porque es
-la misma referencia. A lo sumo deberia tirar un warning de que se deberia
+la misma referencia. A lo sumo deberia tirar un warning de que se deberia unir bajo el mismo nombre.
+
 The code ref char object will be either provider or created after the source is read.
 
 
 Como me doy cuenta si una referencia esta desactualizada?
+{: .question}
 
-> Una referencia esta desactualizada si la referencia no cambia, y el codigo al que referencia si. El codigo referenciado
-> se puede ver si cambia o no por el hash del snippet o por una comparacion del arbol AST
+Una referencia esta desactualizada si la referencia no cambia, y el codigo al que referencia si. El codigo referenciado
+se puede ver si cambia o no por el hash del snippet o por una comparacion del arbol AST
+{: .answer}
+
+
 
 Como me doy cuenta si una referencia es la misma?
-> En principio haciendole un hash al termino de referencia en si.
+{: .question}
+
+En principio haciendole un hash al termino de referencia en si.
+{: .answer}
+
+
 
 Utilizo el nombre de la referencia o solo la parte ref?
-> En principio me veo tentado a usar el nombre de la referencia, pero parte de mi instinto me dice que no es necesario. Una referencia es igual a otra
+{: .question}
+
+En principio me veo tentado a usar el nombre de la referencia, pero parte de mi instinto me dice que no es necesario. Una referencia es igual a otra
 si el hash de la busqueda es el mismo, pero si la referencia queda desactualizada, la forma de sincronizarlo es cambiando la forma de buscar, lo cual
 haria que la referencia ya no sea la misma de antes.
+{: .answer}
+
+
 
 Que pasa si el proyecto es muy grande? todo en memoria o que?
-> Por ahora intuyo que la metadata deberia estar en memoria, y serializarse a un archivo, mas que nada por "performance last". Pero suena que puede
+{: .question}
+
+Por ahora intuyo que la metadata deberia estar en memoria, y serializarse a un archivo, mas que nada por "performance last". Pero suena que puede
 irse de mambo muy pronto. Performance last porque tenerlo en memoria es lo mas facil, y es dificil definir a priori si hay que hacer como alguna
 especie de swap, y con que granularidad.
+{: .answer}
 
 Solo quiero notificar de desactualizacion una vez en el grunt, despues que aparezca en alguna pagina, o que el usuario de la libreria pueda pedir
 por las referencias desactualizadas
@@ -290,6 +311,18 @@ The code reader will process each file, one by one (or all at once, depends of m
 
 For each code file to read, it will generate an AST, and try to find all references. It will then store in the `hrSnippets` metadata a copy of the
 relevant snippets and AST nodes.
+
+**Warning:**
+This is currently not like this doc says, we are storing the snippet in the `hrCode` reference. We should see if its worth to put in a separate object
+or if is fine to leave it here.
+{:.alert .alert-danger }
+
+{%code_warning
+    "src" : "src/CodeReader.js",
+    "ref" : {
+        "text" : "hrCode.refs[refhash].snippet = snippet;"
+    }
+%}
 
 For each code reference, the code reader will generate a character location inside the file, that will help future tools in showing up what parts
 of code is documented, and help select the correct AST node.
@@ -312,24 +345,42 @@ Same as plain text but with regular expressions.
 con otros lenguajes.
 
 
-# Como hago el remplazo de codigo?
+Como hago el remplazo de codigo?
+{: .question}
+
 Pareceria pertenecer a la etapa del render.
 Requiero tener una lista de jsonml, los snippets ya cargados y las diferencias calculadas.
 En caso de solo querer saber las diferencias, ni se haria esta etapa. Cuando me piden hacer el renderHtml de un markdown, me fijo en que
 referencias hay, y la referencia guarda un vinculo al jsonML, en ese momento, con todo ya cargado, lo unico que tengo que hacer es
 el replace.
 Si hay una diferencia entre codigo viejo y actual, yo tengo que mostrar el viejo hasta que se marque una resolucion
+{: .answer}
 
-# Para que me sirve guardar un ref pointer en hrCode y para que en hrMd
+
+**Warning:**
+Releer la pregunta de arriba porque sigue teniendo conceptos interesantes, y poner links a donde se hace esto. Agregar como info tmb
+que tal vez estaria bueno tener diferentes renders de directivas, cosa de que cada generator pueda representar una directiva de una manera
+distinta, en especial si en algun momento se cambia de html a otro formato
+{:.alert .alert-danger }
+
+
+
+Para que me sirve guardar un ref pointer en hrCode y para que en hrMd
+{: .question}
+
 en hrCode para las herramientas tipo code viewer, que requiero ver todos los lugares donde un codigo es referenciado. Solo lo marco como
 LOC.
 en hrMd para hacer la inclusion o referencia en si
+{: .answer}
 
-# Que deberia imprimir cuando es solo una referencia?, sin inclusion
+
+Que deberia imprimir cuando es solo una referencia?, sin inclusion
+{: .question}
+
 Cuando tiene inclusion, lo remplazo por un bloque codigo y ya.
 Con solo una referencia, me tiento a decir que poner un span vacio con una clase. Tal vez estaria piola poder definir de alguna manera
 como queres que sea remplazado, inyectando tu propio replacer, y poder poner por ejemplo, un link a un code viewer con linea y codigo.
-
+{: .answer}
 
 No se si ya lo puse en otro lado, pero queria recordarme que quiero guardar hash como clases css para hacer referencias en el html
 
