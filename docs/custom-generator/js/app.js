@@ -138,6 +138,14 @@ app.directive("conceptMap", function($state) {
                     x: "75%",
                     y: "75%"
                 }
+            },{
+                title: "JsonML",
+                description: "Markdown structure.",
+                fragment: "jsonml",
+                pos: {
+                    x: "50%",
+                    y: "50%"
+                }
             }];
 
         }
