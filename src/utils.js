@@ -20,36 +20,34 @@ var walkDir = function (dir) {
  * array
  */
 function _doWalkDir(dir) {
-        // The promise to return
-    var deferred = when.defer(),
+    return when.promise(function(resolve, reject) {
         // An array of promise of the file stat (to see if we need to recurse or not)
-        filePromises = [];
+        var filePromises = [];
 
-    // Get all the files (including subdirectories)
-    fs.readdir(dir, function(err, files){
-        if (err) {
-            return deferred.reject(err);
-        }
+        // Get all the files (including subdirectories)
+        fs.readdir(dir, function(err, files){
+            if (err) {
+                return reject(err);
+            }
 
-        // For each file, check if directory. If it is, recurse, if not
-        // boom.
-        for (var i=0;i < files.length; i++) {
-            // We need to create a file info object because of how the scope in
-            // js works. TODO: Add more documentation about this later! But not in the code!
-            var fileInfo = {
-                file: dir + "/" + files[i],
-                defer: when.defer()
-            };
-            // Because checking if the file is a directory or not is async, we need to hold
-            // a promise of its checking
-            filePromises[i] = fileInfo.defer.promise;
-            // Check if it is a directory or not
-            fs.stat(fileInfo.file, _.bind(_checkIfDirectory, fileInfo));
-        }
-        deferred.resolve(when.all(filePromises));
+            // For each file, check if directory. If it is, recurse, if not
+            // boom.
+            for (var i=0;i < files.length; i++) {
+                // We need to create a file info object because of how the scope in
+                // js works. TODO: Add more documentation about this later! But not in the code!
+                var fileInfo = {
+                    file: dir + "/" + files[i],
+                    defer: when.defer()
+                };
+                // Because checking if the file is a directory or not is async, we need to hold
+                // a promise of its checking
+                filePromises[i] = fileInfo.defer.promise;
+                // Check if it is a directory or not
+                fs.stat(fileInfo.file, _.bind(_checkIfDirectory, fileInfo));
+            }
+            resolve(when.all(filePromises));
+        });
     });
-
-    return deferred.promise;
 }
 
 /**
@@ -102,17 +100,17 @@ function _doCreateDirIfNeeded(path) {
     var p = when.defer();
 
     // Try to get dir statistics
-    fs.stat(path, function (err, stat) {
+    fs.stat(path, function (err) {
         // If it doesnt exists, try to create it
         if (err && err.code === "ENOENT") {
             fs.mkdir(path, function(err) {
-               if (err) {
+                if (err) {
                    // Cant create directory
-                   p.reject(err);
-               } else {
+                    p.reject(err);
+                } else {
                    // Directory created
-                   p.resolve();
-               }
+                    p.resolve();
+                }
             });
         } else if (err) {
             // Cant stat the file
@@ -158,7 +156,6 @@ function promiseWriteFile(path, data) {
  * @param {type} data The data to write
  */
 function writeFileCreateDir(path, data) {
-    debugger;
     path = path.trim();
     // Don't allow absolute paths, for now
     if (path[0] === "/") {
@@ -180,7 +177,7 @@ function writeFileCreateDir(path, data) {
 
         // Create the current path if needed and return a promise of the next
         return _createDirIfNeeded(path).then(function(){
-           return path;
+            return path;
         });
     }, "");
 

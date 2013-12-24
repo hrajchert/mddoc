@@ -2,6 +2,7 @@ var fs = require("fs"),
     crypto = require("crypto"),
     _ = require("underscore"),
     esprima = require("esprima"),
+    EventPromise = require("./EventPromise"),
     when = require("when");
 
 require("colors");
@@ -237,29 +238,29 @@ Object.defineProperty(CodeFileReader.prototype, "lines", {
     }
 });
 
+// TODO: Rename this
 CodeFileReader.prototype.pre = function() {
-    var findPromise = when.defer();
-
-    if (this.verbose) {
-        console.log("reading code file ".blue + this.src.grey);
-    }
-
-    fs.readFile(this.src, "utf8", function(err, source) {
-        // TODO: Change this
-        if (err) {
-            return findPromise.reject({type: err.code, msg: "Can't open " + this.src});
+    var self = this;
+    return when.promise(function(resolve, reject) {
+        if (self.verbose) {
+            console.log("reading code file ".blue + self.src.grey);
         }
 
-        this.source = source;
-        this.md5 = crypto.createHash("md5").update(source).digest("hex");
+        fs.readFile(self.src, "utf8", function(err, source) {
+            // TODO: Change this
+            if (err) {
+                return reject({type: err.code, msg: "Can't open " + self.src});
+            }
 
-        // TODO: maybe change this only if needed.
-        this.AST = esprima.parse(source, {range:true});
+            self.source = source;
+            self.md5 = crypto.createHash("md5").update(source).digest("hex");
 
-        findPromise.resolve(this);
-    }.bind(this));
+            // TODO: maybe change this only if needed.
+            self.AST = esprima.parse(source, {range:true});
 
-    return findPromise.promise;
+            resolve(self);
+        });
+    });
 };
 
 CodeFileReader.prototype.handleError = function(err) {
@@ -270,10 +271,17 @@ CodeFileReader.prototype.handleError = function(err) {
 };
 
 
+
+
+
+
 var CodeReader = function (metadata, settings) {
     this.metadata = metadata;
     this.settings = settings;
 };
+
+// Add event promises to the MarkdownReader
+EventPromise.mixin(CodeReader.prototype);
 
 CodeReader.prototype.read = function () {
     var hrCode = this.metadata.hrCode;
@@ -300,49 +308,11 @@ CodeReader.prototype.read = function () {
     return when.all(promises);
 };
 
+
 CodeReader.prototype.updateMetadata = function (codeFileReader) {
-    // Update the hrCode part
-    var hrCode = this.metadata.hrCode[codeFileReader.src];
-    var refhash, found, snippet, md5;
-    hrCode.filehash = codeFileReader.md5;
-    for (refhash in codeFileReader.results) {
-        found = codeFileReader.results[refhash].found;
-        hrCode.refs[refhash].found = found;
-        if (found) {
-            snippet = codeFileReader.results[refhash].snippet;
-            md5 = crypto.createHash("md5").update(snippet).digest("hex");
-
-            hrCode.refs[refhash].snippet = snippet;
-            hrCode.refs[refhash].snippetHash = md5;
-            hrCode.refs[refhash].char = {
-                from: codeFileReader.results[refhash].range[0],
-                to: codeFileReader.results[refhash].range[1]
-            };
-        }
-    }
-    // Update the hrMd part
-    for (refhash in codeFileReader.results) {
-        var loc = hrCode.refs[refhash].loc;
-
-        for(var i = 0; i < loc.length ; i++ ) {
-            var hrMdRef = loc[i].mdRef;
-            found = hrCode.refs[refhash].found;
-            hrMdRef.found = found;
-            if (found) {
-                // TODO: Decide if I want to have or not the snippet in hdMd
-                // hrMdRef.snippet = hrCode.refs[refhash].snippet;
-                hrMdRef.snippetHash = hrCode.refs[refhash].snippetHash;
-                hrMdRef.char = {
-                    from: codeFileReader.results[refhash].range[0],
-                    to: codeFileReader.results[refhash].range[1]
-                };
-            }
-
-        }
-
-    }
-
+    return this.trigger("code-file-read", codeFileReader);
 };
+
 
 exports.CodeReader = CodeReader;
 

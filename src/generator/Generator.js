@@ -19,7 +19,7 @@
         for (var generatorType in this.generators) {
             this.generators[generatorType].generate();
         }
-    }
+    };
 
     var registerGenerator = function (name, gen) {
         if (_.isFunction(gen)) {
@@ -29,11 +29,11 @@
         } else {
             throw new Error("Invalid generator type supplied");
         }
-    }
+    };
 
     var _registerGeneratorByConstructor = function (name, f) {
         registeredGenerators[name] = f;
-    }
+    };
     var _registerGeneratorByPath = function (name, path) {
         var module = require (path);
 
@@ -42,7 +42,7 @@
         } else {
             throw new Error("Module " + path + " doesn't have a constructor exported");
         }
-    }
+    };
 
     registerGenerator("custom", "./custom/CustomGenerator");
 

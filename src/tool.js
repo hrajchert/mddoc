@@ -1,8 +1,8 @@
 var MarkdownReader = require("./MarkdownReader").MarkdownReader;
 var CodeReader = require("./CodeReader").CodeReader;
 var CodeIncluder = require("./CodeIncluder").CodeIncluder;
+var MetadataManager = require("./MetadataManager").MetadataManager;
 var Generator = require("./generator/Generator").Generator;
-var fs = require("fs");
 var when = require("when");
 var sequence = require("when/sequence");
 require("colors");
@@ -16,19 +16,28 @@ exports.verbose = function(v) {
 
 
 exports.run = function(settings) {
-    // Initialize the empty metadata
-    var metadata = {};
+    // Initialize the metadata
+    var metadataManager = new MetadataManager(settings);
+    metadataManager.initialize();
+
+    // TODO: Avoid ASAP
+    var metadata = metadataManager.getPlainMetadata();
 
     // Add verbosity to the settings, dont quite like it to have it here :S
     settings.verbose = verbose;
 
     // Metadata
-    var mdReader = new MarkdownReader(metadata, settings);
+    var mdReader = new MarkdownReader(settings);
     var codeReader = new CodeReader(metadata, settings);
+
+    // TODO: mhmhmhm
+    metadataManager.renameThisMethod(mdReader, codeReader);
+
 
     // Tool
     var codeIncluder = new CodeIncluder(metadata);
     var outputGenerator = new Generator(metadata, settings);
+
 
     function normalizeError(step, error) {
         var errorObject = {step: step};
@@ -41,7 +50,7 @@ exports.run = function(settings) {
     }
     function mdReaderParse () {
         return mdReader.parse().otherwise(function(mdErr){
-            console.log("Could not parse the markdown: ".red + mdErr.reader.completeFileName);
+            console.log("Could not parse the markdown".red);
             console.log(mdErr.err);
             return when.reject(normalizeError("markdown parser", mdErr));
         });
@@ -58,16 +67,7 @@ exports.run = function(settings) {
     function writeMetadata () {
         // TODO: This is obviously going to be at another location
         try {
-            // Write down the metadata
-            var metadataFileName = settings.outputDir + "/metadata.json";
-            var metadataStr = JSON.stringify(metadata, null, "    ");
-            fs.writeFile(metadataFileName, metadataStr, function(err){
-                if (err) {
-                    console.log("There was a problem writing the metadata".red + err);
-                }
-                console.log("Metadata written to ".green + metadataFileName.grey);
-            });
-
+            metadataManager.save();
             return when.resolve();
         } catch (e) {
             return when.reject(normalizeError("write metadata", e));

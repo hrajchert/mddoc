@@ -23,10 +23,10 @@ the generation of the metadata is the responsability of the library and it means
 1. Read old metadata          *not done*{: .not-done}
 1. Save / Swap the metadata   *almost*{: .almost-done }
 
-Leer los markdown a su vez se divide en
+to read the Markdowns we need to
 
-1. Parsear los markdown       *done*{: .done }
-1. Interpretar los JsonML     *done*{: .done }
+1. Parse the markdown         *done*{: .done }
+1. Interpret the JsonML     *done*{: .done }
 
 en la interpretacion del JsonML se construye una intencion de leer archivos de codigo
 
