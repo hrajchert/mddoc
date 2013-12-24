@@ -35,22 +35,8 @@ var EventHandlerTriggerer = function(handlerFn,handlerName, data) {
 };
 
 EventHandlerTriggerer.prototype.trigger = function (deps) {
-    // Create the arguments we are going to use to call the
-    // handler.
-    var args;
 
-    if (deps.length === 0) {
-        // If we have no dependencies, call it just with the data
-        args = this.data;
-    } else {
-        // If we have dependencies, call it with an array that contains
-        // the data as a first element and the resolution of its dependencies as the
-        // rest
-        args = deps;
-        args.unshift(this.data);
-    }
-
-    return this.handlerFn.call(this, args);
+    return this.handlerFn.call(this, this.data, deps);
 };
 
 function trigger (eventName, data) {

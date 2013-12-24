@@ -59,10 +59,8 @@ MetadataManager.prototype.renameThisMethod = function (markdownReader, codeReade
     markdownReader.on("md-file-parsed", "createHrMdMetadata", this.createHrMdMetadata.bind(this));
     markdownReader.on("md-file-parsed", "createHrCodeMetadata", this.createHrCodeMetadata.bind(this));
 
-    // TODO: It's not working the other way around, need to fix the dependencies
+    codeReader.on("code-file-read", "updateHrMdMetadata", this.updateHrMdMetadata.bind(this),["updateHrCodeMetadata"]);
     codeReader.on("code-file-read", "updateHrCodeMetadata", this.updateHrCodeMetadata.bind(this));
-    codeReader.on("code-file-read", "updateHrMdMetadata", this.updateHrMdMetadata.bind(this));
-
 };
 
 

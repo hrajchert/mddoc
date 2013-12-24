@@ -65,12 +65,12 @@ describe ("EventPromise", function () {
         it("should call the handlers in respecting order", function(done) {
             var handler2Called = false;
             // Define handler1 that depends on handler 2 to be called first
-            obj.on("myEvent", "handler1", function(arg) {
+            obj.on("myEvent", "handler1", function(arg, deps) {
                 if (!handler2Called) {
                     return done("handler 2 hasnt been called");
                 }
 
-                if (arg[0] !== "my argument" || arg[1] !== "handler2Result") {
+                if (arg !== "my argument" || deps[0] !== "handler2Result") {
                     return done("Invalid arguments");
                 }
 
