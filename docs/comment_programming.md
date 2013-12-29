@@ -318,7 +318,7 @@ or if is fine to leave it here.
 {:.alert .alert-danger }
 
 {%code_warning
-    "src" : "src/CodeReader.js",
+    "src" : "src/MetadataManager.js",
     "ref" : {
         "text" : "hrCode.refs[refhash].snippet = snippet;"
     }

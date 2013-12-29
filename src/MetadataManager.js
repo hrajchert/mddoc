@@ -61,6 +61,7 @@ MetadataManager.prototype.renameThisMethod = function (markdownReader, codeReade
 
     codeReader.on("code-file-read", "updateHrMdMetadata", this.updateHrMdMetadata.bind(this),["updateHrCodeMetadata"]);
     codeReader.on("code-file-read", "updateHrCodeMetadata", this.updateHrCodeMetadata.bind(this));
+    codeReader.on("code-file-read", "updateNotFound", this.updateNotFound.bind(this));
 };
 
 
@@ -107,6 +108,23 @@ MetadataManager.prototype.updateHrMdMetadata = function(codeFileReader) {
     }
 };
 
+
+MetadataManager.prototype.updateNotFound = function (codeFileReader) {
+    var found;
+    var meta = this.metadata;
+    var hrCode = this.metadata.hrCode[codeFileReader.src];
+    for (var refhash in codeFileReader.results) {
+
+        found = hrCode.refs[refhash].found;
+        if (!found) {
+            meta.notFound[refhash] = {
+                loc: hrCode.refs[refhash].loc,
+                src: codeFileReader.src,
+                query: hrCode.refs[refhash].query
+            };
+        }
+    }
+};
 
 MetadataManager.prototype.createHrCodeMetadata = function (mdFileReader) {
     var meta = this.metadata;

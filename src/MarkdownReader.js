@@ -54,8 +54,8 @@ function _doGetReferences (jsonml, references) {
 
         // Get the attributes from the jsonml
         var attr = JSON.parse("{"+jsonml[1]+"}");
-        // Each attribute must have a src and a ref
 
+        // Each attribute must have a src and a ref
         if (typeof attr.src === "undefined" || typeof attr.ref === "undefined") {
             throw new Error("Invalid reference\n" + jsonml[1]) ;
         }
@@ -73,6 +73,8 @@ function _doGetReferences (jsonml, references) {
             "directive" : jsonml[2].type
         };
         // TODO: eventually this could be removed, i think
+        // I have to remove the third argument as its the extra data, that cant be rendered.
+        // Cant remember why I said it can be removed.
         jsonml.splice(2);
         references.push(ref);
     } else {
