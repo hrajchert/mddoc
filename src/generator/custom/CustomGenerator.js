@@ -37,7 +37,6 @@ HtmlWriterFile.prototype.render = function() {
 
 
 
-
 var markdown = require("markdown").markdown;
 
 function addRenderHelpers (metadata) {
@@ -66,7 +65,7 @@ function addRenderHelpers (metadata) {
 
 
 
-var HtmlWriter = function (metadata, settings) {
+var CustomGenerator = function (metadata, settings) {
     this.metadata = metadata;
     this.settings = settings.generators.custom;
     // TODO: this should be in the HtmlWriterFile, but i dont want to create
@@ -76,41 +75,17 @@ var HtmlWriter = function (metadata, settings) {
 
 };
 
-// TODO: Refactor into utils copy -R
-HtmlWriter.prototype.copyAssets = function () {
+
+CustomGenerator.prototype.copyAssets = function () {
     var inputDir = this.settings.templateDir,
         outputDir = this.settings.outputDir;
-    return walkDir(inputDir).then(function(files) {
-        // Not sure about the partials one...
-        var assetRe = /\/(css|js|images|fonts|partials)\//;
+    // Not sure about the partials one...
+    var assetRe = /\/(css|js|images|fonts|partials)\//;
 
-        // Precalculate the lenght of the name of the input dir
-        var dirNameLength = inputDir.length;
-
-        for (var i = 0; i<files.length;i++) {
-            var m = files[i].match(assetRe);
-            if (m) {
-                var copyOptions = {
-                    inputFilename: files[i],
-                    outputFilename: outputDir + "/" + files[i].substr(dirNameLength+1)
-                };
-                console.log(copyOptions.inputFilename.grey + " => ".green + copyOptions.outputFilename.grey);
-
-                // Copy the file
-                fs.readFile(copyOptions.inputFilename, "utf8", function(err, f) {
-                    if (err) {
-                        console.error("There was a problem opening the file ", err );
-                    }
-                    utils.writeFileCreateDir(this.outputFilename, f).otherwise(function(err) {
-                        console.error("There was a problem writing the file", err);
-                    });
-                }.bind(copyOptions));
-            }
-        }
-    });
+    return utils.copyDir(inputDir, outputDir, assetRe);
 };
 
-HtmlWriter.prototype.generate = function(){
+CustomGenerator.prototype.generate = function(){
     if (this.settings.copyAssets) {
         this.copyAssets();
     }
@@ -122,6 +97,7 @@ HtmlWriter.prototype.generate = function(){
         // TODO: refactor this as well, as is copy pasted from the helper
 
         try {
+            debugger;
             if (_.isFunction(this.metadata.jsonml[mdTemplate]) ) {
                 // This is because of the template function, iuuuuu
                 continue;
@@ -137,7 +113,8 @@ HtmlWriter.prototype.generate = function(){
             });
 
         } catch (e) {
-            console.log("Problem with " + mdTemplate);
+            console.log("Problem with ".red + mdTemplate);
+            console.log(e);
         }
     }
 
@@ -166,5 +143,5 @@ HtmlWriter.prototype.generate = function(){
 };
 
 exports.constructor = function (metadata, settings) {
-    return new HtmlWriter(metadata, settings);
+    return new CustomGenerator(metadata, settings);
 };

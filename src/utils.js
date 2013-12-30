@@ -188,6 +188,44 @@ function writeFileCreateDir(path, data) {
 
 }
 
+function _copyDir_copyFile(err, f) {
+    if (err) {
+        console.error("There was a problem opening the file ", err );
+    }
+    writeFileCreateDir(this.outputFilename, f).otherwise(function(err) {
+        console.error("There was a problem writing the file", err);
+    });
+}
+
+/**
+ * Works like unix copy -R.
+ * Copies the files from src_dir to dst_dir, creating the necesary folders in dst_dir to make that happen
+ */
+// TODO: change matchRe for the classical include exclude folders
+function copyDir(src, dst, matchRe) {
+
+    return walkDir(src).then(function(files) {
+
+        // Precalculate the lenght of the name of the src dir
+        var dirNameLength = src.length;
+
+        for (var i = 0; i<files.length;i++) {
+            var m = files[i].match(matchRe);
+            if (m) {
+                var copyOptions = {
+                    inputFilename: files[i],
+                    outputFilename: dst + "/" + files[i].substr(dirNameLength+1)
+                };
+//                console.log(copyOptions.inputFilename.grey + " => ".green + copyOptions.outputFilename.grey);
+
+                // Copy the file
+                fs.readFile(copyOptions.inputFilename, "utf8", _copyDir_copyFile.bind(copyOptions));
+            }
+        }
+    });
+};
+
 exports.walkDir = walkDir;
 exports.loadJson = loadJson;
 exports.writeFileCreateDir = writeFileCreateDir;
+exports.copyDir = copyDir;
