@@ -134,9 +134,6 @@ MetadataManager.prototype.createHrCodeMetadata = function (mdFileReader) {
     // For each reference, add it in hrCode in its proper "file"
     for (var i = 0; i < refs.length ; i++  ) {
         var ref = refs[i];
-        // Make sure the jsonml doesnt get saved into disk
-        Object.defineProperty(ref,"jsonml",{enumerable:false});
-
         // console.log(mdFileReader.plainFileName + ": " + ref.lineNumber );
         var hrCodeSrc = meta.hrCode[ref.src];
 

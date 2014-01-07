@@ -1,8 +1,8 @@
 var fs = require("fs");
 var utils = require("../../utils");
 var walkDir = utils.walkDir;
-var _ = require ("underscore");
 
+var GeneratorHelperManager = require("../GeneratorHelperManager");
 
 var HtmlWriterFile = function (options) {
     if (!("inputFile" in options)) {
@@ -18,8 +18,8 @@ var HtmlWriterFile = function (options) {
 
 };
 
-HtmlWriterFile.prototype.setMetadata = function (metadata) {
-    this.metadata = metadata;
+HtmlWriterFile.prototype.setHelpers = function (helpers) {
+    this.helpers = helpers;
 };
 
 HtmlWriterFile.prototype.fileRendered = function(err) {
@@ -31,37 +31,12 @@ HtmlWriterFile.prototype.fileRendered = function(err) {
 
 
 HtmlWriterFile.prototype.render = function() {
-    var html = this.renderer.render(this.inputFile, {documentor: this.metadata.helpers});
+    var html = this.renderer.render(this.inputFile, {documentor: this.helpers});
     fs.writeFile(this.outputFile, html , this.fileRendered.bind(this));
 };
 
 
 
-var markdown = require("markdown").markdown;
-
-function addRenderHelpers (metadata) {
-    if (!("helpers" in metadata)) {
-        metadata.helpers = {};
-    }
-    metadata.helpers.getHtml = function(mdTemplate) {
-        var tree;
-        if (!metadata.jsonml.hasOwnProperty(mdTemplate)) {
-            throw new Error("We Couldn't find a md template with the name " + mdTemplate);
-        }
-        try {
-            tree = markdown.toHTMLTree(metadata.jsonml[mdTemplate]);
-        }catch (e) {
-            console.log(e);
-            throw new Error("Couldnt create html for template " + mdTemplate);
-        }
-
-        return markdown.renderJsonML(tree);
-    };
-
-    metadata.helpers.exportFragmentJson = function() {
-        return JSON.stringify(metadata.renderedFragments, null, "   ");
-    };
-}
 
 
 
@@ -85,6 +60,10 @@ CustomGenerator.prototype.copyAssets = function () {
     return utils.copyDir(inputDir, outputDir, assetRe);
 };
 
+// TODO: remove
+var markdown = require("markdown").markdown;
+
+
 CustomGenerator.prototype.generate = function(){
     if (this.settings.copyAssets) {
         this.copyAssets();
@@ -98,10 +77,6 @@ CustomGenerator.prototype.generate = function(){
 
         try {
             debugger;
-            if (_.isFunction(this.metadata.jsonml[mdTemplate]) ) {
-                // This is because of the template function, iuuuuu
-                continue;
-            }
             var tree = markdown.toHTMLTree(this.metadata.jsonml[mdTemplate]);
             var html = markdown.renderJsonML(tree);
 
@@ -118,7 +93,7 @@ CustomGenerator.prototype.generate = function(){
         }
     }
 
-    addRenderHelpers(this.metadata);
+    var helpers = GeneratorHelperManager.addRenderHelpers(this.metadata);
 
     for (var i=0; i< this.settings.files.length; i++) {
         try {
@@ -130,8 +105,8 @@ CustomGenerator.prototype.generate = function(){
 
             });
 
-            // Add the metadata to it
-            renderObject.setMetadata(this.metadata);
+            // ...
+            renderObject.setHelpers(helpers);
 
             // Generate the html
             renderObject.render();

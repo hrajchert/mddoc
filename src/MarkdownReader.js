@@ -49,43 +49,59 @@ MarkdownFileReader.prototype.parse = function () {
 };
 
 function _doGetReferences (jsonml, references) {
-    if ( jsonml[0] === "code_reference" ) {
-        // This node is a reference
-
-        // Get the attributes from the jsonml
-        var attr = JSON.parse("{"+jsonml[1]+"}");
-
-        // Each attribute must have a src and a ref
-        if (typeof attr.src === "undefined" || typeof attr.ref === "undefined") {
-            throw new Error("Invalid reference\n" + jsonml[1]) ;
+    for (var i=1; i< jsonml.length ; i++) {
+        var mlBlock = jsonml[i];
+        if (!Array.isArray(mlBlock)) {
+            continue;
         }
+        // See if this block is a code reference block
+        if ( mlBlock[0] === "code_reference" ) {
+            // Get the attributes from the jsonml
+            var attr = JSON.parse("{"+mlBlock[1]+"}");
 
-        var ref = {
-            "name" : attr.name?attr.name:false,
-            "src" : attr.src,
-            "ref" : attr.ref,
-            "lineNumber" : jsonml[2].lineNumber,
-            // Create a hash from the reference itself
-            "refhash" : crypto.createHash("md5").update(jsonml[1]).digest("hex"),
-            // TODO: Check this out later
-            "status" : "pending",
-            "jsonml" : jsonml,
-            "directive" : jsonml[2].type
-        };
-        // TODO: eventually this could be removed, i think
-        // I have to remove the third argument as its the extra data, that cant be rendered.
-        // Cant remember why I said it can be removed.
-        jsonml.splice(2);
-        references.push(ref);
-    } else {
-        // This node its not a reference
-        for (var i=1; i< jsonml.length ; i++) {
-            if (Array.isArray(jsonml[i])) {
-                _doGetReferences(jsonml[i],references);
+            // Each attribute must have a src and a ref
+            if (typeof attr.src === "undefined" || typeof attr.ref === "undefined") {
+                throw new Error("Invalid reference\n" + mlBlock[1]) ;
             }
+
+            var referencingMl = null;
+            if ( i > 1 ) {
+                referencingMl = jsonml[i-1];
+            }
+
+            var ref = {
+                "name" : attr.name?attr.name:false,
+                "src" : attr.src,
+                "ref" : attr.ref,
+                "lineNumber" : mlBlock[2].lineNumber,
+                // Create a hash from the reference itself
+                "refhash" : crypto.createHash("md5").update(mlBlock[1]).digest("hex"),
+                // TODO: Check this out later
+                "status" : "pending",
+                "jsonml" : mlBlock,
+                "refMl": referencingMl,
+                "directive" : mlBlock[2].type
+            };
+
+            // Make sure the jsonml doesnt get saved into disk
+            Object.defineProperty(ref,"jsonml",{enumerable:false});
+            // Neither there referencing one
+            Object.defineProperty(ref,"refMl",{enumerable:false});
+
+            // TODO: eventually this could be removed, i think
+            // I have to remove the third argument as it is the extra data (that cant be rendered).
+            // I Can't remember why I said this code could be removed.
+            mlBlock.splice(2);
+            // Add the reference to the reference list
+            references.push(ref);
+        } else {
+            // This block its not a reference, but it might have inner references
+            // NOT FOR NOW.
         }
     }
+
 }
+
 
 MarkdownFileReader.prototype.getReferences = function () {
     if (typeof this.references === "undefined") {
