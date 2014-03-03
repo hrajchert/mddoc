@@ -1,5 +1,6 @@
 var fs = require("fs"),
-    crypto = require("crypto");
+    crypto = require("crypto"),
+    when = require("when");
 
 var MetadataManager = function (settings) {
     this.settings = settings;
@@ -41,15 +42,19 @@ MetadataManager.prototype.getPlainMetadata = function () {
  * Write the metadata to disk
  */
 MetadataManager.prototype.save = function() {
-    // Write down the metadata
-    var metadataFileName = this.settings.outputDir + "/metadata.json";
-    var metadataStr = JSON.stringify(this.metadata, null, "    ");
-    fs.writeFile(metadataFileName, metadataStr, function(err){
-        if (err) {
-            console.log("There was a problem writing the metadata".red + err);
-            throw new Error("cant write the metadata " + err);
-        }
-        console.log("Metadata written to ".green + metadataFileName.grey);
+    var self = this;
+    return when.promise(function(resolve, reject) {
+        // Write down the metadata
+        var metadataFileName = self.settings.outputDir + "/metadata.json";
+        var metadataStr = JSON.stringify(self.metadata, null, "    ");
+
+        fs.writeFile(metadataFileName, metadataStr, function(err){
+            if (err) {
+                reject(err);
+            }
+            console.log("Metadata written to ".green + metadataFileName.grey);
+            resolve();
+        });
     });
 };
 
@@ -111,6 +116,7 @@ MetadataManager.prototype.updateHrMdMetadata = function(codeFileReader) {
 
 MetadataManager.prototype.updateNotFound = function (codeFileReader) {
     var found;
+
     var meta = this.metadata;
     var hrCode = this.metadata.hrCode[codeFileReader.src];
     for (var refhash in codeFileReader.results) {

@@ -20,7 +20,7 @@ function exportFragmentJson (metadata) {
     return JSON.stringify(metadata.renderedFragments, null, "   ");
 }
 
-function addRenderHelpers (metadata) {
+function getRenderHelpers (metadata) {
     return {
         getHtml: _.partial(getHtml, metadata),
         exportFragmentJson: _.partial(exportFragmentJson, metadata)
@@ -40,5 +40,5 @@ function renderMlBlock (jsonml) {
 }
 
 
-exports.addRenderHelpers = addRenderHelpers;
+exports.getRenderHelpers = getRenderHelpers;
 exports.renderMlBlock = renderMlBlock;

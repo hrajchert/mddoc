@@ -1,6 +1,6 @@
 var fs = require("fs");
 var utils = require("../../utils");
-var walkDir = utils.walkDir;
+var when = require("when");
 
 var GeneratorHelperManager = require("../GeneratorHelperManager");
 
@@ -22,17 +22,20 @@ HtmlWriterFile.prototype.setHelpers = function (helpers) {
     this.helpers = helpers;
 };
 
-HtmlWriterFile.prototype.fileRendered = function(err) {
-    if (err) {
-        throw err;
-    }
-    console.log("We wrote ".green + this.outputFile.grey);
-};
-
 
 HtmlWriterFile.prototype.render = function() {
-    var html = this.renderer.render(this.inputFile, {documentor: this.helpers});
-    fs.writeFile(this.outputFile, html , this.fileRendered.bind(this));
+    var self = this;
+    return when.promise(function(resolve, reject) {
+        var html = self.renderer.render(self.inputFile, {documentor: self.helpers});
+        fs.writeFile(self.outputFile, html ,function(err) {
+            if (err) {
+                reject(err);
+            } else {
+                console.log("We wrote ".green + self.outputFile.grey);
+                resolve();
+            }
+        });
+    });
 };
 
 
@@ -65,43 +68,40 @@ var markdown = require("markdown").markdown;
 
 
 CustomGenerator.prototype.generate = function(){
-    if (this.settings.copyAssets) {
-        this.copyAssets();
-    }
-
-    this.metadata.renderedFragments = {};
-    // TODO: This shouldnt be here, not this hardcoded:
-    // For each markdown, create the html fragment
-    for (var mdTemplate in this.metadata.jsonml) {
-        // TODO: refactor this as well, as is copy pasted from the helper
-
-        try {
-            debugger;
-            var tree = markdown.toHTMLTree(this.metadata.jsonml[mdTemplate]);
-            var html = markdown.renderJsonML(tree);
-
-            var outputFilename = this.settings.outputDir + "/fragment/" + mdTemplate + ".html";
-            this.metadata.renderedFragments[mdTemplate] = "fragment/" + mdTemplate + ".html";
-
-            utils.writeFileCreateDir(outputFilename, html).otherwise(function(err) {
-                console.error("There was a problem writing the file", err);
-            });
-
-        } catch (e) {
-            console.log("Problem with ".red + mdTemplate);
-            console.log(e);
+    var self = this;
+    return when.promise(function(resolve) {
+        var promises = [];
+        if (self.settings.copyAssets) {
+            promises.push(self.copyAssets());
         }
-    }
 
-    var helpers = GeneratorHelperManager.addRenderHelpers(this.metadata);
+        self.metadata.renderedFragments = {};
 
-    for (var i=0; i< this.settings.files.length; i++) {
-        try {
+        // For each markdown, create the html fragment
+        for (var mdTemplate in self.metadata.jsonml) {
+            try {
+                var tree = markdown.toHTMLTree(self.metadata.jsonml[mdTemplate]);
+                var html = markdown.renderJsonML(tree);
+
+                var outputFilename = self.settings.outputDir + "/fragment/" + mdTemplate + ".html";
+                self.metadata.renderedFragments[mdTemplate] = "fragment/" + mdTemplate + ".html";
+
+                promises.push(utils.writeFileCreateDir(outputFilename, html));
+
+            } catch (e) {
+                console.log("Problem with ".red + mdTemplate);
+                throw e;
+            }
+        }
+
+        var helpers = GeneratorHelperManager.getRenderHelpers(self.metadata);
+
+        for (var i=0; i< self.settings.files.length; i++) {
             // Create the object in charge of rendering the html
             var renderObject = new HtmlWriterFile({
-                inputFile: this.settings.files[i] + ".tpl",
-                outputFile: this.settings.outputDir + "/" + this.settings.files[i] + ".html",
-                renderer: this.renderer
+                inputFile: self.settings.files[i] + ".tpl",
+                outputFile: self.settings.outputDir + "/" + self.settings.files[i] + ".html",
+                renderer: self.renderer
 
             });
 
@@ -109,12 +109,12 @@ CustomGenerator.prototype.generate = function(){
             renderObject.setHelpers(helpers);
 
             // Generate the html
-            renderObject.render();
-        } catch (e) {
-            // TODO: silent error :S
-            console.error(e);
+            promises.push(renderObject.render());
         }
-    }
+
+        resolve(when.all(promises));
+    });
+
 };
 
 exports.constructor = function (metadata, settings) {

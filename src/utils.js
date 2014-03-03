@@ -164,7 +164,7 @@ function writeFileCreateDir(path, data) {
 
     // Extract the different directories as an array, and the filename separated
     var parts = path.split("/");
-    var filename = parts.pop();
+    parts.pop(); //filename
 
     // Create all the dirs needed to open the file
     var dirReady = when.reduce(parts, function(path, part) {
@@ -188,12 +188,24 @@ function writeFileCreateDir(path, data) {
 
 }
 
-function _copyDir_copyFile(err, f) {
-    if (err) {
-        console.error("There was a problem opening the file ", err );
-    }
-    writeFileCreateDir(this.outputFilename, f).otherwise(function(err) {
-        console.error("There was a problem writing the file", err);
+//function _copyDir_copyFile(err, f) {
+//    if (err) {
+//        console.error("There was a problem opening the file ", err );
+//        throw err;
+//    }
+//    return writeFileCreateDir(this.outputFilename, f).otherwise(function(err) {
+//        console.error("There was a problem writing the file", err);
+//    });
+//}
+
+function copyFile(src, dst) {
+    return when.promise(function(resolve, reject) {
+        fs.readFile(src, "utf8", function (err, f) {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(writeFileCreateDir(dst, f));
+        });
     });
 }
 
@@ -205,7 +217,7 @@ function _copyDir_copyFile(err, f) {
 function copyDir(src, dst, matchRe) {
 
     return walkDir(src).then(function(files) {
-
+        var promises = [];
         // Precalculate the lenght of the name of the src dir
         var dirNameLength = src.length;
 
@@ -219,11 +231,13 @@ function copyDir(src, dst, matchRe) {
 //                console.log(copyOptions.inputFilename.grey + " => ".green + copyOptions.outputFilename.grey);
 
                 // Copy the file
-                fs.readFile(copyOptions.inputFilename, "utf8", _copyDir_copyFile.bind(copyOptions));
+//                fs.readFile(copyOptions.inputFilename, "utf8", _copyDir_copyFile.bind(copyOptions));
+                promises.push(copyFile(copyOptions.inputFilename,copyOptions.outputFilename));
             }
         }
+        return when.all(promises);
     });
-};
+}
 
 exports.walkDir = walkDir;
 exports.loadJson = loadJson;

@@ -17,8 +17,8 @@ module.exports = function(grunt) {
         watch: {
             // Changes in models
             task: {
-                files: ["app.js", "src/**/*.js", "test/**/*.js"],
-                tasks: ["cafemocha"]
+                files: ["app.js","mddoc.js","index.js", "src/**/*.js", "test/**/*.js"],
+                tasks: ["cafemocha", "mddoc"]
             }
         },
         // Executes unitTest
@@ -33,9 +33,6 @@ module.exports = function(grunt) {
                 }
             }
         }
-
-
-
     });
 
     // Load the plugins
@@ -44,9 +41,40 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-cafe-mocha");
 
 
+    grunt.registerTask ("mddoc","Runs the mddoc", function() {
+        // Force task into async mode and grab a handle to the "done" function.
+        var done = this.async();
+        grunt.log.error("Checking stuff");
+        grunt.warn("tu vieja!");
+        grunt.log.error("Checking more stuff");
+        if (true ){
+            return false;
+        }
+
+        var mdDoc = require("./index"),
+            utils = mdDoc.utils;
+
+        // Load the project settings
+        var mddocSettings = utils.loadJson(".mddoc.json");
+
+        // Run the tool
+        mddocSettings.then(function(settings) {
+            mdDoc.tool.verbose(true);
+            mdDoc.tool.run(settings).then(function () {
+                done();
+            }, function(err) {
+                grunt.log.error("There was an error running the tool " + JSON.stringify(err));
+                done(false);
+            });
+        }, function (err) {
+            grunt.log.error("Coundn't read the settings "+ JSON.stringify(err));
+            done(false);
+        });
+
+    });
 
     // Default task(s).
-    grunt.registerTask("default", ["jshint"]);
+    grunt.registerTask("default", ["cafemocha", "mddoc", "watch"]);
 
 
 };

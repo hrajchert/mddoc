@@ -17,3 +17,17 @@ I don't like the fact that this is here, its implying that it has 1-1 relation w
         "text" : "Object.defineProperty(ref,\"jsonml\",{enumerable:false});"
     }
 %}
+
+
+
+**Warning:**
+Revisit this
+{:.alert .alert-danger }
+
+{%code_warning
+    "src" : "src/MarkdownReader.js",
+    "ref" : {
+        "text" : "MarkdownReader.prototype.analyzeMarkdownFileReader"
+    }
+%}
+

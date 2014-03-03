@@ -12,17 +12,28 @@ require("./markdown_parser.js")(markdown.Markdown);
 
 /**
  * Class that reads a markdown file and gets references to the code out of it
+ * @class
+ * @param   {String}    plainFileName       The logical file path
+ * @param   {String}    completeFileName    The real file path from the working directory
  */
 var MarkdownFileReader = function (plainFileName, completeFileName) {
     this.plainFileName = plainFileName;
     this.completeFileName = completeFileName;
 };
 
+/**
+ * Indicate if the parser should print verbose logging
+ * @param   {bool}      v       Whether it should be verbose or not
+ */
 MarkdownFileReader.prototype.setVerbose = function (v) {
     this.verbose = v;
 };
 
-
+/**
+ * Read and parse the markdown file into a JsonML object.
+ * @return  {Promise}           A Promise of self that will be resolved
+ *                              once the file is parsed
+ */
 MarkdownFileReader.prototype.parse = function () {
     var self = this;
     return when.promise(function(resolve, reject) {
@@ -48,9 +59,21 @@ MarkdownFileReader.prototype.parse = function () {
     });
 };
 
-function _doGetReferences (jsonml, references) {
+/**
+ * @summary Actually do get the references from the parsed markdown file
+ *
+ * @desc    Traverse the JsonML and extract all code references. Parse needs
+ *          to be called before this
+ *
+ * @return  {Array.Reference}   The references
+ * @private
+ */
+MarkdownFileReader.prototype._doGetReferences = function  (jsonml) {
+    var references = [];
+    // For each markdown block
     for (var i=1; i< jsonml.length ; i++) {
         var mlBlock = jsonml[i];
+        // If its not an actual JsonML block, move on
         if (!Array.isArray(mlBlock)) {
             continue;
         }
@@ -69,6 +92,7 @@ function _doGetReferences (jsonml, references) {
                 referencingMl = jsonml[i-1];
             }
 
+            // Interpret the reference
             var ref = {
                 "name" : attr.name?attr.name:false,
                 "src" : attr.src,
@@ -99,24 +123,26 @@ function _doGetReferences (jsonml, references) {
             // NOT FOR NOW.
         }
     }
+    return references;
+};
 
-}
-
-
+/**
+ * @summary Get any code references from the parsed markdown file
+ *
+ * @desc    This method serves as a cache method only, the real reference extraction
+ *          is done with {@link _doGetReferences}
+ *
+ *
+ * @return  {Array.Reference}   The references
+ */
 MarkdownFileReader.prototype.getReferences = function () {
     if (typeof this.references === "undefined") {
-        this.references = [];
-        _doGetReferences(this.jsonml, this.references);
+        this.references = this._doGetReferences(this.jsonml);
+
     }
     return this.references;
 };
 
-MarkdownFileReader.prototype.handleMdError = function(err) {
-    return when.reject({
-        reader: this,
-        err: err
-    });
-};
 
 
 
@@ -127,8 +153,12 @@ MarkdownFileReader.prototype.handleMdError = function(err) {
 
 
 /**
- * Reads the documentation files, aka the markdown and generates a JsonML tree
- * TODO: Improve the doc
+ * @summary Class in charge of reading the markdown files, and getting some metadata out of them.
+ *
+ * @desc    We are especially interested in the references made from the md files to the source code
+ *
+ * @param   {Object}    settings    The mddoc configuration for this project
+ * @constructor
  */
 var MarkdownReader = function (settings) {
     this.settings = settings;
@@ -153,6 +183,14 @@ MarkdownReader.prototype.parse = function() {
         // Precalculate the lenght of the name of the input dir
         var dirNameLength = self.settings.inputDir.length;
 
+        // Method to add context to an error in the parsing of a md file
+        var handleMdError = function(err) {
+            return when.reject({
+                reader: this,
+                err: err
+            });
+        };
+
         // For each input file
         for (var i = 0; i<files.length;i++) {
             // Check that the file is a markdown file
@@ -173,7 +211,7 @@ MarkdownReader.prototype.parse = function() {
                     // then extract some metadata out of it
                     .then(self.analyzeMarkdownFileReader.bind(self))
                     // and if anything fails, append some error information to the promise
-                    .otherwise(mkTask.handleMdError.bind(mkTask))
+                    .otherwise(handleMdError.bind(mkTask))
                 );
             }
         }
@@ -182,6 +220,9 @@ MarkdownReader.prototype.parse = function() {
     });
 };
 
+/**
+ * TODO: Revisit this
+ */
 MarkdownReader.prototype.analyzeMarkdownFileReader = function (mdFileReader) {
     return this.trigger("md-file-parsed", mdFileReader);
 };

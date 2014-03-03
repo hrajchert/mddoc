@@ -1,4 +1,4 @@
-// TODO: Try to avoid it, implement mini promises if needed
+// TODO: Try to avoid using when, implement mini promises if needed
 var when = require("when");
 
 function _getEventPromise(obj) {

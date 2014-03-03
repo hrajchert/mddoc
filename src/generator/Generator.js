@@ -1,5 +1,6 @@
 (function() {
     var _ = require("underscore");
+    var when = require("when");
 
     var registeredGenerators = {};
 
@@ -16,9 +17,11 @@
     };
 
     Generator.prototype.generate = function () {
+        var promises = [];
         for (var generatorType in this.generators) {
-            this.generators[generatorType].generate();
+            promises.push(this.generators[generatorType].generate());
         }
+        return when.all(promises);
     };
 
     var registerGenerator = function (name, gen) {

@@ -65,13 +65,11 @@ exports.run = function(settings) {
     }
 
     function writeMetadata () {
-        // TODO: This is obviously going to be at another location
-        try {
-            metadataManager.save();
-            return when.resolve();
-        } catch (e) {
-            return when.reject(normalizeError("write metadata", e));
-        }
+        return metadataManager.save().otherwise(function(err) {
+            console.log("Could not write the metadata".red);
+            console.log(err);
+            return when.reject(normalizeError("write metadata", err));
+        });
     }
 
     function codeIncluderInclude() {
@@ -85,12 +83,12 @@ exports.run = function(settings) {
     }
 
     function outputGenerate() {
-        try {
-            outputGenerator.generate();
-            return when.resolve();
-        } catch (e) {
-            return when.reject(normalizeError("Output Generator", e));
-        }
+        return outputGenerator.generate().otherwise(function(err) {
+            console.log("Could not generate the HTML".red);
+            console.log(err);
+            return when.reject(normalizeError("Output Generator", err));
+        });
+
     }
 
     var steps = [
