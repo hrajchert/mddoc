@@ -1,21 +1,34 @@
-#!/usr/bin/env node
+// Having this without comments cause esprima to freak and a weird
+// error by not being able to define step, check it later
+//#!/usr/bin/env node
 
 
-var tool = require("./src/tool");
-var utils = require("./src/utils");
+var mddoc = require("./index"),
+    utils = require("./src/utils");
 
-utils.loadJson(process.cwd() + "/.mddoc.json").then(
-    function(settings) {
-        try {
-           tool.run(settings).otherwise(function(e){
-                console.error("There was a problem running the tool", e);
-           });
-        } catch (e) {
+var settingsPromise = utils.loadJson(process.cwd() + "/.mddoc.json");
+
+settingsPromise.otherwise(function(err) {
+    console.error("There was a problem loading the settings", err);
+});
+
+settingsPromise.then(function(settings) {
+    try {
+        mddoc.initialize(settings);
+
+        var steps = [
+            mddoc.readMarkdown,
+            mddoc.readCode,
+            mddoc.saveMetadata,
+            mddoc.replaceReferences,
+            mddoc.generateOutput
+        ];
+
+        mddoc.run(steps).otherwise(function(e){
             console.error("There was a problem running the tool", e);
-        }
-
-    },
-    function(err) {
-        console.log("There was a problem loading the settings", err);
+        });
+    } catch (e) {
+        console.error("There was a problem running the tool", e);
     }
-);
+
+});

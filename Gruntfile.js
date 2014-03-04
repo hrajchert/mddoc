@@ -19,6 +19,10 @@ module.exports = function(grunt) {
             task: {
                 files: ["app.js","mddoc.js","index.js", "src/**/*.js", "test/**/*.js"],
                 tasks: ["cafemocha", "mddoc"]
+            },
+            documentation: {
+                files: ["docs/**/*.md"],
+                tasks: ["mddoc"]
             }
         },
         // Executes unitTest
@@ -44,23 +48,27 @@ module.exports = function(grunt) {
     grunt.registerTask ("mddoc","Runs the mddoc", function() {
         // Force task into async mode and grab a handle to the "done" function.
         var done = this.async();
-        grunt.log.error("Checking stuff");
-        grunt.warn("tu vieja!");
-        grunt.log.error("Checking more stuff");
-        if (true ){
-            return false;
-        }
 
-        var mdDoc = require("./index"),
-            utils = mdDoc.utils;
+        var mddoc = require("./index"),
+            utils = mddoc.utils;
 
         // Load the project settings
         var mddocSettings = utils.loadJson(".mddoc.json");
 
         // Run the tool
         mddocSettings.then(function(settings) {
-            mdDoc.tool.verbose(true);
-            mdDoc.tool.run(settings).then(function () {
+            mddoc.verbose(true);
+            mddoc.initialize(settings);
+
+            var steps = [
+                mddoc.readMarkdown,
+                mddoc.readCode,
+                mddoc.saveMetadata,
+                mddoc.replaceReferences,
+                mddoc.generateOutput
+            ];
+
+            mddoc.run(steps).then(function () {
                 done();
             }, function(err) {
                 grunt.log.error("There was an error running the tool " + JSON.stringify(err));

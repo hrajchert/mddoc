@@ -5,6 +5,6 @@ This shouldnt be here, not this hardcoded, it is copy pasted from the helper
 {%code_warning
     "src" : "src/generator/custom/CustomGenerator.js",
     "ref" : {
-        "text" : "for (var mdTemplate in this.metadata.jsonml) {"
+        "text" : "for (var mdTemplate in self.metadata.jsonml) {"
     }
 %}
