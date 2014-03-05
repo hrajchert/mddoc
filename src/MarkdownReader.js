@@ -3,7 +3,8 @@ var markdown = require("markdown").markdown,
     EventPromise = require("./EventPromise"),
     when = require("when"),
     crypto = require("crypto"),
-    fs = require("fs");
+    fs = require("fs"),
+    nodefn = require("when/node/function");
 
 require("colors");
 
@@ -36,26 +37,18 @@ MarkdownFileReader.prototype.setVerbose = function (v) {
  */
 MarkdownFileReader.prototype.parse = function () {
     var self = this;
-    return when.promise(function(resolve, reject) {
+    return nodefn.call(fs.readFile, self.completeFileName, "utf8").then(function(md) {
         if (self.verbose) {
             console.log("parsing ".yellow + self.completeFileName.grey);
         }
+        // Get an md5 of the md file
+        self.filehash = crypto.createHash("md5").update(md).digest("hex");
 
-        fs.readFile(self.completeFileName, "utf8", function(err, md) {
+        // Parse the markdown into JsonML
+        self.jsonml = markdown.parse(md, "miMkd");
 
-            if (err) {
-                console.log("There was an error parsing the md file " + err);
-                return reject(err);
-            }
-            // Get an md5 of the md file
-            self.filehash = crypto.createHash("md5").update(md).digest("hex");
-
-            // Parse the markdown into JsonML
-            self.jsonml = markdown.parse(md, "miMkd");
-
-            // Indicate the job is done
-            resolve(self);
-        });
+        // Indicate the job is done
+        return self;
     });
 };
 
@@ -185,10 +178,8 @@ MarkdownReader.prototype.parse = function() {
 
         // Method to add context to an error in the parsing of a md file
         var handleMdError = function(err) {
-            return when.reject({
-                reader: this,
-                err: err
-            });
+            err.reader = this;
+            return when.reject(err);
         };
 
         // For each input file

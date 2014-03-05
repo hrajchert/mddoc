@@ -1,19 +1,25 @@
 // Having this without comments cause esprima to freak and a weird
-// error by not being able to define step, check it later
 //#!/usr/bin/env node
 
 
 var mddoc = require("./index"),
     utils = require("./src/utils");
 
-var settingsPromise = utils.loadJson(process.cwd() + "/.mddoc.json");
+// Catch unhandled rejected promises
+require("pretty-monitor").start();
+var PrettyError = require("pretty-error"),
+    pe = new PrettyError();
 
-settingsPromise.otherwise(function(err) {
-    console.error("There was a problem loading the settings", err);
-});
 
-settingsPromise.then(function(settings) {
-    try {
+PrettyError.start(function() {
+    var settingsPromise = utils.loadJson(process.cwd() + "/.mddoc.json");
+
+    settingsPromise.otherwise(function(err) {
+        console.error("There was a problem loading the settings", err);
+    });
+
+    settingsPromise.done(function(settings) {
+
         mddoc.initialize(settings);
 
         var steps = [
@@ -25,10 +31,9 @@ settingsPromise.then(function(settings) {
         ];
 
         mddoc.run(steps).otherwise(function(e){
-            console.error("There was a problem running the tool", e);
+            console.error("There was a problem in the step " + e.step);
+            console.error(pe.render(e.err));
         });
-    } catch (e) {
-        console.error("There was a problem running the tool", e);
-    }
+    });
 
 });

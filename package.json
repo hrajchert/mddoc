@@ -16,19 +16,21 @@
   "author": "Hernan Rajchert",
   "dependencies": {
     "markdown": "~0.5.0",
-    "underscore": "~1.5.2",
-    "ect": "~0.5.4",
-    "when": "~2.5.1",
+    "underscore": "~1.6.0",
+    "ect": "~0.5.6",
+    "when": "~2.8.0",
+    "pretty-monitor": "~0.1.7",
+    "pretty-error" : "~0.1.17",
     "esprima": "~1.0.4",
     "colors": "~0.6.2"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.7.1",
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.8.0",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-cafe-mocha": "~0.1.10",
+    "grunt-cafe-mocha": "~0.1.11",
     "coffee-script": "~1.6.3",
-    "mocha": "~1.14.0",
-    "should": "~2.1.0"
+    "mocha": "~1.17.1",
+    "should": "~3.1.3"
   }
 }

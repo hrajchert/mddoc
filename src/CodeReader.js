@@ -3,7 +3,8 @@ var fs = require("fs"),
     _ = require("underscore"),
     esprima = require("esprima"),
     EventPromise = require("./EventPromise"),
-    when = require("when");
+    when = require("when"),
+    nodefn = require("when/node/function");
 
 require("colors");
 
@@ -241,34 +242,23 @@ Object.defineProperty(CodeFileReader.prototype, "lines", {
 // TODO: Rename this
 CodeFileReader.prototype.pre = function() {
     var self = this;
-    return when.promise(function(resolve, reject) {
+
+    return nodefn.call(fs.readFile, self.src, "utf8").then(function(source) {
         if (self.verbose) {
             console.log("reading code file ".blue + self.src.grey);
         }
 
-        fs.readFile(self.src, "utf8", function(err, source) {
-            // TODO: Change this
-            if (err) {
-                return reject({type: err.code, msg: "Can't open " + self.src});
-            }
+        self.source = source;
+        self.md5 = crypto.createHash("md5").update(source).digest("hex");
 
-            self.source = source;
-            self.md5 = crypto.createHash("md5").update(source).digest("hex");
+        // TODO: maybe change this only if needed.
+        self.AST = esprima.parse(source, {range:true});
 
-            // TODO: maybe change this only if needed.
-            self.AST = esprima.parse(source, {range:true});
-
-            resolve(self);
-        });
+        return self;
     });
+
 };
 
-CodeFileReader.prototype.handleError = function(err) {
-    return when.reject({
-        reader: this,
-        err: err
-    });
-};
 
 
 
@@ -288,6 +278,12 @@ CodeReader.prototype.read = function () {
     var promises = [];
     var codeFileReader;
 
+    // Method to add context to an error in the parsing of a md file
+    var handleError = function(err) {
+        err.reader = this;
+        return when.reject(err);
+    };
+
     for (var file in hrCode) {
         codeFileReader = new CodeFileReader({
             src: file,
@@ -301,7 +297,7 @@ CodeReader.prototype.read = function () {
             // Then get the metadata out of it
             .then(this.updateMetadata.bind(this))
             // If anything fails, append the failing reader
-            .otherwise(codeFileReader.handleError.bind(codeFileReader))
+            .otherwise(handleError.bind(codeFileReader))
         );
     }
     // console.log(this.metadata.hrCode);

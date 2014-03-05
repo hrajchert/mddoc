@@ -77,7 +77,10 @@
     exports.readMarkdown = function () {
         return mdReader.parse().otherwise(function(mdErr){
             console.log("Could not parse the markdown".red);
-            console.log(mdErr.err);
+            if (mdErr.reader) {
+                console.log("in file " + mdErr.reader.completeFileName.grey);
+            }
+
             return when.reject(normalizeError("markdown parser", mdErr));
         });
     };
@@ -86,7 +89,10 @@
     exports.readCode = function () {
         return codeReader.read().otherwise(function(err) {
             console.log("Could not read the code".red);
-            console.log(err);
+            if (err.reader) {
+                console.log("in file " + err.reader.src.grey);
+            }
+
             return when.reject(normalizeError("code reader", err));
         });
     };
