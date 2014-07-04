@@ -15,15 +15,15 @@
     require("colors");
     var _settings = null;
 
-    var metadataManager = null;
+    var _metadataManager = null;
 
-    var mdReader = null;
+    var _mdReader = null;
 
-    var codeReader = null;
+    var _codeReader = null;
 
-    var codeIncluder = null;
+    var _codeIncluder = null;
 
-    var outputGenerator = null;
+    var _outputGenerator = null;
 
     var _verbose = true;
 
@@ -35,26 +35,30 @@
         _settings = settings;
 
         // Initialize the metadata
-        metadataManager = new MetadataManager(settings);
-        metadataManager.initialize();
+        _metadataManager = new MetadataManager(settings);
+        _metadataManager.initialize();
 
         // TODO: Avoid ASAP
-        var metadata = metadataManager.getPlainMetadata();
+        var metadata = _metadataManager.getPlainMetadata();
 
         // Add verbosity to the settings, dont quite like it to have it here :S
         settings.verbose = _verbose;
 
         // Metadata
-        mdReader = new MarkdownReader(settings);
-        codeReader = new CodeReader(metadata, settings);
+        _mdReader = new MarkdownReader(settings);
+        _codeReader = new CodeReader(metadata, settings);
 
         // TODO: mhmhmhm
-        metadataManager.renameThisMethod(mdReader, codeReader);
+        _metadataManager.renameThisMethod(_mdReader, _codeReader);
 
 
         // Tool
-        codeIncluder = new CodeIncluder(metadata);
-        outputGenerator = new Generator(metadata, settings);
+        _codeIncluder = new CodeIncluder(metadata);
+        _outputGenerator = new Generator(metadata, settings);
+    };
+
+    exports.getMetadataManager = function () {
+        return _metadataManager;
     };
 
     // ------------------------------
@@ -75,7 +79,7 @@
 
 
     exports.readMarkdown = function () {
-        return mdReader.parse().otherwise(function(mdErr){
+        return _mdReader.parse().otherwise(function(mdErr){
             console.log("Could not parse the markdown".red);
             if (mdErr.reader) {
                 console.log("in file " + mdErr.reader.completeFileName.grey);
@@ -87,7 +91,7 @@
 
     // TODO: Eventually call this read references, as it should read all sort of documents, not just code
     exports.readCode = function () {
-        return codeReader.read().otherwise(function(err) {
+        return _codeReader.read().otherwise(function(err) {
             console.log("Could not read the code".red);
             if (err.reader) {
                 console.log("in file " + err.reader.src.grey);
@@ -98,7 +102,7 @@
     };
 
     exports.saveMetadata = function () {
-        return metadataManager.save().otherwise(function(err) {
+        return _metadataManager.save().otherwise(function(err) {
             console.log("Could not write the metadata".red);
             console.log(err);
             return when.reject(normalizeError("save metadata", err));
@@ -107,7 +111,7 @@
 
     exports.replaceReferences = function() {
         try {
-            codeIncluder.include();
+            _codeIncluder.include();
             return when.resolve();
         } catch (e) {
             return when.reject(normalizeError("code includer", e));
@@ -116,7 +120,7 @@
     };
 
     exports.generateOutput = function() {
-        return outputGenerator.generate().otherwise(function(err) {
+        return _outputGenerator.generate().otherwise(function(err) {
             console.log("Could not generate the HTML".red);
             console.log(err);
             return when.reject(normalizeError("Output Generator", err));
@@ -128,7 +132,7 @@
     exports.run = function (steps) {
         return sequence(steps).then(function(){
             // I dont like this, quite much
-            return metadataManager.getPlainMetadata();
+            return _metadataManager.getPlainMetadata();
         });
     };
 

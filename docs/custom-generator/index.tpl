@@ -46,6 +46,7 @@
                         <li><a nav-btn="blog">Blog</a></li>
                         <li><a nav-btn="concepts">Concepts</a></li>
                         <li><a nav-btn="mini_estructura">Mini estructura</a></li>
+                        <li><a href="/jsdoc">jsdoc</a></li>
                     </ul>
                 </div><!--/.navbar-collapse -->
             </div>

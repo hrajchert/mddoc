@@ -32,8 +32,8 @@ MarkdownFileReader.prototype.setVerbose = function (v) {
 
 /**
  * Read and parse the markdown file into a JsonML object.
- * @return  {Promise}           A Promise of self that will be resolved
- *                              once the file is parsed
+ * @return  {Promise.<MarkdownFileReader>}  A Promise of self that will be resolved
+ *                                          once the file is parsed
  */
 MarkdownFileReader.prototype.parse = function () {
     var self = this;
@@ -53,12 +53,37 @@ MarkdownFileReader.prototype.parse = function () {
 };
 
 /**
+ * @typedef {Object}    RefQuery
+ * @property {String=}     text  This is a plain text search in the document. If the resolver
+ *                                   is an esprima resolver, then the reference will correspond to
+ *                                   an AST node. NOTE: for now the resolvers are not implemented
+ *                                   its treated as esprima always.
+ *
+ * @property {String=}     line  The starting and ending line to reference separated by a dash (ex "2-24")
+ */
+
+/**
+ * An object that represents a reference
+ * @typedef {Object}  Reference
+ * @property {String|bool} name       Optional name of the reference, false if its not named
+ * @property {String}      src        The path to the referenced file (normally a code file)
+ * @property {RefQuery}    ref        What to look for in the referenced file
+ * @property {String}      lineNumber The line number in the markdown file where this reference start
+ * @property {String}      refhash    A hash of the reference, serves to identify it, going to change soon
+ * @property {String}      status     TODO: Check out later
+ * @property {String}      directive  It gives semantics to the reference, why are we refering to this code,
+ *                                    is this a warning? a todo? do we want to include it? etc... It will
+ *                                    tell the rest of the library and tools how to render the ref, or how
+ *                                    to treat it (in a tool).
+ */
+
+/**
  * @summary Actually do get the references from the parsed markdown file
  *
  * @desc    Traverse the JsonML and extract all code references. Parse needs
  *          to be called before this
  *
- * @return  {Array.Reference}   The references
+ * @return  {Array.<Reference>}   The references
  * @private
  */
 MarkdownFileReader.prototype._doGetReferences = function  (jsonml) {
@@ -146,11 +171,9 @@ MarkdownFileReader.prototype.getReferences = function () {
 
 
 /**
- * @summary Class in charge of reading the markdown files, and getting some metadata out of them.
+ * @summary Class in charge of reading the markdown files, and getting the references out of them.
  *
- * @desc    We are especially interested in the references made from the md files to the source code
- *
- * @param   {Object}    settings    The mddoc configuration for this project
+ * @param   {Settings}    settings    The mddoc configuration for this project
  * @constructor
  */
 var MarkdownReader = function (settings) {

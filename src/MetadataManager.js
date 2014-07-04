@@ -2,6 +2,10 @@ var fs = require("fs"),
     crypto = require("crypto"),
     when = require("when");
 
+/**
+ * Super class
+ * @class
+ */
 var MetadataManager = function (settings) {
     this.settings = settings;
 };
@@ -24,7 +28,7 @@ MetadataManager.prototype.initialize = function () {
     this.metadata.hrCode = {};
 
     // Create a structure to hold the missing references
-    this.metadata.notFound = {};
+    this.metadata.notFound = [];
 };
 
 
@@ -59,6 +63,17 @@ MetadataManager.prototype.save = function() {
 };
 
 
+/**
+ * It gives you the not found references
+ * @returns {Array.<NotFoundRef>}
+ */
+MetadataManager.prototype.getNotFoundList = function () {
+    return this.metadata.notFound;
+};
+
+/**
+ * TODO: Document
+ */
 MetadataManager.prototype.renameThisMethod = function (markdownReader, codeReader) {
     markdownReader.on("md-file-parsed", "createJsonMLMetadata", this.createJsonMLMetadata.bind(this));
     markdownReader.on("md-file-parsed", "createHrMdMetadata", this.createHrMdMetadata.bind(this));
@@ -66,7 +81,7 @@ MetadataManager.prototype.renameThisMethod = function (markdownReader, codeReade
 
     codeReader.on("code-file-read", "updateHrMdMetadata", this.updateHrMdMetadata.bind(this),["updateHrCodeMetadata"]);
     codeReader.on("code-file-read", "updateHrCodeMetadata", this.updateHrCodeMetadata.bind(this));
-    codeReader.on("code-file-read", "updateNotFound", this.updateNotFound.bind(this));
+    codeReader.on("code-file-read", "updateNotFound", this.updateNotFound.bind(this),["updateHrCodeMetadata"]);
 };
 
 
@@ -76,6 +91,12 @@ MetadataManager.prototype.createJsonMLMetadata = function (mdFileReader) {
     meta.jsonml[mdFileReader.plainFileName] = mdFileReader.jsonml;
 };
 
+/**
+ * @summary Creates the metadata information of a Markdown file
+ * @desc    This method is called when a Markdown file is parsed. TODO: I think eventually this
+ *          method will only extract the refhash of each markdown, if this is even required at ALL!
+ * @param {MarkdownFileReader} mdFileReader The object that has parsed the markdown file, and has the references
+ */
 MetadataManager.prototype.createHrMdMetadata = function (mdFileReader) {
     var meta = this.metadata;
 
@@ -113,25 +134,49 @@ MetadataManager.prototype.updateHrMdMetadata = function(codeFileReader) {
     }
 };
 
+/**
+ * This represents a reference that wasn't found
+ * @typedef {Object} NotFoundRef
+ * @property {Array.<RefLoc>}   loc     Where is this reference defined
+ * @property {String}           src     The file that is referencing
+ * @property {RefQuery}         query   The reference query that wasn't found
+ * @property {String}           refhash A unique id that identifies the reference. Do I need this?
+ */
 
+/**
+ * TODO: comment
+ */
 MetadataManager.prototype.updateNotFound = function (codeFileReader) {
     var found;
 
     var meta = this.metadata;
     var hrCode = this.metadata.hrCode[codeFileReader.src];
     for (var refhash in codeFileReader.results) {
-
         found = hrCode.refs[refhash].found;
         if (!found) {
-            meta.notFound[refhash] = {
+            meta.notFound.push({
                 loc: hrCode.refs[refhash].loc,
                 src: codeFileReader.src,
-                query: hrCode.refs[refhash].query
-            };
+                query: hrCode.refs[refhash].query,
+                refhash: refhash
+            });
         }
     }
 };
 
+/**
+ * Defines a location where the reference was defined.
+ * @typedef {Object} RefLoc
+ * @property {String}   md      Logical name of the Markdown file where the reference is defined
+ * @property {String}   line    The line number inside the markdown file, where the definition starts
+ * @property {String}   file    The actual file path from the project directory to the markdown file
+ */
+
+/**
+ * @summary TODO: this method should be splitted soon.
+ * @desc    This method is called when a Markdown file is parsed.
+ * @param {MarkdownFileReader} mdFileReader The object that has parsed the markdown file, and has the references
+ */
 MetadataManager.prototype.createHrCodeMetadata = function (mdFileReader) {
     var meta = this.metadata;
 

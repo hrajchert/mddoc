@@ -21,3 +21,26 @@ the directive in O(1), or think if I really really need to have both hrCode and 
         "text" : "\"directive\": ref.directive"
     }
 %}
+
+
+I should change the approach of this method and split it in two. First of all, im not creating the code metadata always, some times I create it,
+some times I update it. What this method is actually doing is creating a task description for finding a reference, separating it into the
+diferent files that are being referenced.
+
+{%code_todo
+    "src" : "src/MetadataManager.js",
+    "ref" : {
+        "text" : "prototype.createHrCodeMetadata = function"
+    }
+%}
+
+
+See if its necesary or even convenient to have this new type of structure
+
+{%code_todo
+    "src" : "src/MetadataManager.js",
+    "ref" : {
+        "text" : "meta.notFound.push"
+    }
+%}
+

@@ -18,7 +18,7 @@ module.exports = function(grunt) {
             // Changes in models
             task: {
                 files: ["app.js","mddoc.js","index.js", "src/**/*.js", "test/**/*.js"],
-                tasks: ["cafemocha", "mddoc"]
+                tasks: ["cafemocha", "mddoc","jsdoc"]
             },
             documentation: {
                 files: ["docs/**/*.md"],
@@ -36,6 +36,14 @@ module.exports = function(grunt) {
                     ]
                 }
             }
+        },
+        jsdoc : {
+            dist : {
+                src: ["src/MarkdownReader.js","src/MetadataManager.js", "src/config.js"],
+                options: {
+                    destination: "dist/custom-generator/jsdoc"
+                }
+            }
         }
     });
 
@@ -43,7 +51,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.loadNpmTasks("grunt-contrib-jshint");
     grunt.loadNpmTasks("grunt-cafe-mocha");
-
+    grunt.loadNpmTasks("grunt-jsdoc");
 
     grunt.registerTask ("mddoc","Runs the mddoc", function() {
         // Force task into async mode and grab a handle to the "done" function.
@@ -82,7 +90,7 @@ module.exports = function(grunt) {
     });
 
     // Default task(s).
-    grunt.registerTask("default", ["cafemocha", "mddoc", "watch"]);
+    grunt.registerTask("default", ["cafemocha", "mddoc", "jsdoc", "watch"]);
 
 
 };
