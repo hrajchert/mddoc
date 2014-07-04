@@ -1,1 +1,1 @@
-A documentation tool with no documentation... ins't that weird
+A documentation tool with no documentation... isn't that weird

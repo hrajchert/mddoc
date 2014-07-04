@@ -1,15 +1,19 @@
 {
-  "name": "mdDoc",
-  "version": "0.0.0",
+  "name": "mddoc",
+  "version": "0.0.1",
   "description": "Unopinionated documentation tool",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
+  "license": "MIT",
   "bin": {
     "mddoc": "./mddoc"
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hrajchert/mddoc.git"
+  },
   "author": "Hernan Rajchert",
   "dependencies": {
     "markdown": "~0.5.0",
