@@ -1,15 +1,12 @@
 {
   "name": "mddoc",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Unopinionated documentation tool",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "license": "MIT",
-  "bin": {
-    "mddoc": "./mddoc"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/hrajchert/mddoc.git"
