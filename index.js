@@ -51,7 +51,6 @@
         // TODO: mhmhmhm
         _metadataManager.renameThisMethod(_mdReader, _codeReader);
 
-
         // Tool
         _codeIncluder = new CodeIncluder(metadata);
         _outputGenerator = new Generator(metadata, settings);
@@ -74,8 +73,6 @@
         }
         return errorObject;
     }
-
-
 
 
     exports.readMarkdown = function () {

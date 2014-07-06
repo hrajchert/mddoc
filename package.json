@@ -20,7 +20,8 @@
     "pretty-monitor": "~0.1.7",
     "pretty-error": "~0.1.17",
     "esprima": "~1.0.4",
-    "colors": "~0.6.2"
+    "colors": "~0.6.2",
+    "commander": "^2.2.0"
   },
   "devDependencies": {
     "grunt": "~0.4.2",

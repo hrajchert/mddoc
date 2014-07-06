@@ -54,7 +54,7 @@ MetadataManager.prototype.save = function() {
 
         fs.writeFile(metadataFileName, metadataStr, function(err){
             if (err) {
-                reject(err);
+                return reject(err);
             }
             console.log("Metadata written to ".green + metadataFileName.grey);
             resolve();
