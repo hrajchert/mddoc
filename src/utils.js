@@ -2,13 +2,32 @@ var _ = require("underscore"),
     when = require("when"),
     fs = require("fs");
 
+var isFileExcluded = function (file, options) {
+    var isExcluded = false;
+    var exclude;
+    if (_.isObject(options) && options.hasOwnProperty("exclude")) {
+        exclude = options.exclude;
+    }
+    if (_.isString(exclude)) {
+        exclude = [exclude];
+    }
+    if (_.isArray(exclude)) {
+        _.forEach(exclude, function (exc) {
+                if (file.match(exc)) {
+                    isExcluded = true;
+                }
+        });
+    }
+    return isExcluded;
+};
 /**
  * Method that walks a directory and returns a promise of all the files in it. Recursivly
- * @param  string dir The directory to walk
+ * @param  string dir      The directory to walk
+ * @param  object options  For now an object that has exclude
  * @return promise    A promise of an array that holds all the files
  */
-var walkDir = function (dir) {
-    return _doWalkDir(dir).then(function(files) {
+var walkDir = function (dir, options) {
+    return _doWalkDir(dir, options).then(function(files) {
         return _.flatten(files);
     });
 };
@@ -19,7 +38,7 @@ var walkDir = function (dir) {
  * needed to have both methods as this recursiveness doesn't provide a flattened
  * array
  */
-function _doWalkDir(dir) {
+function _doWalkDir(dir, options) {
     return when.promise(function(resolve, reject) {
         // An array of promise of the file stat (to see if we need to recurse or not)
         var filePromises = [];
@@ -33,11 +52,17 @@ function _doWalkDir(dir) {
             // For each file, check if directory. If it is, recurse, if not
             // boom.
             for (var i=0;i < files.length; i++) {
+                var filename = dir + "/" + files[i];
+                // Do not include excluded files
+                if (isFileExcluded(filename, options)) {
+                    continue;
+                }
                 // We need to create a file info object because of how the scope in
                 // js works. TODO: Add more documentation about this later! But not in the code!
                 var fileInfo = {
-                    file: dir + "/" + files[i],
-                    defer: when.defer()
+                    file: filename,
+                    defer: when.defer(),
+                    options: options
                 };
                 // Because checking if the file is a directory or not is async, we need to hold
                 // a promise of its checking
@@ -66,7 +91,7 @@ function _checkIfDirectory(err, stat) {
     }
     // If it is, resolve it once its subdirectory is resolved
     else {
-        this.defer.resolve(_doWalkDir(this.file));
+        this.defer.resolve(_doWalkDir(this.file, this.options));
     }
 }
 
@@ -158,12 +183,16 @@ function promiseWriteFile(path, data) {
 function writeFileCreateDir(path, data) {
     path = path.trim();
     // Don't allow absolute paths, for now
-    if (path[0] === "/") {
-        return when.reject("We don't allow absolute paths");
-    }
 
     // Extract the different directories as an array, and the filename separated
     var parts = path.split("/");
+
+    // If the parth is absolute, correct the parts
+    if (path[0] === "/") {
+        parts.shift();
+        parts[0] = "/" + parts[0];
+    }
+
     parts.pop(); //filename
 
     // Create all the dirs needed to open the file
@@ -187,16 +216,6 @@ function writeFileCreateDir(path, data) {
     });
 
 }
-
-//function _copyDir_copyFile(err, f) {
-//    if (err) {
-//        console.error("There was a problem opening the file ", err );
-//        throw err;
-//    }
-//    return writeFileCreateDir(this.outputFilename, f).otherwise(function(err) {
-//        console.error("There was a problem writing the file", err);
-//    });
-//}
 
 function copyFile(src, dst) {
     return when.promise(function(resolve, reject) {

@@ -4,7 +4,7 @@ The library will be in charge of generating and interpreting the metadata.
 {%code_todo
     "src" : "mddoc.js",
     "ref" : {
-        "text" : "mddoc = require("
+        "text" : "mddoc   = require("
     }
 %}
 

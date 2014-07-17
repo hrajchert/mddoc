@@ -191,7 +191,7 @@ EventPromise.mixin(MarkdownReader.prototype);
 MarkdownReader.prototype.parse = function() {
     var self = this;
     // Walk the input dir recursively, get a list of all files
-    return walkDir(self.settings.inputDir).then(function(files) {
+    return walkDir(self.settings.inputDir,{exclude: self.settings.inputExclude}).then(function(files) {
 
         var promises = [];
         var mdre = /(.*)\.md$/;
@@ -205,6 +205,8 @@ MarkdownReader.prototype.parse = function() {
             return when.reject(err);
         };
 
+        // TODO: If there are too many input files this will try to read them all, which can cause
+        // a too many open files error. I have to divide the work in chunks
         // For each input file
         for (var i = 0; i<files.length;i++) {
             // Check that the file is a markdown file

@@ -2,33 +2,37 @@
 //#!/usr/bin/env node
 
 
-var mddoc = require("./index"),
-    config = require("./src/config");
-
-// Catch unhandled rejected promises
-require("pretty-monitor").start();
-var PrettyError = require("pretty-error"),
-    pe = new PrettyError();
+var mddoc   = require("./index"),
+    config  = require("./src/config"),
+    _       = require("underscore"),
+    program = require("commander");
 
 // Configure command line options
-var _ = require("underscore");
-var program = require("commander");
-
 program
   .version("0.0.2")
   .option("-i, --inputDir [dir]", "Input dir")
   .option("-o, --outputDir [dir]", "Output dir")
   .parse(process.argv);
 
-var runtimeOptions = _.pick(program, "inputDir", "outputDir");
+var commandLineOptions = _.pick(program, "inputDir", "outputDir");
+
+// Set proccess title
+process.title = "mddoc";
+
+// Catch unhandled rejected promises
+require("pretty-monitor").start();
+var PrettyError = require("pretty-error"),
+    pe = new PrettyError();
 
 PrettyError.start(function() {
-    var settingsPromise = config.loadConfig(process.cwd() + "/.mddoc.json", runtimeOptions);
+    // Load the program options
+    var settingsPromise = config.loadConfig(process.cwd() + "/.mddoc.json", commandLineOptions);
 
     settingsPromise.done(function(settings) {
-
+        // Initialize the mddoc steps
         mddoc.initialize(settings);
 
+        // Indicate which steps to run
         var steps = [
             mddoc.readMarkdown,
             mddoc.readCode,
@@ -37,6 +41,7 @@ PrettyError.start(function() {
             mddoc.generateOutput
         ];
 
+        // Do magic
         mddoc.run(steps).otherwise(function(e){
             console.error("There was a problem in the step \"" + e.step + "\"");
             console.error(pe.render(e.err));

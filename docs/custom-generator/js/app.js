@@ -81,7 +81,7 @@ app.directive("conceptMap", function($state) {
     return {
         restrict: "E",
         scope: {},
-        templateUrl: "partials/concept-map.html",
+        templateUrl: "concept-map.html",
         link: function (scope, elem) {
             function close() {
                 $(document).off("keyup", closeHandler);

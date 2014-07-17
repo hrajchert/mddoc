@@ -64,7 +64,7 @@ module.exports = function(grunt) {
         var mddocSettings = utils.loadJson(".mddoc.json");
 
         // Run the tool
-        mddocSettings.then(function(settings) {
+        mddocSettings.done(function(settings) {
             mddoc.verbose(true);
             mddoc.initialize(settings);
 

@@ -143,4 +143,5 @@
     exports.CodeReader      = CodeReader;
     exports.Generator       = Generator;
     exports.utils           = require("./src/utils");
+    exports.config          = require("./src/config");
 })();

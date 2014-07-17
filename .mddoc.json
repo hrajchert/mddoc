@@ -6,7 +6,12 @@
             "copyAssets"  : true,
             "templateDir" : "docs/custom-generator",
             "outputDir"   : "dist/custom-generator",
-            "files"       : ["index", "blog", "mini_estructura", "comment_programming", "concepts", "main", "main-jumbo"]
+            "files"       : ["index", "blog", "mini_estructura", "comment_programming", "concepts", "main", "main-jumbo", "concept-map"]
+        },
+        "html-fragment" : {
+            "outputDir"   : "dist/custom-generator/fragment",
+            "priority"    : 110
+
         }
     }
 }
