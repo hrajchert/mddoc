@@ -26,7 +26,7 @@ var PrettyError = require("pretty-error"),
 
 PrettyError.start(function() {
     // Load the program options
-    var settingsPromise = config.loadConfig(process.cwd() + "/.mddoc.json", commandLineOptions);
+    var settingsPromise = config.loadConfig(process.cwd(), commandLineOptions);
 
     settingsPromise.done(function(settings) {
         // Initialize the mddoc steps

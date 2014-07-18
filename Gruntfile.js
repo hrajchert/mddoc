@@ -58,10 +58,10 @@ module.exports = function(grunt) {
         var done = this.async();
 
         var mddoc = require("./index"),
-            utils = mddoc.utils;
+            config = mddoc.config;
 
         // Load the project settings
-        var mddocSettings = utils.loadJson(".mddoc.json");
+        var mddocSettings = config.loadConfig(process.cwd());
 
         // Run the tool
         mddocSettings.done(function(settings) {
