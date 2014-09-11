@@ -79,7 +79,7 @@
 
         <script src="js/app.js"></script>
         <script type="text/javascript">
-            var fragments =<%- @documentor.exportFragmentJson() %>;
+            var fragments =<%- @mddoc.exportFragmentJson() %>;
         </script>
 
     </body>

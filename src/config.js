@@ -1,67 +1,58 @@
-/**
- * @typedef Settings
- * @property {String} inputDir   Path to the folder that has the Markdown files
- * @property {String} outputDir  Path to the folder that will hold the output of this program
- * @property {Array.<GeneratorConfig>} generators  A list of generators that indicate how the program
- *                                                 should be "printed"
- *
- */
-
 var _      = require("underscore"),
     findup = require("findup"),
     when   = require("when");
 
-var ConfigManager = function () {
-    this.config = {};
-};
 
-ConfigManager.prototype.initConfig = function (config) {
+/** @class Settings */
+function Settings () {
+    /** @property inputDir {String} Path to the folder that has the Markdown files */
+    this.inputDir = null;
+    /** @member {String} outputDir  Path to the folder that will hold the output of this program */
+    this.outputDir = null;
+    /** @member {Array.<GeneratorConfig>} generators  A list of generators that indicate how the program
+     *                                    should be "printed" */
+    this.generators = {};
+}
+
+Settings.prototype.initConfig = function (config) {
     this.extend(config);
 };
 
-ConfigManager.prototype.extend = function (config) {
-    _.extend(this.config, config);
+Settings.prototype.extend = function (config) {
+    _.extend(this, config);
 };
 
 
-ConfigManager.prototype.addGenerator = function (name, options) {
-    // Make sure the generators property exists
-    if (!this.config.hasOwnProperty("generators")) {
-        this.config.generators = {};
-    }
-    this.config.generators[name] = options;
+Settings.prototype.addGenerator = function (name, options) {
+    this.generators[name] = options;
 };
 
 
-ConfigManager.prototype.validate = function () {
-    if (!this.config.hasOwnProperty("inputDir")) {
+Settings.prototype.validate = function () {
+    if (this.inputDir === null) {
         throw new Error("You must specify an input dir");
     }
-    if (!this.config.hasOwnProperty("outputDir")) {
-        throw new Error("You must specify a destination dir");
+    if (this.outputDir === null) {
+//        throw new Error("You must specify a destination dir");
     }
-};
-
-ConfigManager.prototype.getConfig = function () {
-    return this.config;
 };
 
 module.exports = {
     loadConfig : function (path, runOptions) {
         return when.promise(function(resolve, reject) {
-            var configManager = new ConfigManager();
+            var config = new Settings();
             findup(path, "Mddocfile.js", function(err, dir) {
                 if (err) {
                     return reject("Could not find Mddocfile.js");
                 }
-                require(dir + "/Mddocfile.js")(configManager);
+                require(dir + "/Mddocfile.js")(config);
 
                 if (runOptions) {
-                    configManager.extend(runOptions);
+                    config.extend(runOptions);
                 }
 
-                configManager.validate();
-                resolve(configManager.getConfig());
+                config.validate();
+                resolve(config);
 
             });
         });

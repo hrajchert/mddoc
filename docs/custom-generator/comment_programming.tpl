@@ -1,2 +1,2 @@
 <h1>Comment Programming</h1>
-<%- @documentor.getHtml 'comment_programming' %>
+<%- @mddoc.getHtml 'comment_programming' %>

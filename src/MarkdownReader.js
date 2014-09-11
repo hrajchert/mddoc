@@ -89,8 +89,8 @@ MarkdownFileReader.prototype.parse = function () {
 MarkdownFileReader.prototype._doGetReferences = function  (jsonml) {
     var references = [];
     // For each markdown block
-    for (var i=1; i< jsonml.length ; i++) {
-        var mlBlock = jsonml[i];
+    for (var blockNumber=1; blockNumber< jsonml.length ; blockNumber++) {
+        var mlBlock = jsonml[blockNumber];
         // If its not an actual JsonML block, move on
         if (!Array.isArray(mlBlock)) {
             continue;
@@ -105,9 +105,13 @@ MarkdownFileReader.prototype._doGetReferences = function  (jsonml) {
                 throw new Error("Invalid reference\n" + mlBlock[1]) ;
             }
 
+            var referingBlocks = attr.hasOwnProperty("referingBlocks")?attr.referingBlocks:1;
             var referencingMl = null;
-            if ( i > 1 ) {
-                referencingMl = jsonml[i-1];
+            if ( blockNumber > referingBlocks ) {
+                referencingMl = [];
+                for (var i = blockNumber - referingBlocks; i < blockNumber ; i++) {
+                    referencingMl.push(jsonml[i]);
+                }
             }
 
             // Interpret the reference

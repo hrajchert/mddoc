@@ -3,6 +3,8 @@
         when     = require("when"),
         path     = require("path");
 
+    // TODO: remove
+    var utils = require("../utils");
     var GeneratorHelperManager = require("./GeneratorHelperManager");
 
     var registeredGenerators = {};
@@ -98,10 +100,9 @@
                 var generatorSettings = normalizeGeneratorConfig(settings.generators[generatorType], settings);
                 // Get the generator constructor
                 var generatorConstructor = findGenerator (generatorType, settings);
-
                 // Initialize it
                 this.generators.push({
-                    generatorObject: generatorConstructor.call(this, metadata, settings),
+                    generatorObject: generatorConstructor.call(this, metadata, settings, utils),
                     generatorSettings: generatorSettings,
                     generatorType: generatorType
                 });

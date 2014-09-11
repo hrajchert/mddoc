@@ -1,3 +1,3 @@
 <h1>Concepts</h1>
-<%- @documentor.getHtml 'textSearch' %>
+<%- @mddoc.getHtml 'textSearch' %>
 <hr/>

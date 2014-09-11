@@ -9,7 +9,6 @@ function getHtml (metadata, mdTemplate) {
     try {
         tree = markdown.toHTMLTree(metadata.jsonml[mdTemplate]);
     }catch (e) {
-        console.log(e);
         throw new Error("Couldnt create html for template " + mdTemplate);
     }
 

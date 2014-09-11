@@ -25,7 +25,7 @@ HtmlWriterFile.prototype.setHelpers = function (helpers) {
 HtmlWriterFile.prototype.render = function() {
     var self = this;
     return when.promise(function(resolve, reject) {
-        var html = self.renderer.render(self.inputFile, {documentor: self.helpers});
+        var html = self.renderer.render(self.inputFile, {mddoc: self.helpers});
         utils.writeFileCreateDir(self.outputFile, html).then(
             function () {
                 console.log("We wrote ".green + self.outputFile.grey);

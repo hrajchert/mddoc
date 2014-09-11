@@ -2,6 +2,7 @@ var _ = require("underscore"),
     when = require("when"),
     fs = require("fs");
 
+
 var isFileExcluded = function (file, options) {
     var isExcluded = false;
     var exclude;
@@ -150,7 +151,7 @@ function _doCreateDirIfNeeded(path) {
 }
 
 // Holds the directories checked to see if needed to be created
-// This way we both save recurses and avoid race conditions
+// This way we both save resource and avoid race conditions
 var _dirsChecked = {};
 
 function _createDirIfNeeded(path) {
