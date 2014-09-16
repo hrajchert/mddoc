@@ -31,3 +31,13 @@ Revisit this
     }
 %}
 
+
+Improve the error handling when the block is not valid JSON
+
+{%code_todo
+    "src" : "src/MarkdownReader.js",
+    "priority" : 3,
+    "ref" : {
+        "text" : "var attr = JSON.parse"
+    }
+%}

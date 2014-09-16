@@ -1,49 +1,56 @@
 
 var utils = require("../../utils");
-var when = require("when");
-
-
-
-var HtmlFragmentGenerator = function (metadata, settings) {
-    this.metadata = metadata;
-    this.settings = settings.generators["html-fragment"];
-};
+var when = require("when"),
+    _     = require("underscore");
 
 // TODO: remove
 var markdown = require("markdown").markdown;
 
+module.exports = function(PluginResolver) {
+    var BaseGenerator = PluginResolver.BaseGenerator;
 
-HtmlFragmentGenerator.prototype.generate = function(){
-    var self = this;
-    return when.promise(function(resolve) {
-        var promises = [];
+    var HtmlFragmentGenerator = function (metadata, settings) {
+        this.metadata = metadata;
+        this.settings = settings.generators["html-fragment"];
+    };
+    // Extend from the base generator
+    _.extend(HtmlFragmentGenerator.prototype, BaseGenerator.prototype);
 
-        self.metadata.renderedFragments = {};
 
-        // For each markdown, create the html fragment
-        for (var mdTemplate in self.metadata.jsonml) {
-            try {
-                var tree = markdown.toHTMLTree(self.metadata.jsonml[mdTemplate]);
-                var html = markdown.renderJsonML(tree);
+    HtmlFragmentGenerator.prototype.generate = function(){
+        var self = this;
+        return when.promise(function(resolve) {
+            var promises = [];
 
-                var outputFilename = self.settings.outputDir + "/" + mdTemplate + ".html";
-                // mhmhmh TODO: This is sooo hardcoded
-                self.metadata.renderedFragments[mdTemplate] = "fragment/" + mdTemplate + ".html";
+            self.metadata.renderedFragments = {};
 
-                promises.push(utils.writeFileCreateDir(outputFilename, html));
+            // For each markdown, create the html fragment
+            for (var mdTemplate in self.metadata.jsonml) {
+                try {
+                    var tree = markdown.toHTMLTree(self.metadata.jsonml[mdTemplate]);
+                    var html = markdown.renderJsonML(tree);
 
-            } catch (e) {
-                console.log("Problem with ".red + mdTemplate);
-                throw e;
+                    var outputFilename = self.settings.outputDir + "/" + mdTemplate + ".html";
+                    // mhmhmh TODO: This is sooo hardcoded
+                    self.metadata.renderedFragments[mdTemplate] = "fragment/" + mdTemplate + ".html";
+
+                    promises.push(utils.writeFileCreateDir(outputFilename, html));
+
+                } catch (e) {
+                    console.log("Problem with ".red + mdTemplate);
+                    throw e;
+                }
             }
+
+
+            resolve(when.all(promises));
+        });
+
+    };
+
+    return {
+        createGenerator : function (metadata, settings) {
+            return new HtmlFragmentGenerator(metadata, settings);
         }
-
-
-        resolve(when.all(promises));
-    });
-
-};
-
-exports.constructor = function (metadata, settings) {
-    return new HtmlFragmentGenerator(metadata, settings);
+    };
 };

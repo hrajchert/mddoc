@@ -1,11 +1,11 @@
 (function(){
     "use strict";
 
-    var MarkdownReader = require("./src/MarkdownReader").MarkdownReader,
-        CodeReader = require("./src/CodeReader").CodeReader,
-        CodeIncluder = require("./src/CodeIncluder").CodeIncluder,
-        MetadataManager = require("./src/MetadataManager").MetadataManager,
-        Generator = require("./src/generator/Generator").Generator;
+    var MarkdownReader   = require("./src/MarkdownReader").MarkdownReader,
+        CodeReader       = require("./src/CodeReader").CodeReader,
+        CodeIncluder     = require("./src/CodeIncluder").CodeIncluder,
+        MetadataManager  = require("./src/MetadataManager").MetadataManager,
+        GeneratorManager = require("./src/generator/GeneratorManager").GeneratorManager;
 
     var when = require("when"),
         sequence = require("when/sequence");
@@ -22,8 +22,6 @@
     var _codeReader = null;
 
     var _codeIncluder = null;
-
-    var _outputGenerator = null;
 
     var _verbose = true;
 
@@ -53,7 +51,7 @@
 
         // Tool
         _codeIncluder = new CodeIncluder(metadata);
-        _outputGenerator = new Generator(metadata, settings);
+        GeneratorManager.initialize(metadata, settings);
     };
 
     exports.getMetadataManager = function () {
@@ -117,7 +115,7 @@
     };
 
     exports.generateOutput = function() {
-        return _outputGenerator.generate().otherwise(function(err) {
+        return GeneratorManager.generate().otherwise(function(err) {
             console.log("Could not generate the HTML".red);
             console.log(err);
             return when.reject(normalizeError("Output Generator", err));
@@ -138,10 +136,10 @@
     // --     OTHER INCLUDES       --
     // ------------------------------
     // TODO: check this
-    exports.CodeIncluder    = CodeIncluder;
-    exports.MarkdownReader  = MarkdownReader;
-    exports.CodeReader      = CodeReader;
-    exports.Generator       = Generator;
-    exports.utils           = require("./src/utils");
-    exports.config          = require("./src/config");
+    exports.CodeIncluder     = CodeIncluder;
+    exports.MarkdownReader   = MarkdownReader;
+    exports.CodeReader       = CodeReader;
+    exports.GeneratorManager = GeneratorManager;
+    exports.utils            = require("./src/utils");
+    exports.config           = require("./src/config");
 })();

@@ -10,3 +10,14 @@ not defined, error.
         "text" : "this.outputDir === null"
     }
 %}
+
+Rename this, I don't like to use dir, instead use path and I thikn this should be templatePath, docPath, inputDocPath or something like that.
+A looot of places to touch :(
+
+{%code_todo
+    "src" : "src/config.js",
+    "priority" : 3,
+    "ref" : {
+        "text" : "this.inputDir = null;"
+    }
+%}

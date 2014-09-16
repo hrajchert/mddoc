@@ -39,7 +39,8 @@ module.exports = function(grunt) {
         },
         jsdoc : {
             dist : {
-                src: ["src/MarkdownReader.js","src/MetadataManager.js", "src/config.js"],
+                src: ["src/MarkdownReader.js","src/MetadataManager.js", "src/config.js",
+                      "src/generator/GeneratorManager.js"],
                 options: {
                     destination: "dist/custom-generator/jsdoc"
                 }

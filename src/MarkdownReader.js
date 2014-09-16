@@ -98,6 +98,7 @@ MarkdownFileReader.prototype._doGetReferences = function  (jsonml) {
         // See if this block is a code reference block
         if ( mlBlock[0] === "code_reference" ) {
             // Get the attributes from the jsonml
+
             var attr = JSON.parse("{"+mlBlock[1]+"}");
 
             // Each attribute must have a src and a ref
