@@ -1,4 +1,7 @@
 var _ = require("underscore");
+/**
+ * @class
+ */
 function BaseGeneratorSettings (options, globalSettings) {
     _.extend(this, options);
 
@@ -15,6 +18,20 @@ function BaseGeneratorSettings (options, globalSettings) {
         this.priority = 100;
     }
     // TODO: maybe normalize path, right?
+
+    /**
+     * The name of the generator type. Should be overrided by each
+     * custom GeneratorSettings object
+     * @member {String}
+     */
+    this.generatorType = null;
 }
+
+BaseGeneratorSettings.prototype.getGeneratorType = function () {
+    if (this.generatorType === null) {
+        throw Error('Generator type not set');
+    }
+    return this.generatorType;
+};
 
 module.exports = BaseGeneratorSettings;

@@ -43,11 +43,8 @@ module.exports = function(PluginResolver) {
     };
 
 
-    var CustomGenerator = function (metadata, settings) {
-        BaseGenerator.constructor.call(this);
-
-        this.metadata = metadata;
-        this.settings = settings.generators.custom;
+    var CustomGenerator = function (notused, projectSettings, generatorSettings) {
+        BaseGenerator.call(this, projectSettings, generatorSettings);
 
         // TODO: this should be in the HtmlWriterFile, but i dont want to create
         // one every time
@@ -59,8 +56,8 @@ module.exports = function(PluginResolver) {
     _.extend(CustomGenerator.prototype, BaseGenerator.prototype);
 
     CustomGenerator.prototype.copyAssets = function () {
-        var inputDir = this.settings.templateDir,
-            outputDir = this.settings.outputDir;
+        var inputDir = this.generatorSettings.templateDir,
+            outputDir = this.generatorSettings.outputDir;
         // Not sure about the partials one...
         var assetRe = /\/(css|js|images|fonts)\//;
 
@@ -72,16 +69,16 @@ module.exports = function(PluginResolver) {
         var self = this;
         return when.promise(function(resolve) {
             var promises = [];
-            if (self.settings.copyAssets) {
+            if (self.generatorSettings.copyAssets) {
                 promises.push(self.copyAssets());
             }
 
             // TODO: Remove the files settings, probably walk the dir for .tpl files
-            for (var i=0; i< self.settings.files.length; i++) {
+            for (var i=0; i< self.generatorSettings.files.length; i++) {
                 // Create the object in charge of rendering the html
                 var renderObject = new HtmlWriterFile({
-                    inputFile: self.settings.files[i] + ".tpl",
-                    outputFile: self.settings.outputDir + "/" + self.settings.files[i] + ".html",
+                    inputFile: self.generatorSettings.files[i] + ".tpl",
+                    outputFile: self.generatorSettings.outputDir + "/" + self.generatorSettings.files[i] + ".html",
                     renderer: self.renderer
                 });
 
@@ -98,8 +95,8 @@ module.exports = function(PluginResolver) {
     };
 
     return {
-        createGenerator : function (metadata, settings) {
-            return new CustomGenerator(metadata, settings);
+        createGenerator : function (metadata, projectSettings, generatorSettings) {
+            return new CustomGenerator(null, projectSettings, generatorSettings);
         }
     };
 };

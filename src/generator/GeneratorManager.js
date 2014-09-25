@@ -28,7 +28,10 @@ var registerGenerator = function (name, genpath) {
 
     if (!factory.hasOwnProperty("createSettings")) {
         factory.createSettings = function(options, globalSettings) {
-            return new PluginResolver.BaseGeneratorSettings(options, globalSettings);
+            var settings = new PluginResolver.BaseGeneratorSettings(options, globalSettings);
+            // Add the generator type to the default settings
+            settings.generatorType = name;
+            return settings;
         };
     }
 
@@ -59,6 +62,7 @@ var normalizeProjectGeneratorPath = function (genpath, basePath) {
 var GeneratorManager = function () {
     this.generators = [];
     this.metadata = null;
+    this.initialized = false;
 };
 
 /**
@@ -89,28 +93,37 @@ GeneratorManager.prototype.findGeneratorFactory = function (generatorType, baseP
     return generator;
 };
 
-GeneratorManager.prototype.initialize = function (metadata, settings) {
-    this.metadata = metadata;
-    if ("generators" in settings) {
-        // Instantiate all generators
-        for (var generatorType in settings.generators) {
-
-            var generatorSettings = settings.generators[generatorType];
-            // Get the generator factory
-            var generatorFactory = this.findGeneratorFactory (generatorType, settings.basePath);
-            // Initialize it
-            this.generators.push({
-                generatorObject: generatorFactory.createGenerator(metadata, settings),
-                generatorSettings: generatorSettings,
-                generatorType: generatorType
-            });
-        }
-        // Sort them by priority
-        this.generators.sort(function(a,b) {
-            return a.generatorSettings.priority < b.generatorSettings.priority;
-        });
-
+GeneratorManager.prototype.initialize = function (metadata, projectSettings) {
+    // Avoid duplicate initialization
+    if (this.initialized) {
+        return;
     }
+    this.initialized = true;
+
+    this.metadata = metadata;
+    // Instantiate all generators
+    for (var generatorName in projectSettings.generators) {
+        // Get the generator settings
+        var generatorSettings = projectSettings.generators[generatorName];
+
+        // Find the constructor
+        var generatorFactory = this.findGeneratorFactory (generatorSettings.getGeneratorType(), projectSettings.basePath);
+
+        // Instantiate it
+        var generatorObject = generatorFactory.createGenerator(metadata, projectSettings, generatorSettings);
+
+        // Add it to the generator instance list
+        this.generators.push({
+            generatorObject: generatorObject,
+            generatorSettings: generatorSettings,
+            generatorName: generatorName
+        });
+    }
+    // Sort them by priority
+    this.generators.sort(function(a,b) {
+        return a.generatorSettings.priority < b.generatorSettings.priority;
+    });
+
 
 };
 
@@ -122,7 +135,7 @@ GeneratorManager.prototype.generate = function () {
         var iterate = function (i) {
             if (i < self.generators.length) {
                 helpers = GeneratorHelperManager.getRenderHelpers(self.metadata);
-                console.log("Executing " + self.generators[i].generatorType + " generator");
+                console.log("Executing the generator: " + self.generators[i].generatorName);
                 // If we have more generators, call them in sequence
                 when(self.generators[i].generatorObject.generate(helpers)).then(
                     function() {

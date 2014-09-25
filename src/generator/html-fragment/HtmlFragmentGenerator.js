@@ -9,9 +9,9 @@ var markdown = require("markdown").markdown;
 module.exports = function(PluginResolver) {
     var BaseGenerator = PluginResolver.BaseGenerator;
 
-    var HtmlFragmentGenerator = function (metadata, settings) {
+    var HtmlFragmentGenerator = function (metadata, projectSettings, generatorSettings) {
         this.metadata = metadata;
-        this.settings = settings.generators["html-fragment"];
+        BaseGenerator.call(this, projectSettings, generatorSettings);
     };
     // Extend from the base generator
     _.extend(HtmlFragmentGenerator.prototype, BaseGenerator.prototype);
@@ -30,7 +30,7 @@ module.exports = function(PluginResolver) {
                     var tree = markdown.toHTMLTree(self.metadata.jsonml[mdTemplate]);
                     var html = markdown.renderJsonML(tree);
 
-                    var outputFilename = self.settings.outputDir + "/" + mdTemplate + ".html";
+                    var outputFilename = self.generatorSettings.outputDir + "/" + mdTemplate + ".html";
                     // mhmhmh TODO: This is sooo hardcoded
                     self.metadata.renderedFragments[mdTemplate] = "fragment/" + mdTemplate + ".html";
 
@@ -49,8 +49,8 @@ module.exports = function(PluginResolver) {
     };
 
     return {
-        createGenerator : function (metadata, settings) {
-            return new HtmlFragmentGenerator(metadata, settings);
+        createGenerator : function (metadata, projectSettings, generatorSettings) {
+            return new HtmlFragmentGenerator(metadata, projectSettings, generatorSettings);
         }
     };
 };

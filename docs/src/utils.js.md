@@ -1,10 +1,9 @@
-
-This is being called for every file, I need to at least precompile the filters or something
+This method is quite slow, if you have many subfiles it will hang, need to refactor. Also add in some way glob notation.
 
 {%code_todo
     "src" : "src/utils.js",
-    "priority": 3,
+    "priority" : 7,
     "ref" : {
-        "text" : "var isFileExcluded = "
+        "text" : "var walkDir = function"
     }
 %}
