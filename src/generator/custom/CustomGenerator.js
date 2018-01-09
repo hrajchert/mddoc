@@ -49,7 +49,7 @@ module.exports = function(PluginResolver) {
         // TODO: this should be in the HtmlWriterFile, but i dont want to create
         // one every time
         var ECT = require("ect");
-        this.renderer = ECT({ root : this.settings.templateDir });
+        this.renderer = ECT({ root : generatorSettings.templateDir });
     };
 
     // Extend from the base generator
