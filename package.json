@@ -13,16 +13,17 @@
   },
   "author": "Hernan Rajchert",
   "dependencies": {
-    "markdown": "~0.5.0",
-    "underscore": "~1.6.0",
-    "ect": "~0.5.9",
-    "when": "~2.8.0",
-    "pretty-monitor": "~0.1.7",
-    "pretty-error": "~0.1.17",
-    "esprima": "~1.0.4",
     "colors": "~0.6.2",
     "commander": "^2.2.0",
-    "findup": "^0.1.5"
+    "ect": "~0.5.9",
+    "esprima": "~1.0.4",
+    "findup": "^0.1.5",
+    "markdown": "~0.5.0",
+    "pretty-error": "~0.1.17",
+    "pretty-monitor": "~0.1.7",
+    "typescript": "^2.6.2",
+    "underscore": "~1.6.0",
+    "when": "~2.8.0"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3",

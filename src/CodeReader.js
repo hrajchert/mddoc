@@ -92,7 +92,10 @@ CodeFinderQueryJsText.prototype.findMinNode = function findMinNode (node, tree) 
     // If im here, im in range.
 
     // Save this node as the smaller node that still contains the queryRange
-
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // TODO: THIS has a ref explaining why I made this decision, try not to loose the reference
+    // in the refactor
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     var size = node.range[1] - node.range[0];
     this.minSize = size;
     this.minNode = node;
