@@ -12,6 +12,9 @@
     "url": "https://github.com/hrajchert/mddoc.git"
   },
   "author": "Hernan Rajchert",
+  "scripts": {
+    "start": "tsc && node ts-dist/mddoc.js"
+  },
   "dependencies": {
     "colors": "~0.6.2",
     "commander": "^2.2.0",
@@ -26,6 +29,8 @@
     "when": "~2.8.0"
   },
   "devDependencies": {
+    "@types/colors": "^1.1.3",
+    "@types/node": "^9.3.0",
     "coffee-script": "~1.6.3",
     "grunt": "~0.4.2",
     "grunt-cafe-mocha": "~0.1.11",

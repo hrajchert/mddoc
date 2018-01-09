@@ -1,12 +1,16 @@
-var fs = require("fs"),
+import * as fs from 'fs';
+
+var
     crypto = require("crypto"),
     _ = require("underscore"),
     esprima = require("esprima"),
     EventPromise = require("./EventPromise"),
     when = require("when"),
-    nodefn = require("when/node/function");
+    nodefn = require("when/node/function")
 
-require("colors");
+;
+
+import 'colors';
 
 /**
  * This is a helper function that detects that

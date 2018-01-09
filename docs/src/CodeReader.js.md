@@ -3,9 +3,9 @@ but I later realized that if the node is still "in range", which is analoge to s
 the node will always be smaller and smaller in each children.
 Thus, I always set this node to be the min node and avoid an extra check
 
-{%code_ref
-    "src" : "src/CodeReader.js",
+{ % code_ref
+    "src" : "src/CodeReader.ts",
     "ref" : {
         "text" : "var size = node.range[1] - node.range[0];"
     }
-%}
+% }
