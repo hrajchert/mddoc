@@ -92,6 +92,12 @@ function trigger (eventName, data) {
     return when.all(promiseArray);
 }
 
+exports.create = function () {
+    return {
+        on,
+        trigger
+    }
+}
 
 exports.mixin = function(obj) {
     obj.on = on;
