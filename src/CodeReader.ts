@@ -246,43 +246,39 @@ class CodeFileReader {
      * @return Promise A promise of this
      */
     read () {
-        var promise;
         // First we need to read the file and parse the AST
-        promise = this.pre();
-
-        // Once we have the file, we need to call the right finder for each reference
-        promise = promise.then(() => {
-            this.results = {};
-            var ref, refhash, codeFinder;
-            for (refhash in this.references) {
-                ref = this.references[refhash];
-                // console.log("We need to parse a reference ".yellow + refhash.grey);
-                // console.log(ref);
-                // If it has a line property,
-                if ( ref.query.hasOwnProperty("line")) {
-                    // console.log("Instantiating Line query ".yellow);
-                    codeFinder = new CodeFinderQueryLine(this, ref.query);
-                } else if ( ref.query.hasOwnProperty("text")) {
-                    // console.log("Instantiating Text query ".yellow);
-                    codeFinder = new CodeFinderQueryJsText(this, ref.query);
+        return this.readAndParseFile()
+            // Once we have the file, we need to call the right finder for each reference
+            .then(() => {
+                this.results = {};
+                var ref, refhash, codeFinder;
+                for (refhash in this.references) {
+                    ref = this.references[refhash];
+                    // console.log("We need to parse a reference ".yellow + refhash.grey);
+                    // console.log(ref);
+                    // If it has a line property,
+                    if ( ref.query.hasOwnProperty("line")) {
+                        // console.log("Instantiating Line query ".yellow);
+                        codeFinder = new CodeFinderQueryLine(this, ref.query);
+                    } else if ( ref.query.hasOwnProperty("text")) {
+                        // console.log("Instantiating Text query ".yellow);
+                        codeFinder = new CodeFinderQueryJsText(this, ref.query);
+                    }
+                    if (codeFinder) {
+                        this.results[refhash] = codeFinder.execute();
+                    } else {
+                        this.results[refhash] = { found: false };
+                    }
+                    // console.log("This is the result:".red);
+                    // console.log(this.results[refhash].snippet);
                 }
-                if (codeFinder) {
-                    this.results[refhash] = codeFinder.execute();
-                } else {
-                    this.results[refhash] = { found: false };
-                }
-                // console.log("This is the result:".red);
-                // console.log(this.results[refhash].snippet);
-            }
-            // The finders are sync, so we can just return this (thus, promise of this)
-            return this;
-        });
-        // Return the promise of this
-        return promise;
+                // The finders are sync, so we can just return this (thus, promise of this)
+                return this;
+            });
     }
 
     // TODO: Rename this
-    pre () {
+    readAndParseFile () {
         return nodefn.call(fs.readFile, this.src, "utf8").then((source: string) => {
             if (this.verbose) {
                 console.log("reading code file ".blue + this.src.grey);

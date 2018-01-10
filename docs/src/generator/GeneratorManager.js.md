@@ -1,17 +1,17 @@
 I added this because a gulp task was executing the generator multiple times when in watch. The problem was that now the GeneratorManager is
 a singleton and aparently the initialize was being called multiple times. Although this does no harm, I don't quite like it.
 
-{%code_ref
+{ % code_ref
     "src" : "src/generator/GeneratorManager.js",
     "ref" : {
         "text" : "if (this.initialized) {"
     }
-%}
+% }
 
 This settings is an object that should inherit from `BaseGeneratorSettings`, we know so because it should be added using the
 `Settings.prototype.addGenerator` method.
 
-{%code_ref
+{ % code_ref
     "src" : "src/generator/GeneratorManager.js",
     "ref" : {
         "text" : "var generatorSettings = projectSettings.generators[generatorName]"
@@ -25,7 +25,7 @@ I think there is/was a problem with the metadata object being out of date from i
 the later on generate method.
 {:.alert .alert-danger }
 
-{%code_warning
+{ % code_warning
     "src" : "src/generator/GeneratorManager.js",
     "priority" : 1,
     "ref" : {

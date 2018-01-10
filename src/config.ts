@@ -2,7 +2,9 @@ var _      = require("underscore"),
     findup = require("findup"),
     when   = require("when");
 
-var GeneratorManager = require("./generator/GeneratorManager").GeneratorManager;
+import {getGeneratorManager} from "./generator/GeneratorManager";
+
+const GeneratorManager = getGeneratorManager();
 
 export class Settings {
     /**

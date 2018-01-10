@@ -5,8 +5,8 @@
         CodeReader       = require("./src/CodeReader").CodeReader,
         CodeIncluder     = require("./src/CodeIncluder").CodeIncluder,
         MetadataManager  = require("./src/MetadataManager").MetadataManager,
-        GeneratorManager = require("./src/generator/GeneratorManager").GeneratorManager;
-
+        GeneratorManager = require("./src/generator/GeneratorManager").getGeneratorManager()
+    ;
     var when = require("when"),
         sequence = require("when/sequence");
 
