@@ -11,6 +11,7 @@ var
 ;
 
 import 'colors';
+import { Settings } from './config';
 
 type IRange = [Number, Number];
 /**
@@ -282,7 +283,7 @@ class CodeFileReader {
 
     // TODO: Rename this
     pre () {
-        return nodefn.call(fs.readFile, this.src, "utf8").then((source: any) => {
+        return nodefn.call(fs.readFile, this.src, "utf8").then((source: string) => {
             if (this.verbose) {
                 console.log("reading code file ".blue + this.src.grey);
             }
@@ -297,7 +298,7 @@ class CodeFileReader {
         });
     }
 
-    private _lines: any[];
+    private _lines: Array<{text: string, range: IRange}>;
     get lines () {
         if (!("_lines" in this) ) {
             // console.log("Calculating lines!".inverse);
@@ -333,9 +334,8 @@ class CodeFileReader {
 
 export class CodeReader {
     eventPromise: any;
-    constructor (public metadata: any, public settings: any) {
+    constructor (public metadata: any, public settings: Settings) {
         this.eventPromise = EventPromise.create();
-
     }
 
     on (...args: any[]) {
