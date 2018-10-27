@@ -9,8 +9,8 @@ var
     nodefn = require("when/node/function")
 
 ;
+const { grey, blue } = require('colors');
 
-import 'colors';
 import { Settings } from './config';
 
 type IRange = [Number, Number];
@@ -286,7 +286,7 @@ class CodeFileReader {
     readAndParseFile () {
         return nodefn.call(fs.readFile, this.src, "utf8").then((source: string) => {
             if (this.verbose) {
-                console.log("reading code file ".blue + this.src.grey);
+                console.log(blue("reading code file ") + grey(this.src));
             }
 
             this.source = source;

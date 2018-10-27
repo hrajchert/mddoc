@@ -1,7 +1,7 @@
 Eventually this will be separated between library and application, for now they are together for simplicity.
-The library will be in charge of generating and interpreting the metadata.
+The library will be in charge of generating and interpreting the metadata. RESTORE
 
-{%code_todo
+{ % code_todo
     "src" : "mddoc.js",
     "ref" : {
         "text" : "mddoc   = require("

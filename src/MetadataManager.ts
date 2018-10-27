@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 const crypto = require("crypto");
 const when = require("when");
-
+const { green, grey } = require("colors");
 interface JSonML {
 
 }
@@ -125,7 +125,7 @@ export class MetadataManager {
                 if (err) {
                     return reject(err);
                 }
-                console.log("Metadata written to ".green + metadataFileName.grey);
+                console.log(green("Metadata written to ") + grey(metadataFileName));
                 resolve();
             });
         });
