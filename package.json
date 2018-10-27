@@ -16,6 +16,7 @@
     "start": "tsc && node ts-dist/mddoc.js"
   },
   "dependencies": {
+    "@ts-task/task": "^1.0.1",
     "colors": "~0.6.2",
     "commander": "^2.2.0",
     "ect": "~0.5.9",
@@ -24,7 +25,7 @@
     "markdown": "~0.5.0",
     "pretty-error": "~0.1.17",
     "pretty-monitor": "~0.1.7",
-    "typescript": "^2.6.2",
+    "typescript": "^3.1.0",
     "underscore": "~1.6.0",
     "when": "~2.8.0"
   },

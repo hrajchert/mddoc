@@ -3,9 +3,9 @@ import { CodeReader } from './src/CodeReader';
 export const CodeIncluder     = require("./src/CodeIncluder").CodeIncluder;
 import { MetadataManager } from './src/MetadataManager';
 export const GeneratorManager = require("./src/generator/GeneratorManager").getGeneratorManager();
+import { Task, UnknownError } from '@ts-task/task';
+import { sequence, Step } from './src/ts-task-utils';
 
-const when = require("when");
-const sequence = require("when/sequence");
 
 // TODO: Library shouldnt have colors
 const { red, grey } = require("colors");
@@ -56,12 +56,23 @@ export function getMetadataManager () {
 // --     STEPS DEFINITION     --
 // ------------------------------
 
-interface StepError {
+export class LibraryNotInitialized {
+    type = 'LibraryNotInitialized';
+    constructor (public module: string) {
+
+    }
+}
+
+export interface StepError {
     step: string;
     err: {
         msg: string;
         stack: string;
     }
+}
+
+export function isStepError (error: any): error is StepError {
+    return error.hasOwnProperty('step') && error.hasOwnProperty('err');
 }
 
 function normalizeError(step: string, error: any): StepError {
@@ -75,77 +86,82 @@ function normalizeError(step: string, error: any): StepError {
 
 export function readMarkdown () {
     if (_codeReader === null) {
-        throw 'Markdown reader is not initialized';
+        return Task.reject(new LibraryNotInitialized('Markdown reader'));
     }
-    return _mdReader.parse().otherwise(function(mdErr: any){
-        console.log(red("Could not parse the markdown"));
-        if (mdErr.reader) {
-            console.log("in file " + grey(mdErr.reader.completeFileName));
-        }
+    return Task.fromPromise<void>(_mdReader.parse())
+        .catch((mdErr: any) => {
+            console.log(red("Could not parse the markdown"));
+            if (mdErr.reader) {
+                console.log("in file " + grey(mdErr.reader.completeFileName));
+            }
 
-        return when.reject(normalizeError("markdown parser", mdErr));
-    });
+            return Task.reject(normalizeError("markdown parser", mdErr));
+        });
 };
 
 // TODO: Eventually call this read references, as it should read all sort of documents, not just code
 export function readCode () {
     if (_codeReader === null) {
-        throw 'Code reader is not initialized';
+        return Task.reject(new LibraryNotInitialized('Code reader'));
     }
-    return _codeReader.read().otherwise(function(err: any) {
-        console.log(red("Could not read the code"));
-        if (err.reader) {
-            console.log("in file " + grey(err.reader.src));
-        }
+    return Task.fromPromise<void>(_codeReader.read())
+        .catch(function(err: any) {
+            console.log(red("Could not read the code"));
+            if (err.reader) {
+                console.log("in file " + grey(err.reader.src));
+            }
 
-        return when.reject(normalizeError("code reader", err));
-    });
+            return Task.reject(normalizeError("code reader", err));
+        });
 }
 
 export function saveMetadata () {
     if (_metadataManager === null) {
-        throw 'Metadata manager is not initialized';
+        return Task.reject(new LibraryNotInitialized('Metadata manager'));
     }
-    return _metadataManager.save().otherwise(function(err: any) {
-        console.log(red("Could not write the metadata"));
-        console.log(err);
-        return when.reject(normalizeError("save metadata", err));
-    });
+    return Task.fromPromise<void>(_metadataManager.save())
+        .catch((err: any) => {
+            console.log(red("Could not write the metadata"));
+            console.log(err);
+            return Task.reject(normalizeError("save metadata", err));
+        });
 }
 
 export function replaceReferences () {
-    if (_codeIncluder === null) {
-        throw 'Code includer is not initialized';
-    }
+    let task: Task<void, LibraryNotInitialized | UnknownError | StepError>;
 
     try {
-        _codeIncluder.include();
-        return when.resolve();
+        if (_codeIncluder === null) {
+            task = Task.reject(new LibraryNotInitialized('Code includer'));
+        } else {
+            _codeIncluder.include();
+            task = Task.resolve(void 0);
+        }
     } catch (e) {
-        return when.reject(normalizeError("code includer", e));
+        task = Task.reject(normalizeError("code includer", e));
     }
-
+    return task;
 }
 
 export function generateOutput () {
-    return GeneratorManager.generate().otherwise(function(err: any) {
-        console.log(red("Could not generate the HTML"));
-        console.log(err);
-        return when.reject(normalizeError("Output Generator", err));
-    });
-
+    return Task.fromPromise<void>(GeneratorManager.generate())
+        .catch(function(err: any) {
+            console.log(red("Could not generate the HTML"));
+            console.log(err);
+            return Task.reject(normalizeError("Output Generator", err));
+        });
 };
 
+export function run<E> (steps: Step<E>[]) {
+    return sequence(steps)
+        .chain(() => {
+            if (_metadataManager === null) {
+                return Task.reject(new LibraryNotInitialized('Metadata manager'));
+            }
 
-export function run (steps: any[]) {
-    return sequence(steps).then(function(){
-        if (_metadataManager === null) {
-            throw 'Metadata manager is not initialized';
-        }
-
-        // I dont like this, quite much
-        return _metadataManager.getPlainMetadata();
-    });
+            // I dont like this, quite much
+            return Task.resolve(_metadataManager.getPlainMetadata());
+        });
 };
 
 

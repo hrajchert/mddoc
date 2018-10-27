@@ -1,7 +1,7 @@
 // Having this without comments cause esprima to freak and a weird
 //#!/usr/bin/env node
 
-const mddoc   = require("./index");
+import * as mddoc from './index';
 const config  = require("./src/config");
 const _       = require("underscore");
 const program = require("commander");
@@ -41,10 +41,20 @@ PrettyError.start(function() {
         ];
 
         // Do magic
-        mddoc.run(steps).otherwise(function(e: any){
-            console.error("There was a problem in the step \"" + e.step + "\"");
-            console.error(pe.render(e.err));
-        });
+        mddoc.run(steps).fork(
+            error => {
+                if (mddoc.isStepError(error)) {
+                    console.error(`There was a problem in the step "${error.step}"`);
+                    console.error(pe.render(error.err));
+                } else if (error instanceof mddoc.LibraryNotInitialized) {
+                    console.error(`The library wasnt initialized correctly ${error.module}`);
+                } else {
+                    console.error('Unknown error');
+                    console.error(pe.render(error));
+                }
+            },
+            _ => console.log('Program finished')
+        );
     }, function(err: any) {
         console.error("There was a problem loading the settings", err);
     });
