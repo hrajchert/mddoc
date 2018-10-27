@@ -54,7 +54,7 @@
   },
   "include": [
         "src/**/*",
-        "index.js",
+        "index.ts",
         "mddoc.ts"
     ],
     "exclude": [

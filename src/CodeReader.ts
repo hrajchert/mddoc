@@ -11,7 +11,7 @@ var
 ;
 const { grey, blue } = require('colors');
 
-import { Settings } from './config';
+import { Settings } from '../index';
 
 type IRange = [Number, Number];
 /**

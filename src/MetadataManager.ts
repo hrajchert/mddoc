@@ -85,7 +85,7 @@ export class MetadataManager {
     /**
      * Creates the basic structure for the metadata.
      */
-    private initialize () {
+    initialize () {
         this.metadata = {
             // The JsonML that later on will become the HTML
             jsonml: {},
