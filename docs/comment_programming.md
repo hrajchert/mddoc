@@ -314,10 +314,10 @@ relevant snippets and AST nodes.
 
 **Warning:**
 This is currently not like this doc says, we are storing the snippet in the `hrCode` reference. We should see if its worth to put in a separate object
-or if is fine to leave it here.
+or if is fine to leave it here. RESTORE
 {:.alert .alert-danger }
 
-{%code_warning
+{ % code_warning
     "src" : "src/MetadataManager.js",
     "ref" : {
         "text" : "hrCode.refs[refhash].snippet = snippet;"

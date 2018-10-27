@@ -4,9 +4,9 @@ We create it using the library [markdown-js](https://github.com/evilstreak/markd
 
 TODO: Add a how to extend the markdown syntax.
 
-The structure is stored in the metadata under the key `jsonml` in the method `MarkdownReader.prototype.parse`.
+The structure is stored in the metadata under the key `jsonml` in the method `MarkdownReader.prototype.parse`. RESTORE
 
-{%code_ref
+{ % code_ref
     "src" : "src/MetadataManager.js",
     "ref" : {
         "text" : "meta.jsonml[mdFileReader.plainFileName] = mdFileReader.jsonml;"

@@ -276,7 +276,10 @@ class CodeFileReader {
                 }
                 // The finders are sync, so we can just return this (thus, promise of this)
                 return this;
-            });
+            }).otherwise(() => {
+                throw `Problem reading file: ${this.src}`;
+            })
+            ;
     }
 
     // TODO: Rename this
