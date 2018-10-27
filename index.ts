@@ -1,5 +1,5 @@
 export const MarkdownReader   = require("./src/MarkdownReader").MarkdownReader;
-import { CodeReader } from './src/CodeReader';
+import { CodeReader } from './src/reader/CodeReader';
 export const CodeIncluder     = require("./src/CodeIncluder").CodeIncluder;
 import { MetadataManager } from './src/MetadataManager';
 export const GeneratorManager = require("./src/generator/GeneratorManager").getGeneratorManager();
