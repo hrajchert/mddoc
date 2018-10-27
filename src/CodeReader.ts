@@ -96,8 +96,8 @@ interface IFileReaderQuery {
 }
 
 export class CodeFinderQueryJsText implements IQueriable {
-    queryRange: IRange;
-    minSize: number;
+    queryRange?: IRange;
+    minSize?: number;
     minNode: any;
 
     constructor (public codeFileReader: CodeFileReader, public query: IFileReaderQuery) {
@@ -119,6 +119,8 @@ export class CodeFinderQueryJsText implements IQueriable {
      * @return integer      The number of visited nodes to find the min one
      */
     findMinNode (node: any, tree: any) {
+        if (typeof this.queryRange === 'undefined') throw 'queryRange should be defined';
+
         // Check that the value is a node and that we are still on the queryRange
         if (node === null || !_.isObject(node) || isOutOfRange(node.range, this.queryRange )){
             return 0;
@@ -166,7 +168,7 @@ export class CodeFinderQueryJsText implements IQueriable {
     }
 
     execute (): IFindResult {
-        var source = this.codeFileReader.source;
+        var source = this.codeFileReader.source as string;
         var str = this.query.text;
         var charBegin = source.indexOf(str);
         var charEnd   = charBegin + str.length;
@@ -222,10 +224,10 @@ class CodeFileReader {
     src: string;
     references: IFindReferenceMap;
     verbose: boolean;
-    source: string;
-    md5: string;
+    source?: string;
+    md5?: string;
     AST: any;
-    results: {
+    results?: {
         [ref: string]: IFindResult
     };
 
@@ -294,9 +296,13 @@ class CodeFileReader {
         });
     }
 
-    private _lines: Array<{text: string, range: IRange}>;
+    private _lines?: Array<{text: string, range: IRange}>;
     get lines () {
-        if (!("_lines" in this) ) {
+        if (typeof this.source === 'undefined') {
+            throw 'Source should be defined';
+        }
+
+        if (!this.hasOwnProperty('_lines')) {
             // console.log("Calculating lines!".inverse);
             var _lines = [];
             var charNumber = 0,
@@ -312,7 +318,7 @@ class CodeFileReader {
             }
             Object.defineProperty(this, "_lines", {value: _lines});
         }
-        return this._lines;
+        return this._lines as Array<{text: string, range: IRange}>;
     }
 }
 

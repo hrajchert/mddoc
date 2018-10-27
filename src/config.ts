@@ -10,7 +10,7 @@ export class Settings {
     /**
      * Path to the folder that has the Markdown files
      */
-    inputDir: string;
+    inputDir?: string;
 
     /**
      * Path to the folder that will hold the output of this program
@@ -19,7 +19,6 @@ export class Settings {
 
     /**
      * A list of generators that indicate how the program should be "printed"
-     * @member {Array.<GeneratorConfig>}
      */
     generators:{[name: string]: GeneratorConfig} = {};
 
