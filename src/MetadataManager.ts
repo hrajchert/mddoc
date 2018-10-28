@@ -1,4 +1,6 @@
 import * as fs from 'fs';
+import { ICodeFinderLineQuery } from './reader/CodeFinderQueryLine';
+import { IFileReaderQuery } from './reader/CodeFinderQueryJsText';
 const crypto = require("crypto");
 const when = require("when");
 const { green, grey } = require("colors");
@@ -30,10 +32,12 @@ interface Loc2{
 };
 
 type Locs = Loc1 | Loc2
+type Query = IFileReaderQuery | ICodeFinderLineQuery;
 
-interface WhatRef2 {
+
+export interface WhatRef2 {
     loc: Array<Locs>;
-    query: string; //??
+    query: Query;
     snippetHash: string;
     found: boolean;
     snippet: string; //?
@@ -58,11 +62,11 @@ interface CodeToMarkdownReference {
 interface NotFoundReference {
     loc: Array<Locs>,
     src: string
-    query: string; // == WhatRef2.query
+    query: Query;
     refhash: string;
 }
 
-interface Metadata {
+export interface Metadata {
     jsonml: {
         [plainFileName: string]: JSonML
     };

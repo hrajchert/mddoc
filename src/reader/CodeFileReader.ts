@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import { IRange } from './reader-utils';
-import { CodeFinderQueryJsText } from './CodeFinderQueryJsText';
-import { CodeFinderQueryLine } from './CodeFinderQueryLine';
+import { CodeFinderQueryJsText, isTextQuery } from './CodeFinderQueryJsText';
+import { CodeFinderQueryLine, isLineQuery } from './CodeFinderQueryLine';
+import { WhatRef2 } from '../MetadataManager';
 
 var
     crypto = require("crypto"),
@@ -24,12 +25,7 @@ interface INotFoundResult {
 export type IFindResult = IFoundResult | INotFoundResult;
 
 export type IFindReferenceMap = {
-    [ref: string]: {
-        directive: string;
-        query: any;
-        loc: any;
-        refhash: string;
-    }
+    [ref: string]: WhatRef2
 };
 
 export interface IFindOptions {
@@ -83,13 +79,14 @@ export class CodeFileReader {
                     // console.log("We need to parse a reference ".yellow + refhash.grey);
                     // console.log(ref);
                     // If it has a line property,
-                    if ( ref.query.hasOwnProperty("line")) {
+                    if (isLineQuery(ref.query)) {
                         // console.log("Instantiating Line query ".yellow);
                         codeFinder = new CodeFinderQueryLine(this, ref.query);
-                    } else if ( ref.query.hasOwnProperty("text")) {
+                    } else if (isTextQuery(ref.query)) {
                         // console.log("Instantiating Text query ".yellow);
                         codeFinder = new CodeFinderQueryJsText(this, ref.query);
                     }
+
                     if (codeFinder) {
                         this.results[refhash] = codeFinder.execute();
                     } else {

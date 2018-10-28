@@ -21,6 +21,3 @@ export interface IQueriable {
     execute (): IFindResult
 }
 
-export interface IFileReaderQuery {
-    text: string;
-}

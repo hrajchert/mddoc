@@ -5,10 +5,11 @@ var
 
 import { Settings } from '../../index';
 import { CodeFileReader } from './CodeFileReader';
+import { Metadata } from '../MetadataManager';
 
 export class CodeReader {
     eventPromise: any;
-    constructor (public metadata: any, public settings: Settings) {
+    constructor (public metadata: Metadata, public settings: Settings) {
         this.eventPromise = EventPromise.create();
     }
 

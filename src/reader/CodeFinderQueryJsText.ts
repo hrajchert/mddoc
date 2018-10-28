@@ -1,6 +1,14 @@
-import { IQueriable, IRange, IFileReaderQuery, isOutOfRange } from "./reader-utils";
+import { IQueriable, IRange, isOutOfRange } from "./reader-utils";
 import { CodeFileReader, IFindResult } from "./CodeFileReader";
 const _ = require('underscore');
+
+export interface IFileReaderQuery {
+    text: string;
+}
+
+export function isTextQuery (query: any): query is IFileReaderQuery {
+    return query.hasOwnProperty("text");
+}
 
 export class CodeFinderQueryJsText implements IQueriable {
     queryRange?: IRange;

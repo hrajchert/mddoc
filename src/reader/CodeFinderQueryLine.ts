@@ -1,8 +1,12 @@
 import { IQueriable, IRange } from "./reader-utils";
 import { CodeFileReader, IFindResult } from "./CodeFileReader";
 
-interface ICodeFinderLineQuery {
+export interface ICodeFinderLineQuery {
     line: string; // '2-14'
+}
+
+export function isLineQuery (query: any): query is ICodeFinderLineQuery {
+    return query.hasOwnProperty("line");
 }
 
 export class CodeFinderQueryLine implements IQueriable {
