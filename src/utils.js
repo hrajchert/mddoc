@@ -29,6 +29,7 @@ function loadJson(jsonFile) {
     return p.promise;
 }
 
+// TODO: delete when possible, use task version
 function _doCreateDirIfNeeded(path) {
     var p = when.defer();
 
@@ -59,8 +60,10 @@ function _doCreateDirIfNeeded(path) {
 
 // Holds the directories checked to see if needed to be created
 // This way we both save resource and avoid race conditions
+// TODO: delete when possible, use task version
 var _dirsChecked = {};
 
+// TODO: delete when possible, use task version
 function _createDirIfNeeded(path) {
     // If we have a request to check the path,  respond that directly
     if (!_dirsChecked.hasOwnProperty(path)) {
@@ -70,6 +73,7 @@ function _createDirIfNeeded(path) {
     return _dirsChecked[path];
 }
 
+// TODO: delete when possible, use task version
 function promiseWriteFile(path, data) {
     var p = when.defer();
     fs.writeFile(path, data, function(err) {

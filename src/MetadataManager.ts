@@ -1,6 +1,9 @@
 import * as fs from 'fs';
 import { ICodeFinderLineQuery } from './code-reader/CodeFinderQueryLine';
 import { IFileReaderQuery } from './code-reader/CodeFinderQueryJsText';
+import { writeFile } from './ts-task-utils/writeFile';
+import { tap } from './ts-task-utils';
+import { writeFileCreateDir } from './ts-task-utils/writeFileCreateDir';
 const crypto = require("crypto");
 const when = require("when");
 const { green, grey } = require("colors");
@@ -129,18 +132,10 @@ export class MetadataManager {
     save () {
         var self = this;
         // TODO: move to Task
-        return when.promise(function(resolve: any, reject: any) {
-            var metadataFileName = self.settings.outputDir + "/metadata.json";
-            var metadataStr = JSON.stringify(self.metadata, null, "    ");
-
-            fs.writeFile(metadataFileName, metadataStr, function(err){
-                if (err) {
-                    return reject(err);
-                }
-                console.log(green("Metadata written to ") + grey(metadataFileName));
-                resolve();
-            });
-        });
+        var metadataFileName = self.settings.outputDir + "/metadata.json";
+        var metadataStr = JSON.stringify(self.metadata, null, "    ");
+        return writeFileCreateDir(metadataFileName, metadataStr)
+            .map(tap(_ => console.log(green("Metadata written to ") + grey(metadataFileName))))
     };
 
     /**

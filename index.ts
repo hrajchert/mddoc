@@ -119,8 +119,8 @@ export function saveMetadata () {
     if (_metadataManager === null) {
         return Task.reject(new LibraryNotInitialized('Metadata manager'));
     }
-    return Task.fromPromise<void>(_metadataManager.save())
-        .catch((err: any) => {
+    return _metadataManager.save()
+        .catch(err => {
             console.log(red("Could not write the metadata"));
             console.log(err);
             return Task.reject(normalizeError("save metadata", err));
