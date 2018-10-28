@@ -1,6 +1,6 @@
 export const MarkdownReader   = require("./src/MarkdownReader").MarkdownReader;
 import { CodeReader, CodeReaderError } from './src/reader/CodeReader';
-export const CodeIncluder     = require("./src/CodeIncluder").CodeIncluder;
+import { CodeIncluder } from './src/CodeIncluder';
 import { MetadataManager } from './src/MetadataManager';
 export const GeneratorManager = require("./src/generator/GeneratorManager").getGeneratorManager();
 import { Task, UnknownError } from '@ts-task/task';

@@ -9,7 +9,11 @@ interface JSonML {
 }
 
 interface WhatRef {
-
+    found: boolean;
+    directive: 'code_inc' | 'code_ref' | 'code_todo' | 'code_warning';
+    jsonml: any;
+    src: string;
+    refhash: string;
 }
 
 interface Loc1 {
