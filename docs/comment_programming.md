@@ -57,9 +57,9 @@ and the custom ones I'll create for referencing
 
 
 The class in charge of reading all the markdonws and generate the metadata from it is `MarkdownReader`. The method that walks into the `inputDir`
-folder is `MarkdownReader.parse`
+folder is `MarkdownReader.parse` RECONECTAR
 
-{%code_ref
+{ % code_ref
     "src" : "src/MarkdownReader.js",
     "ref" : {
         "text" : "MarkdownReader.prototype.parse = function() {"

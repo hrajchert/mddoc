@@ -8,9 +8,11 @@ interface JSonML {
 
 }
 
+export type Directive = 'code_inc' | 'code_ref' | 'code_todo' | 'code_warning';
+
 interface WhatRef {
     found: boolean;
-    directive: 'code_inc' | 'code_ref' | 'code_todo' | 'code_warning';
+    directive: Directive;
     jsonml: any;
     src: string;
     refhash: string;
@@ -36,12 +38,14 @@ interface Loc2{
 };
 
 type Locs = Loc1 | Loc2
-type Query = IFileReaderQuery | ICodeFinderLineQuery;
+
+// What to look for in the referenced file
+export type RefQuery = IFileReaderQuery | ICodeFinderLineQuery;
 
 
 export interface WhatRef2 {
     loc: Array<Locs>;
-    query: Query;
+    query: RefQuery;
     snippetHash: string;
     found: boolean;
     snippet: string; //?
@@ -66,7 +70,7 @@ interface CodeToMarkdownReference {
 interface NotFoundReference {
     loc: Array<Locs>,
     src: string
-    query: Query;
+    query: RefQuery;
     refhash: string;
 }
 

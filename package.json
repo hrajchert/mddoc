@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@ts-task/task": "^1.0.1",
+    "@ts-task/utils": "^1.0.0",
     "colors": "~0.6.2",
     "commander": "^2.2.0",
     "ect": "~0.5.9",

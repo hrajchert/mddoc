@@ -1,101 +1,8 @@
 var _ = require("underscore"),
     when = require("when"),
     fs = require("fs");
-
-
-var isFileExcluded = function (file, options) {
-    var isExcluded = false;
-    var exclude;
-    if (_.isObject(options) && options.hasOwnProperty("exclude")) {
-        exclude = options.exclude;
-    }
-    if (_.isString(exclude)) {
-        exclude = [exclude];
-    }
-    if (_.isArray(exclude)) {
-        _.forEach(exclude, function (exc) {
-                if (file.match(exc)) {
-                    isExcluded = true;
-                }
-        });
-    }
-    return isExcluded;
-};
-/**
- * Method that walks a directory and returns a promise of all the files in it. Recursivly
- * @param  string dir      The directory to walk
- * @param  object options  For now an object that has exclude
- * @return promise    A promise of an array that holds all the files
- */
-var walkDir = function (dir, options) {
-    return _doWalkDir(dir, options).then(function(files) {
-        return _.flatten(files);
-    });
-};
-
-/**
- * @private
- * This is the recursive method that actually does the walking. It is
- * needed to have both methods as this recursiveness doesn't provide a flattened
- * array
- */
-function _doWalkDir(dir, options) {
-    return when.promise(function(resolve, reject) {
-        // An array of promise of the file stat (to see if we need to recurse or not)
-        var filePromises = [];
-
-        // Get all the files (including subdirectories)
-        fs.readdir(dir, function(err, files){
-            if (err) {
-                return reject(err);
-            }
-
-            // For each file, check if directory. If it is, recurse, if not
-            // boom.
-            for (var i=0;i < files.length; i++) {
-                var filename = dir + "/" + files[i];
-                // Do not include excluded files
-                if (isFileExcluded(filename, options)) {
-                    continue;
-                }
-                // We need to create a file info object because of how the scope in
-                // js works. TODO: Add more documentation about this later! But not in the code!
-                var fileInfo = {
-                    file: filename,
-                    defer: when.defer(),
-                    options: options
-                };
-                // Because checking if the file is a directory or not is async, we need to hold
-                // a promise of its checking
-                filePromises[i] = fileInfo.defer.promise;
-                // Check if it is a directory or not
-                fs.stat(fileInfo.file, _.bind(_checkIfDirectory, fileInfo));
-            }
-            resolve(when.all(filePromises));
-        });
-    });
-}
-
-/**
- * @private
- * Callback that checks if a file is a directory or not.
- * It is separated from the main function because you shouldn't define functions in a loop.
- * Because of the bind, this refers to the fileInfo
- */
-function _checkIfDirectory(err, stat) {
-    if (err) {
-        return this.defer.reject(err);
-    }
-    // If its not a directory, resolve it on the spot with the name of the file
-    if (!stat.isDirectory()) {
-        this.defer.resolve(this.file);
-    }
-    // If it is, resolve it once its subdirectory is resolved
-    else {
-        this.defer.resolve(_doWalkDir(this.file, this.options));
-    }
-}
-
+var utils = require('@ts-task/utils')
+var walkDir = require('./ts-task-utils/walkDir').walkDir;
 /**
  * Helper method that loads a json file in form of a promise
  * @param   string  jsonFile The path of the json file to load
@@ -236,7 +143,7 @@ function copyFile(src, dst) {
 // TODO: change matchRe for the classical include exclude folders
 function copyDir(src, dst, matchRe) {
 
-    return walkDir(src).then(function(files) {
+    return utils.toPromise(walkDir(src)).then(function(files) {
         var promises = [];
         // Precalculate the lenght of the name of the src dir
         var dirNameLength = src.length;
@@ -259,7 +166,6 @@ function copyDir(src, dst, matchRe) {
     });
 }
 
-exports.walkDir = walkDir;
 exports.loadJson = loadJson;
 exports.writeFileCreateDir = writeFileCreateDir;
 exports.copyDir = copyDir;

@@ -1,4 +1,4 @@
-export const MarkdownReader   = require("./src/MarkdownReader").MarkdownReader;
+import { MarkdownReader, MarkdownReaderError } from "./src/MarkdownReader";
 import { CodeReader, CodeReaderError } from './src/code-reader';
 import { CodeIncluder } from './src/CodeIncluder';
 import { MetadataManager } from './src/MetadataManager';
@@ -12,7 +12,7 @@ const { red, grey } = require("colors");
 
 let _metadataManager: MetadataManager | null = null;
 
-let _mdReader: any = null;
+let _mdReader: MarkdownReader | null = null;
 
 let _codeReader: CodeReader | null = null;
 
@@ -85,13 +85,13 @@ function normalizeError(step: string, error: any): StepError {
 }
 
 export function readMarkdown () {
-    if (_codeReader === null) {
+    if (_mdReader === null) {
         return Task.reject(new LibraryNotInitialized('Markdown reader'));
     }
-    return Task.fromPromise<void>(_mdReader.parse())
-        .catch((mdErr: any) => {
+    return _mdReader.parse()
+        .catch((mdErr) => {
             console.log(red("Could not parse the markdown"));
-            if (mdErr.reader) {
+            if (mdErr instanceof MarkdownReaderError) {
                 console.log("in file " + grey(mdErr.reader.completeFileName));
             }
 

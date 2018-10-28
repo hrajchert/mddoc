@@ -1,6 +1,7 @@
 import { IQueriable, IRange } from "./reader-utils";
 import { CodeFileReader, IFindResult } from "./CodeFileReader";
 
+// The starting and ending line to reference separated by a dash (ex "2-24")
 export interface ICodeFinderLineQuery {
     line: string; // '2-14'
 }

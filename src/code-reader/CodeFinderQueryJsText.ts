@@ -2,6 +2,12 @@ import { IQueriable, IRange, isOutOfRange } from "./reader-utils";
 import { CodeFileReader, IFindResult } from "./CodeFileReader";
 const _ = require('underscore');
 
+/**
+ * This is a plain text search in the document. If the resolver
+ * is an esprima resolver, then the reference will correspond to
+ * an AST node. NOTE: for now the resolvers are not implemented
+ * its treated as esprima always.
+ */
 export interface IFileReaderQuery {
     text: string;
 }
