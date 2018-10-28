@@ -1,5 +1,5 @@
 export const MarkdownReader   = require("./src/MarkdownReader").MarkdownReader;
-import { CodeReader } from './src/reader/CodeReader';
+import { CodeReader, CodeReaderError } from './src/reader/CodeReader';
 export const CodeIncluder     = require("./src/CodeIncluder").CodeIncluder;
 import { MetadataManager } from './src/MetadataManager';
 export const GeneratorManager = require("./src/generator/GeneratorManager").getGeneratorManager();
@@ -104,10 +104,10 @@ export function readCode () {
     if (_codeReader === null) {
         return Task.reject(new LibraryNotInitialized('Code reader'));
     }
-    return Task.fromPromise<void>(_codeReader.read())
-        .catch(function(err: any) {
+    return _codeReader.read()
+        .catch(err => {
             console.log(red("Could not read the code"));
-            if (err.reader) {
+            if (err instanceof CodeReaderError) {
                 console.log("in file " + grey(err.reader.src));
             }
 

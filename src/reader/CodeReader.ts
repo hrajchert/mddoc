@@ -1,11 +1,10 @@
-var
-    EventPromise = require("../EventPromise"),
-    when = require("when");
-;
+const EventPromise = require("../EventPromise");
 
 import { Settings } from '../../index';
 import { CodeFileReader } from './CodeFileReader';
 import { Metadata } from '../MetadataManager';
+import { Task } from '@ts-task/task';
+import { tap } from '../ts-task-utils';
 
 export class CodeReader {
     eventPromise: any;
@@ -22,43 +21,41 @@ export class CodeReader {
     }
 
     read () {
-        var hrCode = this.metadata.hrCode;
-        var promises = [];
-        var codeFileReader;
+        const hrCode = this.metadata.hrCode;
 
-        // Method to add context to an error in the parsing of a md file
-        const self = this;
-        var handleError = function(err: any) {
-            err.reader = self;
-            return when.reject(err);
-        };
-
-        for (var file in hrCode) {
-            codeFileReader = new CodeFileReader({
+        const files = Object.keys(hrCode);
+        const tasks = files.map(file => {
+            const codeFileReader = new CodeFileReader({
                 src: file,
                 references: hrCode[file].refs,
                 verbose: this.settings.verbose
             });
 
-            promises.push(
-                // Read the file
-                codeFileReader.read()
-                // Then get the metadata out of it
-                .then(this.updateMetadata.bind(this))
+            // Read the file
+            return codeFileReader.read()
+                // Then update the metadata out of it
+                .map(tap(reader => this.updateMetadata(reader)))
                 // If anything fails, append the failing reader
-                .otherwise(handleError.bind(codeFileReader))
-            );
-        }
+                .catch(error => Task.reject(new CodeReaderError(error, codeFileReader)))
+            ;
+        })
         // console.log(this.metadata.hrCode);
-        return when.all(promises);
+        return Task.all(tasks);
     };
 
-    updateMetadata (codeFileReader: any) {
-        return this.trigger("code-file-read", codeFileReader);
+    updateMetadata (codeFileReader: CodeFileReader) {
+        this.trigger("code-file-read", codeFileReader);
     };
-
 }
 
+export class CodeReaderError extends Error {
+    type = "CodeReaderError";
+    constructor (err: Error, public reader: CodeFileReader) {
+        super(err.message);
+        this.stack = err.stack;
+
+    }
+}
 
 // var finder = new CodeFileReader({
 //     src: sourceFile,

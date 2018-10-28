@@ -1,14 +1,12 @@
-import * as fs from 'fs';
 import { IRange } from './reader-utils';
 import { CodeFinderQueryJsText, isTextQuery } from './CodeFinderQueryJsText';
 import { CodeFinderQueryLine, isLineQuery } from './CodeFinderQueryLine';
 import { WhatRef2 } from '../MetadataManager';
+import { readFile } from '../ts-task-utils';
 
 var
     crypto = require("crypto"),
-    esprima = require("esprima"),
-    nodefn = require("when/node/function")
-
+    esprima = require("esprima")
 ;
 
 const { grey, blue } = require('colors');
@@ -71,7 +69,7 @@ export class CodeFileReader {
         // First we need to read the file and parse the AST
         return this.readAndParseFile()
             // Once we have the file, we need to call the right finder for each reference
-            .then(() => {
+            .map(() => {
                 this.results = {};
                 var ref, refhash, codeFinder;
                 for (refhash in this.references) {
@@ -103,16 +101,16 @@ export class CodeFileReader {
 
     // TODO: Rename this
     readAndParseFile () {
-        return nodefn.call(fs.readFile, this.src, "utf8").then((source: string) => {
+        return readFile(this.src, "utf8").map(source => {
             if (this.verbose) {
                 console.log(blue("reading code file ") + grey(this.src));
             }
 
-            this.source = source;
-            this.md5 = crypto.createHash("md5").update(source).digest("hex");
+            this.source = source.toString();
+            this.md5 = crypto.createHash("md5").update(this.source).digest("hex");
 
             // TODO: maybe change this only if needed.
-            this.AST = esprima.parse(source, {range:true});
+            this.AST = esprima.parse(this.source, {range:true});
 
             return this;
         });
