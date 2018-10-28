@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import { ICodeFinderLineQuery } from './reader/CodeFinderQueryLine';
-import { IFileReaderQuery } from './reader/CodeFinderQueryJsText';
+import { ICodeFinderLineQuery } from './code-reader/CodeFinderQueryLine';
+import { IFileReaderQuery } from './code-reader/CodeFinderQueryJsText';
 const crypto = require("crypto");
 const when = require("when");
 const { green, grey } = require("colors");
