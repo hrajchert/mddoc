@@ -1,6 +1,6 @@
 const EventPromise = require("../EventPromise");
 
-import { Settings } from '../../index';
+import { VerboseSettings } from '../../index';
 import { CodeFileReader } from './CodeFileReader';
 import { Metadata } from '../MetadataManager';
 import { Task } from '@ts-task/task';
@@ -8,7 +8,7 @@ import { tap } from '../ts-task-utils';
 
 export class CodeReader {
     eventPromise: any;
-    constructor (public metadata: Metadata, public settings: Settings) {
+    constructor (public metadata: Metadata, public settings: VerboseSettings) {
         this.eventPromise = EventPromise.create();
     }
 

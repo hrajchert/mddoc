@@ -1,4 +1,5 @@
 import { Settings } from "../config";
+import { Metadata } from "../MetadataManager";
 
 /** @module GeneratorManager */
 var
@@ -70,7 +71,7 @@ export class GeneratorManager {
         generatorName: string;
     }> = [];
 
-    metadata = null;
+    metadata: Metadata | null = null;
     initialized = false;
 
     /**
@@ -101,7 +102,8 @@ export class GeneratorManager {
         return generator;
     };
 
-    initialize (metadata: any, projectSettings: Settings) {
+    initialize (metadata: Metadata, projectSettings: any) {
+    // initialize (metadata: Metadata, projectSettings: Settings) {
         // Avoid duplicate initialization
         // !!!!!!!!!!!!!!!!!!!!!!
         // TODO: IMPORTANT ref

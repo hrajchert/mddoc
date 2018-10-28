@@ -2,10 +2,11 @@ import { MarkdownReader, MarkdownReaderError } from "./src/MarkdownReader";
 import { CodeReader, CodeReaderError } from './src/code-reader';
 import { CodeIncluder } from './src/CodeIncluder';
 import { MetadataManager } from './src/MetadataManager';
-export const GeneratorManager = require("./src/generator/GeneratorManager").getGeneratorManager();
+import { getGeneratorManager } from './src/generator/GeneratorManager';
 import { Task, UnknownError } from '@ts-task/task';
 import { sequence, Step } from './src/ts-task-utils';
 
+const GeneratorManager = getGeneratorManager();
 
 // TODO: Library shouldnt have colors
 const { red, grey } = require("colors");
@@ -22,9 +23,12 @@ let _verbose = true;
 
 export const verbose = (v: boolean) => _verbose = v;
 
-export interface Settings {
+export interface VerboseSettings {
     verbose: boolean;
 }
+
+type Settings = VerboseSettings;
+
 export function initialize (settings: Settings) {
     // Initialize the metadata
     _metadataManager = new MetadataManager(settings);

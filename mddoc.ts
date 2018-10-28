@@ -2,7 +2,7 @@
 //#!/usr/bin/env node
 
 import * as mddoc from './index';
-const config  = require("./src/config");
+import {loadConfig} from './src/config';
 const _       = require("underscore");
 const program = require("commander");
 
@@ -25,38 +25,37 @@ const pe = new PrettyError();
 
 PrettyError.start(function() {
     // Load the program options
-    const settingsPromise = config.loadConfig(process.cwd(), commandLineOptions);
+    loadConfig(process.cwd(), commandLineOptions)
+        .chain(settings => {
+            // Initialize the mddoc steps
+            mddoc.initialize(settings);
 
-    settingsPromise.done(function(settings: any) {
-        // Initialize the mddoc steps
-        mddoc.initialize(settings);
+            // Indicate which steps to run
+            const steps = [
+                mddoc.readMarkdown,
+                mddoc.readCode,
+                mddoc.saveMetadata,
+                mddoc.replaceReferences,
+                mddoc.generateOutput
+            ];
 
-        // Indicate which steps to run
-        const steps = [
-            mddoc.readMarkdown,
-            mddoc.readCode,
-            mddoc.saveMetadata,
-            mddoc.replaceReferences,
-            mddoc.generateOutput
-        ];
-
-        // Do magic
-        mddoc.run(steps).fork(
+            // Do magic
+            return mddoc.run(steps)
+        })
+        .fork(
+            // TODO: Change to Explainable Errors
             error => {
                 if (mddoc.isStepError(error)) {
                     console.error(`There was a problem in the step "${error.step}"`);
                     console.error(pe.render(error.err));
                 } else if (error instanceof mddoc.LibraryNotInitialized) {
                     console.error(`The library wasnt initialized correctly ${error.module}`);
-                } else {
+                }
+                else {
                     console.error('Unknown error');
                     console.error(pe.render(error));
                 }
             },
             _ => console.log('Program finished')
         );
-    }, function(err: any) {
-        console.error("There was a problem loading the settings", err);
-    });
-
 });

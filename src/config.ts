@@ -1,8 +1,8 @@
-var _      = require("underscore"),
-    findup = require("findup"),
-    when   = require("when");
+var _      = require("underscore");
 
 import {getGeneratorManager} from "./generator/GeneratorManager";
+import { findup } from "./ts-task-utils/findup";
+import { Task } from "@ts-task/task";
 
 const GeneratorManager = getGeneratorManager();
 
@@ -68,13 +68,19 @@ export class Settings {
 
 type GeneratorConfig = any;
 
+export class ErrorLoadingConfig extends Error {
+    type = "ErrorLoadingConfig";
+    constructor (error: any) {
+        super(`There was a problem loading the settings ${error}`);
+    }
+}
+
 export function loadConfig (path: string, runOptions: any) {
-    return when.promise(function(resolve: any, reject: any) {
-        var config = new Settings();
-        findup(path, "Mddocfile.js", function(err: any, dir: string) {
-            if (err) {
-                return reject("Could not find Mddocfile.js");
-            }
+    const config = new Settings();
+    return findup(path, "Mddocfile.js")
+        // TODO: candidate to mapError
+        .catch(_ => Task.reject("Could not find Mddocfile.js"))
+        .map(dir => {
             require(dir + "/Mddocfile.js")(config);
 
             if (runOptions) {
@@ -82,8 +88,8 @@ export function loadConfig (path: string, runOptions: any) {
             }
 
             config.validate();
-            resolve(config);
-
-        });
-    });
+            return config;
+        })
+        // TODO: candidate to mapError
+        .catch(err => Task.reject(new ErrorLoadingConfig(err)))
 }
