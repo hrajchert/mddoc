@@ -1,6 +1,6 @@
-This method is quite slow, if you have many subfiles it will hang, need to refactor. Also add in some way glob notation.
+This method is quite slow, if you have many subfiles it will hang, need to refactor. Also add in some way glob notation. RECONECTAR
 
-{%code_todo
+{ % code_todo
     "src" : "src/utils.js",
     "priority" : 7,
     "ref" : {
