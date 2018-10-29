@@ -1,11 +1,11 @@
 import { Settings } from "../config";
 import { Metadata } from "../MetadataManager";
 import { BaseGeneratorSettings } from "./BaseGeneratorSettings";
-import { sequence } from "../ts-task-utils";
 import { Task, UnknownError } from "@ts-task/task";
 
 /** @module GeneratorManager */
 import * as path from 'path';
+import { sequence } from "../utils/ts-task-utils/sequence";
 
 var GeneratorHelperManager = require("./GeneratorHelperManager");
 

@@ -4,7 +4,7 @@ import { CodeIncluder } from './src/CodeIncluder';
 import { MetadataManager } from './src/MetadataManager';
 import { getGeneratorManager } from './src/generator/GeneratorManager';
 import { Task, UnknownError } from '@ts-task/task';
-import { sequence, Step } from './src/ts-task-utils';
+import { Step, sequence } from "./src/utils/ts-task-utils/sequence";
 
 const GeneratorManager = getGeneratorManager();
 

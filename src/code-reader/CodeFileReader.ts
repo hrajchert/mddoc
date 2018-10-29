@@ -2,7 +2,7 @@ import { IRange } from './reader-utils';
 import { CodeFinderQueryJsText, isTextQuery } from './CodeFinderQueryJsText';
 import { CodeFinderQueryLine, isLineQuery } from './CodeFinderQueryLine';
 import { WhatRef2 } from '../MetadataManager';
-import { readFile } from '../ts-task-utils';
+import { readFile } from '../utils/ts-task-fs/readFile';
 
 var
     crypto = require("crypto"),

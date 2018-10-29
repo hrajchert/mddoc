@@ -1,8 +1,8 @@
 import {objOf, str, optional, bool} from 'parmenides';
 import {getGeneratorManager} from "./generator/GeneratorManager";
-import { findup } from "./ts-task-utils/findup";
+import { findup } from "./utils/ts-task-fs-utils/findup";
 import { Task } from "@ts-task/task";
-import { validateContract } from './ts-task-utils/validate-contract';
+import { validateContract } from './utils/parmenides/validate-contract';
 const _ = require('underscore');
 
 const GeneratorManager = getGeneratorManager();

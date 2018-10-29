@@ -4,7 +4,7 @@ import { VerboseSettings } from '../../index';
 import { CodeFileReader } from './CodeFileReader';
 import { Metadata } from '../MetadataManager';
 import { Task } from '@ts-task/task';
-import { tap } from '../ts-task-utils';
+import { tap } from '../utils/tap';
 
 export class CodeReader {
     eventPromise: any;

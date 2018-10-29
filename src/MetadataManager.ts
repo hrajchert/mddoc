@@ -1,11 +1,9 @@
 import * as fs from 'fs';
 import { ICodeFinderLineQuery } from './code-reader/CodeFinderQueryLine';
 import { IFileReaderQuery } from './code-reader/CodeFinderQueryJsText';
-import { writeFile } from './ts-task-utils/writeFile';
-import { tap } from './ts-task-utils';
-import { writeFileCreateDir } from './ts-task-utils/writeFileCreateDir';
+import { writeFileCreateDir } from './utils/ts-task-fs-utils/writeFileCreateDir';
+import { tap } from './utils/tap';
 const crypto = require("crypto");
-const when = require("when");
 const { green, grey } = require("colors");
 interface JSonML {
 

@@ -1,4 +1,4 @@
-import { readFile } from "./readFile";
+import { readFile } from "../ts-task-fs/readFile";
 import { writeFileCreateDir } from "./writeFileCreateDir";
 
 export function copyFile(src: string, dst: string) {

@@ -2,8 +2,8 @@ import { Metadata } from "../../MetadataManager";
 import { Settings } from "../../config";
 import { objOf, str } from "parmenides";
 import { Task } from "@ts-task/task";
-import { writeFileCreateDir } from "../../ts-task-utils/writeFileCreateDir";
-import { fromUnknown } from "../../ts-task-utils/from-unknown";
+import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/writeFileCreateDir";
+import { fromUnknown } from "../../utils/parmenides/from-unknown";
 
 // TODO: remove
 var markdown = require("markdown").markdown;

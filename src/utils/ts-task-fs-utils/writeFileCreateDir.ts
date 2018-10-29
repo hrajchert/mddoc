@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import { Task } from '@ts-task/task';
-import { taskReduce } from './task-reduce';
-import { writeFile } from './writeFile';
-import { stat } from './stat';
-import { mkdir } from './mkdir';
+import { taskReduce } from '../ts-task-utils/task-reduce';
+import { writeFile } from '../ts-task-fs/writeFile';
+import { stat } from '../ts-task-fs/stat';
+import { mkdir } from '../ts-task-fs/mkdir';
 import { share } from '@ts-task/utils'
 
 /**

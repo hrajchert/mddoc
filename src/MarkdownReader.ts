@@ -1,7 +1,8 @@
-import { readFile, tap } from "./ts-task-utils";
 import { RefQuery, Directive } from "./MetadataManager";
-import { walkDir } from "./ts-task-utils/walkDir";
+import { walkDir } from "./utils/ts-task-fs-utils/walkDir";
 import { Task } from "@ts-task/task";
+import { readFile } from "./utils/ts-task-fs/readFile";
+import { tap } from "./utils/tap";
 
 var markdown = require("markdown").markdown,
     EventPromise = require("./EventPromise"),

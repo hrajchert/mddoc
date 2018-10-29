@@ -1,6 +1,6 @@
-import { readdir } from "./readdir";
+import { readdir } from "../ts-task-fs/readdir";
 import { Task, UnknownError } from "@ts-task/task";
-import { stat } from "./stat";
+import { stat } from "../ts-task-fs/stat";
 import * as fs from "fs";
 
 const _ = require('underscore');

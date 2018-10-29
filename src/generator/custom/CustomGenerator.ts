@@ -1,11 +1,11 @@
 import { Settings } from "../../config";
 import { Metadata } from "../../MetadataManager";
-import { fromUnknown } from "../../ts-task-utils/from-unknown";
+import { fromUnknown } from "../../utils/parmenides/from-unknown";
 import { objOf, str, bool, arrOf } from "parmenides";
 import { Task, UnknownError } from "@ts-task/task";
-import { copyDir } from "../../ts-task-utils/copy-dir";
-import { writeFileCreateDir } from "../../ts-task-utils/writeFileCreateDir";
-import { tap } from "../../ts-task-utils";
+import { copyDir } from "../../utils/ts-task-fs-utils/copy-dir";
+import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/writeFileCreateDir";
+import { tap } from "../../utils/tap";
 
 export default {
     createGenerator : function (metadata: Metadata, projectSettings: Settings, generatorSettings: unknown) {
