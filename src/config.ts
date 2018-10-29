@@ -1,8 +1,9 @@
-import {objOf, str, optional, bool} from 'parmenides';
+import {objOf, str, optional, bool, ParmenidesError} from 'parmenides';
 import {getGeneratorManager} from "./generator/GeneratorManager";
 import { findup } from "./utils/ts-task-fs-utils/findup";
-import { Task } from "@ts-task/task";
+import { Task, UnknownError } from "@ts-task/task";
 import { validateContract } from './utils/parmenides/validate-contract';
+import { renderError } from './utils/explain';
 const _ = require('underscore');
 
 const GeneratorManager = getGeneratorManager();
@@ -66,10 +67,22 @@ export class Settings {
 
 type GeneratorConfig = any;
 
-export class ErrorLoadingConfig extends Error {
+export class ErrorLoadingConfig {
     type = "ErrorLoadingConfig";
-    constructor (error: any) {
-        super(`There was a problem loading the settings: ${error}`);
+    constructor (private error: string | UnknownError | ParmenidesError) {
+    }
+
+    explain () {
+        let ans = `There was a problem loading the settings: `;
+        const error = this.error;
+        if (typeof error === 'string') {
+            ans += error;
+        } else if (error instanceof ParmenidesError) {
+            ans += error.getMessage();
+        } else {
+            ans += '\n' + renderError(error);
+        }
+        return ans;
     }
 }
 

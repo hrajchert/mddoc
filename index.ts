@@ -5,6 +5,7 @@ import { MetadataManager } from './src/MetadataManager';
 import { getGeneratorManager } from './src/generator/GeneratorManager';
 import { Task, UnknownError } from '@ts-task/task';
 import { Step, sequence } from "./src/utils/ts-task-utils/sequence";
+import { renderError } from "./src/utils/explain";
 
 const GeneratorManager = getGeneratorManager();
 
@@ -65,27 +66,29 @@ export class LibraryNotInitialized {
     constructor (public module: string) {
 
     }
-}
 
-export interface StepError {
-    step: string;
-    err: {
-        msg: string;
-        stack: string;
+    explain () {
+        return `The library wasnt initialized correctly ${this.module}`;
     }
 }
 
-export function isStepError (error: any): error is StepError {
-    return error.hasOwnProperty('step') && error.hasOwnProperty('err');
+export class StepError {
+    type = "StepError";
+
+    constructor (public step: string, public err: Error) {
+
+    }
+
+    explain () {
+        let ans = `There was a problem in the step "${this.step}"\n`;
+        ans += renderError(this.err);
+        return ans;
+    }
 }
 
-function normalizeError(step: string, error: any): StepError {
-    return {
-        step,
-        err: error instanceof Error ?
-            {msg: error.message, stack: error.stack || ''} :
-            {msg: '' + error, stack: ''}
-    };
+
+function normalizeError(step: string, error: Error): StepError {
+    return new StepError(step, error);
 }
 
 export function readMarkdown () {
