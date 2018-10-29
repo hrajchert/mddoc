@@ -24,6 +24,7 @@
     "esprima": "~1.0.4",
     "findup": "^0.1.5",
     "markdown": "~0.5.0",
+    "parmenides": "0.0.2",
     "pretty-error": "~0.1.17",
     "pretty-monitor": "~0.1.7",
     "typescript": "^3.1.0",

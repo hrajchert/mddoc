@@ -49,7 +49,7 @@ export function initialize (settings: Settings) {
 
     // Tool
     _codeIncluder = new CodeIncluder(metadata);
-    GeneratorManager.initialize(metadata, settings);
+    GeneratorManager.initialize(metadata, settings as any);
 }
 
 export function getMetadataManager () {

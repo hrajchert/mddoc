@@ -1,10 +1,18 @@
-var _      = require("underscore");
-
+import {objOf, str, optional, bool} from 'parmenides';
 import {getGeneratorManager} from "./generator/GeneratorManager";
 import { findup } from "./ts-task-utils/findup";
 import { Task } from "@ts-task/task";
+import { validateContract } from './ts-task-utils/validate-contract';
+const _ = require('underscore');
 
 const GeneratorManager = getGeneratorManager();
+
+const settingsContract = objOf({
+    inputDir: str,
+    outputDir: optional(str),
+    basePath: str,
+    verbose: bool
+});
 
 export class Settings {
     /**
@@ -53,25 +61,15 @@ export class Settings {
 
         return this.generators[name];
     };
-
-    validate () {
-        // !!!!!!!!!!!!
-        // TODO: IMPORTANT there is a ref here, dont loose it!,
-        if (this.inputDir === null) {
-            throw new Error("You must specify an input dir");
-        }
-        if (this.outputDir === null) {
-    //        throw new Error("You must specify a destination dir");
-        }
-    };
 }
+
 
 type GeneratorConfig = any;
 
 export class ErrorLoadingConfig extends Error {
     type = "ErrorLoadingConfig";
     constructor (error: any) {
-        super(`There was a problem loading the settings ${error}`);
+        super(`There was a problem loading the settings: ${error}`);
     }
 }
 
@@ -87,9 +85,9 @@ export function loadConfig (path: string, runOptions: any) {
                 config.extend(runOptions);
             }
 
-            config.validate();
             return config;
         })
+        .chain(validateContract(settingsContract))
         // TODO: candidate to mapError
         .catch(err => Task.reject(new ErrorLoadingConfig(err)))
 }

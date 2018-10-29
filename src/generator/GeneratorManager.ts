@@ -62,12 +62,15 @@ function normalizeProjectGeneratorPath (genpath: string, basePath: string) {
     return genpath;
 };
 
+interface GeneratorSettings {
+    priority: number;
+}
 
 
 export class GeneratorManager {
     generators: Array<{
         generatorObject: any;
-        generatorSettings: any;
+        generatorSettings: GeneratorSettings;
         generatorName: string;
     }> = [];
 
@@ -102,8 +105,7 @@ export class GeneratorManager {
         return generator;
     };
 
-    initialize (metadata: Metadata, projectSettings: any) {
-    // initialize (metadata: Metadata, projectSettings: Settings) {
+    initialize (metadata: Metadata, projectSettings: Settings) {
         // Avoid duplicate initialization
         // !!!!!!!!!!!!!!!!!!!!!!
         // TODO: IMPORTANT ref
