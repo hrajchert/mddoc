@@ -4,6 +4,7 @@ import { taskReduce } from './task-reduce';
 import { writeFile } from './writeFile';
 import { stat } from './stat';
 import { mkdir } from './mkdir';
+import { share } from '@ts-task/utils'
 
 /**
  * Writes the contents of data in a file with filename. It creates
@@ -48,7 +49,7 @@ export function writeFileCreateDir(path: string, data: any) {
 // This way we both save resource and avoid race conditions
 // TODO: I don't like this
 interface DirDictionary {
-    [dirName: string]: Task<any, any>
+    [dirName: string]: ReturnType<typeof _doCreateDirIfNeeded>;
 }
 var _dirsChecked: DirDictionary = {};
 
@@ -57,7 +58,7 @@ function _createDirIfNeeded(path: string) {
     // If we have a request to check the path,  respond that directly
     if (!_dirsChecked.hasOwnProperty(path)) {
         // If not, check and store the promise
-        _dirsChecked[path] = _doCreateDirIfNeeded(path);
+        _dirsChecked[path] = _doCreateDirIfNeeded(path).pipe(share());
     }
     return _dirsChecked[path];
 }

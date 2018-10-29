@@ -1,15 +1,17 @@
 import { Settings } from "../config";
 import { Metadata } from "../MetadataManager";
+import { BaseGeneratorSettings } from "./BaseGeneratorSettings";
+import { sequence } from "../ts-task-utils";
+import { Task, UnknownError } from "@ts-task/task";
 
 /** @module GeneratorManager */
-var
-    when     = require("when"),
-    path     = require("path");
+import * as path from 'path';
 
 var GeneratorHelperManager = require("./GeneratorHelperManager");
 
-var PluginResolver = require("../PluginResolver");
-
+interface Generator {
+    generate: (helpers?: unknown) => Task<void, UnknownError>
+}
 
 interface GeneratorFactory {
     /**
@@ -29,15 +31,15 @@ interface GeneratorFactory {
 const registeredGenerators: {[name: string]: GeneratorFactory} = {};
 
 export function registerGenerator (name:string, genpath: string) {
-    var factory = require (genpath)(PluginResolver);
+    var factory: GeneratorFactory = require (genpath).default;
 
     if (!factory.hasOwnProperty("createGenerator")) {
-        throw new Error("Module " + path + " doesn't have a constructor exported");
+        throw new Error("Module " + genpath + " doesn't have a constructor exported");
     }
 
     if (!factory.hasOwnProperty("createSettings")) {
-        factory.createSettings = function (options: any, globalSettings: any) {
-            var settings = new PluginResolver.BaseGeneratorSettings(options, globalSettings);
+        factory.createSettings = function (options: any, globalSettings: Settings) {
+            var settings = new BaseGeneratorSettings(options, globalSettings);
             // Add the generator type to the default settings
             settings.generatorType = name;
             return settings;
@@ -48,7 +50,6 @@ export function registerGenerator (name:string, genpath: string) {
 
     return factory;
 }
-
 
 
 /**
@@ -69,7 +70,7 @@ interface GeneratorSettings {
 
 export class GeneratorManager {
     generators: Array<{
-        generatorObject: any;
+        generatorObject: Generator;
         generatorSettings: GeneratorSettings;
         generatorName: string;
     }> = [];
@@ -147,30 +148,12 @@ export class GeneratorManager {
 
     generate () {
         var self = this;
-        return when.promise(function(resolve: any, reject: any) {
-            var helpers;
-
-            var iterate = function (i: number) {
-                if (i < self.generators.length) {
-                    helpers = GeneratorHelperManager.getRenderHelpers(self.metadata);
-                    console.log("Executing the generator: " + self.generators[i].generatorName);
-                    // If we have more generators, call them in sequence
-                    when(self.generators[i].generatorObject.generate(helpers)).then(
-                        function() {
-                            iterate(i+1);
-                        },
-                        function(err: any) {
-                            reject(err);
-                        }
-                    );
-                } else {
-                    // If there are no more generators, we are done
-                    resolve();
-                }
-
-            };
-            iterate(0);
-        });
+        const steps = self.generators.map(generator => () => {
+            const helpers = GeneratorHelperManager.getRenderHelpers(self.metadata);
+            console.log("Executing the generator: " + generator.generatorName);
+            return generator.generatorObject.generate(helpers);
+        })
+        return sequence(steps);
     };
 
 }

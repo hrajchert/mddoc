@@ -148,8 +148,8 @@ export function replaceReferences () {
 }
 
 export function generateOutput () {
-    return Task.fromPromise<void>(GeneratorManager.generate())
-        .catch(function(err: any) {
+    return GeneratorManager.generate()
+        .catch(function(err) {
             console.log(red("Could not generate the HTML"));
             console.log(err);
             return Task.reject(normalizeError("Output Generator", err));

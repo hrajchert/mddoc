@@ -88,6 +88,11 @@ export interface Metadata {
         [src: string]: CodeToMarkdownReference
     };
     notFound: NotFoundReference[];
+
+    // TODO: This shouldn't be here, it's only here because it's needed in the templates
+    renderedFragments?: {
+        [mdTemplate: string]: string
+    }
 }
 
 

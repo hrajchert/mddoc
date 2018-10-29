@@ -5,7 +5,7 @@ particular with exposing utils, which could be very changing. Probably I should 
 that.
 {:.alert .alert-danger }
 
-{%code_warning
+{ % code_warning
     "src" : "src/PluginResolver.js",
     "priority" : 7,
     "ref" : {
