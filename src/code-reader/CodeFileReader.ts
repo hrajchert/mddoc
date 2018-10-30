@@ -3,11 +3,9 @@ import { CodeFinderQueryJsText, isTextQuery } from './CodeFinderQueryJsText';
 import { CodeFinderQueryLine, isLineQuery } from './CodeFinderQueryLine';
 import { WhatRef2 } from '../MetadataManager';
 import { readFile } from '../utils/ts-task-fs/readFile';
+import * as ts from 'typescript';
 
-var
-    crypto = require("crypto"),
-    esprima = require("esprima")
-;
+var crypto = require("crypto");
 
 const { grey, blue } = require('colors');
 
@@ -39,12 +37,17 @@ export interface IFindOptions {
  *                            of references to find.
  */
 export class CodeFileReader {
+    // The filename (TODO: maybe change to path)
     src: string;
     references: IFindReferenceMap;
     verbose: boolean;
+    // The code as string
     source?: string;
+    // The MD5 of the source
     md5?: string;
-    AST: any;
+
+    AST: ts.SourceFile | null = null;
+
     results?: {
         [ref: string]: IFindResult
     };
@@ -110,7 +113,7 @@ export class CodeFileReader {
             this.md5 = crypto.createHash("md5").update(this.source).digest("hex");
 
             // TODO: maybe change this only if needed.
-            this.AST = esprima.parse(this.source, {range:true});
+            this.AST = ts.createSourceFile(this.src, source.toString(), ts.ScriptTarget.Latest)
 
             return this;
         });

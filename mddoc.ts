@@ -1,4 +1,3 @@
-// Having this without comments cause esprima to freak and a weird
 //#!/usr/bin/env node
 
 import * as mddoc from './index';

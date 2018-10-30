@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import { Task } from '@ts-task/task';
 import { taskReduce } from '../ts-task-utils/task-reduce';
 import { writeFile } from '../ts-task-fs/writeFile';

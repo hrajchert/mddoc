@@ -1,10 +1,10 @@
 Eventually this will be separated between library and application, for now they are together for simplicity.
-The library will be in charge of generating and interpreting the metadata. RESTORE
+The library will be in charge of generating and interpreting the metadata.
 
-{ % code_todo
-    "src" : "mddoc.js",
+{%code_todo
+    "src" : "mddoc.ts",
     "ref" : {
-        "text" : "mddoc   = require("
+        "text" : "import * as mddoc from './index';"
     }
 %}
 
@@ -56,13 +56,13 @@ This will create a JsonML from all the markdowns in the `inputDir` folder. Insid
 and the custom ones I'll create for referencing
 
 
-The class in charge of reading all the markdonws and generate the metadata from it is `MarkdownReader`. The method that walks into the `inputDir`
-folder is `MarkdownReader.parse` RECONECTAR
+The class in charge of reading all the markdowns and generate the metadata from it is `MarkdownReader`. The method that walks into the `inputDir`
+folder is `MarkdownReader.parse`
 
-{ % code_ref
-    "src" : "src/MarkdownReader.js",
+{%code_ref
+    "src" : "src/MarkdownReader.ts",
     "ref" : {
-        "text" : "MarkdownReader.prototype.parse = function() {"
+        "text" : "parse () {"
     }
 %}
 
@@ -75,7 +75,7 @@ Este paso intermedio creo que puede generar el Arbol de metadata y como un arbol
 principio que si los incluiria.
 
 El arbol de metadata podria tener entonces informacion de los markdowns, e informacion del codigo, como dos grandes ramas. Las dos informaciones la saca
-de los markdowns en si, pero, la del codigo va a ser utilizada por ejemplo, para leer una sola vez cada archivo (y ejecutar esprima una sola vez),
+de los markdowns en si, pero, la del codigo va a ser utilizada por ejemplo, para leer una sola vez cada archivo (y ejecutar el parser una sola vez),
 en vez de hacerlo cada vez que se encuentre una referencia. Despues la metadata puede ser usada para los otros tools.
 
 
@@ -205,10 +205,10 @@ This is the actual reference. So Far I see the following options:
 
 The ref can eventually have a resolver or type or something to indicate which code reader should be used.
 Line number can be used with no problem with any type of files, but is quite limiting. Plain text and regex
-can leverage on the fact we know the Javascript AST trough esprima, or cheerio (eventually). So you can put something like
+can leverage on the fact we know the Javascript AST, or cheerio (eventually). So you can put something like
 
     "ref" : {
-        "resolver" : "esprima",
+        "resolver" : "typescript",
         "text" : "if (!mds.hasOwnProperty(mdTemplate)) {",
         "parent" : "BlockStatement",
         // "children": "...",

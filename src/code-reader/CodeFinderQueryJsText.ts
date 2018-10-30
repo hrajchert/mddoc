@@ -1,12 +1,10 @@
 import { IQueriable, IRange, isOutOfRange } from "./reader-utils";
 import { CodeFileReader, IFindResult } from "./CodeFileReader";
+import * as ts from 'typescript';
 const _ = require('underscore');
 
 /**
- * This is a plain text search in the document. If the resolver
- * is an esprima resolver, then the reference will correspond to
- * an AST node. NOTE: for now the resolvers are not implemented
- * its treated as esprima always.
+ * This is a plain text search in the document.
  */
 export interface IFileReaderQuery {
     text: string;
@@ -19,7 +17,7 @@ export function isTextQuery (query: any): query is IFileReaderQuery {
 export class CodeFinderQueryJsText implements IQueriable {
     queryRange?: IRange;
     minSize?: number;
-    minNode: any;
+    minNode: ts.Node | null = null;
 
     constructor (public codeFileReader: CodeFileReader, public query: IFileReaderQuery) {
     }
@@ -34,57 +32,30 @@ export class CodeFinderQueryJsText implements IQueriable {
      * stored in the object that contains the position of the found text. The queryRange has the following
      * signature [firstCharacter, lastCharacter], where firstCharacter is the
      * position of first character of the queried text, and lastCharacter is the last one.
-     * @param  AST    node An esprima generated AST
-     * @param  array  tree An empty array should be provided, the result will be the resulting tree from the root
+     * @param  node The generated AST
+     * @param  path An empty array should be provided, the result will be the resulting tree from the root
      *                     till the minNode.
      * @return integer      The number of visited nodes to find the min one
      */
-    findMinNode (node: any, tree: any) {
+    findMinNode (node: ts.Node, path: ts.Node[]) {
         if (typeof this.queryRange === 'undefined') throw 'queryRange should be defined';
+        const nodeRange = [node.pos, node.end] as IRange;
 
-        // Check that the value is a node and that we are still on the queryRange
-        if (node === null || !_.isObject(node) || isOutOfRange(node.range, this.queryRange )){
-            return 0;
+        if (isOutOfRange(nodeRange, this.queryRange)) {
+            return 1;
         }
-        // If im here, im in range.
 
-        // Save this node as the smaller node that still contains the queryRange
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // TODO: THIS has a ref explaining why I made this decision, try not to loose the reference
-        // in the refactor
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        var size = node.range[1] - node.range[0];
+        const size = nodeRange[1] - nodeRange[0];
         this.minSize = size;
         this.minNode = node;
-        tree.push(node);
+        path.push(node);
 
-        // Count will hold the number of visited nodes from this node to the minNode,
-        // it starts with one, marking this node as visited.
-        var count = 1;
-        var newNode;
-        var nodesToSkip = ["range", "type"];
 
-        // We traverse the node childrens using recursion
-        for (var property in node) {
-            // Skip attributes we know are not children nodes
-            if (nodesToSkip.indexOf(property) !== -1) {
-                continue;
-            }
+        let count = 0;
 
-            newNode = node[property];
-            // Make sure the attribute is an array (convert if needed), to
-            // treat all attributes as an array of children nodes.
-            if (!_.isArray(newNode)) {
-                newNode = [newNode];
-            }
-
-            // For each child node call this function recursively and increase
-            // the visited node count.
-            for (var i = 0; i < newNode.length; i++) {
-                count += this.findMinNode(newNode[i], tree);
-            }
-        }
-        // Return how many nodes we visited to find the minNode
+        node.forEachChild(node => {
+            count += this.findMinNode(node, path);
+        });
         return count;
     }
 
@@ -101,10 +72,12 @@ export class CodeFinderQueryJsText implements IQueriable {
 
         this.queryRange = [charBegin, charEnd];
         var tree = [] as any[];
-        this.findMinNode(this.codeFileReader.AST, tree);
+
+        this.findMinNode(this.codeFileReader.AST as ts.SourceFile, tree);
+
         // console.log(c + " nodes where visited");
         // console.log("The minSize is " + this.minSize);
-        // console.log("The min node is " + this.minNode.type);
+        // console.log("The min node is " + this.minNode);
         // console.log(this.minNode.range);
         // console.log("EA EA ["+charBegin + ", " + charEnd + "]");
 
@@ -112,10 +85,14 @@ export class CodeFinderQueryJsText implements IQueriable {
         //     console.log("tree " + i + " = " + tree[i].type);
         // }
 
-        return {
-            snippet: source.substring(this.minNode.range[0],this.minNode.range[1]),
-            range: this.minNode.range,
-            found: true
-        };
+        if (this.minNode) {
+            return {
+                snippet: source.substring(this.minNode.pos,this.minNode.end),
+                range: [this.minNode.pos, this.minNode.end],
+                found: true
+            };
+        } else {
+            return { found: false };
+        }
     }
 }

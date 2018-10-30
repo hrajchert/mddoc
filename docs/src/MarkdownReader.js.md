@@ -24,10 +24,10 @@ I don't like the fact that this is here, its implying that it has 1-1 relation w
 Revisit this
 {:.alert .alert-danger }
 
-{ % code_warning
-    "src" : "src/MarkdownReader.js",
+{%code_warning
+    "src" : "src/MarkdownReader.ts",
     "ref" : {
-        "text" : "MarkdownReader.prototype.analyzeMarkdownFileReader"
+        "text" : "analyzeMarkdownFileReader ("
     }
 %}
 

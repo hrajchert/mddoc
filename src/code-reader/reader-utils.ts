@@ -1,6 +1,6 @@
 import { IFindResult } from "./CodeFileReader";
 
-export type IRange = [Number, Number];
+export type IRange = [number, number];
 /**
  * This is a helper function that detects that
  * innerRange is inside outerRange. It returns

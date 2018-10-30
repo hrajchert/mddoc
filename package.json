@@ -21,7 +21,6 @@
     "colors": "~0.6.2",
     "commander": "^2.2.0",
     "ect": "~0.5.9",
-    "esprima": "~1.0.4",
     "findup": "^0.1.5",
     "markdown": "~0.5.0",
     "parmenides": "0.0.2",
