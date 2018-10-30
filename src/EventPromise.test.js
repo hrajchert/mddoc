@@ -1,20 +1,15 @@
-/* jshint -W030 */
-/*global describe, it, beforeEach */
-//var should =
-require("should");
-
-var EventPromise = require("../src/EventPromise");
+var EventPromise = require("./EventPromise");
 var when = require("when");
 var delay = require("when/delay");
 
 describe ("EventPromise", function () {
 
     describe("creation", function () {
-        it("should mix on a OL", function(){
+        test("should mix on a OL", function(){
             var obj = {};
             EventPromise.mixin(obj);
-            obj.should.have.property("on");
-            obj.should.have.property("trigger");
+            expect(obj).toHaveProperty("on");
+            expect(obj).toHaveProperty("trigger");
         });
     });
 
@@ -25,7 +20,7 @@ describe ("EventPromise", function () {
             EventPromise.mixin(obj);
         });
 
-        it("should be called after a trigger", function(done) {
+        test("should be called after a trigger", function(done) {
             obj.on("myEvent", "handler1", function() {
                 done();
             });
@@ -33,16 +28,16 @@ describe ("EventPromise", function () {
 
         });
 
-        it("should pass trigger parameters", function(done) {
+        test("should pass trigger parameters", function(done) {
             obj.on("myEvent", "handler1", function(arg) {
-                arg.should.equal("my argument");
+                expect(arg).toEqual("my argument");
                 done();
             });
             obj.trigger("myEvent", "my argument");
 
         });
 
-        it("should call multiple handlers", function(done) {
+        test("should call multiple handlers", function(done) {
             var h1 = when.defer(),
                 h2 = when.defer();
 
@@ -62,7 +57,7 @@ describe ("EventPromise", function () {
 
         });
 
-        it("should call the handlers in respecting order", function(done) {
+        test("should call the handlers in respecting order", function(done) {
             var handler2Called = false;
             // Define handler1 that depends on handler 2 to be called first
             obj.on("myEvent", "handler1", function(arg, deps) {
@@ -81,7 +76,7 @@ describe ("EventPromise", function () {
 
             obj.on("myEvent", "handler2", function(arg) {
                 handler2Called = true;
-                arg.should.equal("my argument");
+                expect(arg).toEqual("my argument");
                 return "handler2Result";
             });
 
@@ -90,7 +85,7 @@ describe ("EventPromise", function () {
         });
 
 
-        it("should return a promise that is resolved once all handlers are resolved", function(done) {
+        test("should return a promise that is resolved once all handlers are resolved", function(done) {
             var h1Called = false,
                 h2Called = false;
 

@@ -1,0 +1,40 @@
+import { sequence, Step } from "./sequence";
+import { Task } from "@ts-task/task";
+import { jestAssertNever, assertFork } from "../testing-utils";
+
+
+const asStep = <T> (mock: jest.Mock<T>) => mock as () => T;
+
+describe('ts-task-utils', () => {
+    describe('sequence', () => {
+        const task1Mock = jest.fn((x: number) => Task.resolve(42 + x));
+        const task1 = asStep(task1Mock);
+
+        const task2Mock = jest.fn((x: number) => Task.resolve(42 + x));
+        const task2 = asStep(task2Mock);
+
+        beforeEach(() => {
+            jest.clearAllMocks();
+        })
+
+        test('it should call one task', done => {
+            const seq = sequence([task1]);
+            seq.fork(
+                jestAssertNever(done),
+                assertFork(done, _ => expect(task1Mock.mock.calls.length).toBe(1))
+            )
+        })
+
+        test('it should call two task, one after the other', done => {
+            const seq = sequence([task1, task2]);
+            seq.fork(
+                jestAssertNever(done),
+                assertFork(done, _ => {
+                    expect(task1Mock.mock.calls.length).toBe(1)
+                    expect(task2Mock.mock.calls.length).toBe(1)
+                })
+            )
+        })
+    })
+
+})
