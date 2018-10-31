@@ -93,10 +93,21 @@ export interface Metadata {
     }
 }
 
+const EventPromise = require("./EventPromise");
 
 export class MetadataManager {
-    constructor (private settings: any) {
 
+    eventPromise: any;
+
+    constructor (private settings: any) {
+        this.eventPromise = EventPromise.create();
+        this.eventPromise.on("md-file-parsed", "createJsonMLMetadata", this.createJsonMLMetadata.bind(this));
+        this.eventPromise.on("md-file-parsed", "createHrMdMetadata", this.createHrMdMetadata.bind(this));
+        this.eventPromise.on("md-file-parsed", "createHrCodeMetadata", this.createHrCodeMetadata.bind(this));
+
+        this.eventPromise.on("code-file-read", "updateHrMdMetadata", this.updateHrMdMetadata.bind(this),["updateHrCodeMetadata"]);
+        this.eventPromise.on("code-file-read", "updateHrCodeMetadata", this.updateHrCodeMetadata.bind(this));
+        this.eventPromise.on("code-file-read", "updateNotFound", this.updateNotFound.bind(this),["updateHrCodeMetadata"]);
     }
 
     metadata?: Metadata;
@@ -150,19 +161,6 @@ export class MetadataManager {
         }
         return this.metadata.notFound;
     };
-
-    /**
-     * TODO: probably refactor and document
-     */
-    renameThisMethod (markdownReader: any, codeReader: any) {
-        markdownReader.on("md-file-parsed", "createJsonMLMetadata", this.createJsonMLMetadata.bind(this));
-        markdownReader.on("md-file-parsed", "createHrMdMetadata", this.createHrMdMetadata.bind(this));
-        markdownReader.on("md-file-parsed", "createHrCodeMetadata", this.createHrCodeMetadata.bind(this));
-
-        codeReader.on("code-file-read", "updateHrMdMetadata", this.updateHrMdMetadata.bind(this),["updateHrCodeMetadata"]);
-        codeReader.on("code-file-read", "updateHrCodeMetadata", this.updateHrCodeMetadata.bind(this));
-        codeReader.on("code-file-read", "updateNotFound", this.updateNotFound.bind(this),["updateHrCodeMetadata"]);
-    }
 
     createJsonMLMetadata (mdFileReader: any) {
         if (typeof this.metadata === "undefined") {

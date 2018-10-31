@@ -22,12 +22,12 @@ process.title = "mddoc";
 loadConfig(process.cwd(), commandLineOptions)
     .chain(settings => {
         // Initialize the mddoc steps
-        mddoc.initialize(settings);
+        const mgr = mddoc.initialize(settings);
 
         // Indicate which steps to run
         const steps = [
-            mddoc.readMarkdown(settings),
-            mddoc.readCode,
+            mddoc.readMarkdown(settings, mgr),
+            mddoc.readCode(mgr),
             mddoc.saveMetadata,
             mddoc.replaceReferences,
             mddoc.generateOutput

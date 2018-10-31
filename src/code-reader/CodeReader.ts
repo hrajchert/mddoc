@@ -1,5 +1,3 @@
-const EventPromise = require("../EventPromise");
-
 import { VerboseSettings } from '../../index';
 import { CodeFileReader } from './CodeFileReader';
 import { Metadata } from '../MetadataManager';
@@ -7,20 +5,10 @@ import { Task } from '@ts-task/task';
 import { tap } from '../utils/tap';
 
 export class CodeReader {
-    eventPromise: any;
     constructor (public metadata: Metadata, public settings: VerboseSettings) {
-        this.eventPromise = EventPromise.create();
     }
 
-    on (...args: any[]) {
-        this.eventPromise.on(...args);
-    }
-
-    trigger (...args: any[]) {
-        this.eventPromise.trigger(...args);
-    }
-
-    read () {
+    read (store: any) {
         const hrCode = this.metadata.hrCode;
 
         const files = Object.keys(hrCode);
@@ -34,17 +22,14 @@ export class CodeReader {
             // Read the file
             return codeFileReader.read()
                 // Then update the metadata out of it
-                .map(tap(reader => this.updateMetadata(reader)))
+                // TODO: Replace with redux
+                .map(tap(reader => store.trigger("code-file-read", reader)))
                 // If anything fails, append the failing reader
                 .catch(error => Task.reject(new CodeReaderError(error, codeFileReader)))
             ;
         })
         // console.log(this.metadata.hrCode);
         return Task.all(tasks);
-    };
-
-    updateMetadata (codeFileReader: CodeFileReader) {
-        this.trigger("code-file-read", codeFileReader);
     };
 }
 

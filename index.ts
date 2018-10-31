@@ -1,4 +1,4 @@
-import { MarkdownReader, MarkdownReaderError, MarkdownReaderSettings } from "./src/markdown-parser";
+import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from "./src/markdown-parser";
 import { CodeReader, CodeReaderError } from './src/code-reader';
 import { CodeIncluder } from './src/CodeIncluder';
 import { MetadataManager } from './src/MetadataManager';
@@ -13,8 +13,6 @@ const GeneratorManager = getGeneratorManager();
 const { red, grey } = require("colors");
 
 let _metadataManager: MetadataManager | null = null;
-
-let _mdReader: MarkdownReader | null = null;
 
 let _codeReader: CodeReader | null = null;
 
@@ -42,15 +40,13 @@ export function initialize (settings: Settings) {
     settings.verbose = _verbose;
 
     // Metadata
-    _mdReader = new MarkdownReader();
     _codeReader = new CodeReader(metadata, settings);
 
-    // TODO: mhmhmhm
-    _metadataManager.renameThisMethod(_mdReader, _codeReader);
 
     // Tool
     _codeIncluder = new CodeIncluder(metadata);
     GeneratorManager.initialize(metadata, settings as any);
+    return _metadataManager;
 }
 
 export function getMetadataManager () {
@@ -91,12 +87,9 @@ function normalizeError(step: string, error: Error): StepError {
     return new StepError(step, error);
 }
 
-export function readMarkdown (settings: MarkdownReaderSettings) {
+export function readMarkdown (settings: MarkdownReaderSettings, metadataMgr: MetadataManager) {
     return () => {
-        if (_mdReader === null) {
-            return Task.reject(new LibraryNotInitialized('Markdown reader'));
-        }
-        return _mdReader.parse(settings)
+        return parseMarkdownFiles(settings, metadataMgr.eventPromise)
             .catch((mdErr) => {
                 console.log(red("Could not parse the markdown"));
                 if (mdErr instanceof MarkdownReaderError) {
@@ -106,23 +99,24 @@ export function readMarkdown (settings: MarkdownReaderSettings) {
                 return Task.reject(normalizeError("markdown parser", mdErr));
             });
     }
-
 };
 
 // TODO: Eventually call this read references, as it should read all sort of documents, not just code
-export function readCode () {
-    if (_codeReader === null) {
-        return Task.reject(new LibraryNotInitialized('Code reader'));
-    }
-    return _codeReader.read()
-        .catch(err => {
-            console.log(red("Could not read the code"));
-            if (err instanceof CodeReaderError) {
-                console.log("in file " + grey(err.reader.src));
-            }
+export function readCode (metadataMgr: MetadataManager) {
+    return () => {
+        if (_codeReader === null) {
+            return Task.reject(new LibraryNotInitialized('Code reader'));
+        }
+        return _codeReader.read(metadataMgr.eventPromise)
+            .catch(err => {
+                console.log(red("Could not read the code"));
+                if (err instanceof CodeReaderError) {
+                    console.log("in file " + grey(err.reader.src));
+                }
 
-            return Task.reject(normalizeError("code reader", err));
-        });
+                return Task.reject(normalizeError("code reader", err));
+            });
+    }
 }
 
 export function saveMetadata () {
