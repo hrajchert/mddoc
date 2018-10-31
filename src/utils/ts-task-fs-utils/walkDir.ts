@@ -6,7 +6,7 @@ import * as fs from "fs";
 const _ = require('underscore');
 
 interface WalkDirOptions {
-    exclude: string | string[];
+    exclude?: string | string[];
 }
 
 /**

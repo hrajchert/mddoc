@@ -3,6 +3,7 @@ import { walkDir } from "./utils/ts-task-fs-utils/walkDir";
 import { Task } from "@ts-task/task";
 import { readFile } from "./utils/ts-task-fs/readFile";
 import { tap } from "./utils/tap";
+import { VerboseSettings } from "..";
 
 var markdown = require("markdown").markdown,
     EventPromise = require("./EventPromise"),
@@ -188,6 +189,10 @@ interface MarkdownReference {
 }
 
 
+export type MarkdownReaderSettings = {
+    inputDir: string;
+    inputExclude?: string;
+} & VerboseSettings;
 
 /**
  * @summary Class in charge of reading the markdown files, and getting the references out of them.
@@ -197,7 +202,7 @@ interface MarkdownReference {
  */
 export class MarkdownReader {
     eventPromise: any;
-    constructor (private settings: any) {
+    constructor () {
         this.eventPromise = EventPromise.create();
     }
 
@@ -213,16 +218,16 @@ export class MarkdownReader {
      * Walks the documentation folder, also known as input dir, and parses the markdown files
      * in it
      */
-    parse () {
+    parse (settings: MarkdownReaderSettings) {
         var self = this;
         // Walk the input dir recursively, get a list of all files
-        return walkDir(self.settings.inputDir, {exclude: self.settings.inputExclude})
+        return walkDir(settings.inputDir, {exclude: settings.inputExclude})
             .chain(files => {
 
                 var mdre = /(.*)\.md$/;
 
                 // Precalculate the lenght of the name of the input dir
-                var dirNameLength = self.settings.inputDir.length;
+                var dirNameLength = settings.inputDir.length;
 
                 // // Method to add context to an error in the parsing of a md file
                 // var handleMdError = function(err) {
@@ -245,7 +250,7 @@ export class MarkdownReader {
 
                         // Create and configure the object that will read and parse the markdown
                         var mkTask = new MarkdownFileReader(plainFileName, completeFileName);
-                        mkTask.setVerbose(self.settings.verbose);
+                        mkTask.setVerbose(settings.verbose);
 
                         // parse the file,
                         return mkTask.parse()

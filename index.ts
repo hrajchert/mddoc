@@ -1,4 +1,4 @@
-import { MarkdownReader, MarkdownReaderError } from "./src/MarkdownReader";
+import { MarkdownReader, MarkdownReaderError, MarkdownReaderSettings } from "./src/MarkdownReader";
 import { CodeReader, CodeReaderError } from './src/code-reader';
 import { CodeIncluder } from './src/CodeIncluder';
 import { MetadataManager } from './src/MetadataManager';
@@ -42,7 +42,7 @@ export function initialize (settings: Settings) {
     settings.verbose = _verbose;
 
     // Metadata
-    _mdReader = new MarkdownReader(settings);
+    _mdReader = new MarkdownReader();
     _codeReader = new CodeReader(metadata, settings);
 
     // TODO: mhmhmhm
@@ -91,19 +91,22 @@ function normalizeError(step: string, error: Error): StepError {
     return new StepError(step, error);
 }
 
-export function readMarkdown () {
-    if (_mdReader === null) {
-        return Task.reject(new LibraryNotInitialized('Markdown reader'));
-    }
-    return _mdReader.parse()
-        .catch((mdErr) => {
-            console.log(red("Could not parse the markdown"));
-            if (mdErr instanceof MarkdownReaderError) {
-                console.log("in file " + grey(mdErr.reader.completeFileName));
-            }
+export function readMarkdown (settings: MarkdownReaderSettings) {
+    return () => {
+        if (_mdReader === null) {
+            return Task.reject(new LibraryNotInitialized('Markdown reader'));
+        }
+        return _mdReader.parse(settings)
+            .catch((mdErr) => {
+                console.log(red("Could not parse the markdown"));
+                if (mdErr instanceof MarkdownReaderError) {
+                    console.log("in file " + grey(mdErr.reader.completeFileName));
+                }
 
-            return Task.reject(normalizeError("markdown parser", mdErr));
-        });
+                return Task.reject(normalizeError("markdown parser", mdErr));
+            });
+    }
+
 };
 
 // TODO: Eventually call this read references, as it should read all sort of documents, not just code
@@ -171,9 +174,3 @@ export function run<E> (steps: Step<E>[]) {
         });
 };
 
-
-// ------------------------------
-// --     OTHER INCLUDES       --
-// ------------------------------
-export const utils  = require("./src/utils");
-export const config = require("./src/config");

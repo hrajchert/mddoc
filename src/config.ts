@@ -12,7 +12,8 @@ const settingsContract = objOf({
     inputDir: str,
     outputDir: optional(str),
     basePath: str,
-    verbose: bool
+    verbose: bool,
+    inputExclude: optional(str)
 });
 
 export class Settings {
@@ -36,6 +37,7 @@ export class Settings {
      */
     verbose = false;
 
+    inputExclude?: string;
     /**
      * The base path of the project
      */

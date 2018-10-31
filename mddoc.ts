@@ -26,7 +26,7 @@ loadConfig(process.cwd(), commandLineOptions)
 
         // Indicate which steps to run
         const steps = [
-            mddoc.readMarkdown,
+            mddoc.readMarkdown(settings),
             mddoc.readCode,
             mddoc.saveMetadata,
             mddoc.replaceReferences,
