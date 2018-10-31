@@ -3,6 +3,7 @@
 import * as mddoc from './index';
 import {loadConfig} from './src/config';
 import { explain } from './src/utils/explain';
+import { sequence } from './src/utils/ts-task-utils/sequence';
 const _       = require("underscore");
 const program = require("commander");
 
@@ -28,13 +29,13 @@ loadConfig(process.cwd(), commandLineOptions)
         const steps = [
             mddoc.readMarkdown(settings, mgr),
             mddoc.readCode(settings, mgr),
-            mddoc.saveMetadata,
+            mddoc.saveMetadata(settings, mgr),
             mddoc.replaceReferences,
             mddoc.generateOutput
         ];
 
-        // Do magic
-        return mddoc.run(steps)
+        // Run each step
+        return sequence(steps)
     })
     .fork(
         error => console.error(explain(error)),

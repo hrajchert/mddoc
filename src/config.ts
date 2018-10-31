@@ -19,11 +19,13 @@ const settingsContract = objOf({
 export class Settings {
     /**
      * Path to the folder that has the Markdown files
+     * TODO: Remove optional
      */
     inputDir?: string;
 
     /**
      * Path to the folder that will hold the output of this program
+     * TODO: Remove optional
      */
     outputDir?: string;
 

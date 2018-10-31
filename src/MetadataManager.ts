@@ -93,13 +93,26 @@ export interface Metadata {
     }
 }
 
+export interface MetadataManagerSettings {
+    outputDir?: string;
+}
+
+export function saveMetadataTo (metadata: Metadata, outputDir?: string) {
+    // TODO: Remove optional
+    if (typeof outputDir === 'undefined') throw 'outputDir shouldnt be undefined';
+    var metadataFileName = outputDir + "/metadata.json";
+    var metadataStr = JSON.stringify(metadata, null, "    ");
+    return writeFileCreateDir(metadataFileName, metadataStr)
+        .map(tap(_ => console.log(green("Metadata written to ") + grey(metadataFileName))))
+}
+
 const EventPromise = require("./EventPromise");
 
 export class MetadataManager {
 
     eventPromise: any;
 
-    constructor (private settings: any) {
+    constructor () {
         this.eventPromise = EventPromise.create();
         this.eventPromise.on("md-file-parsed", "createJsonMLMetadata", this.createJsonMLMetadata.bind(this));
         this.eventPromise.on("md-file-parsed", "createHrMdMetadata", this.createHrMdMetadata.bind(this));
@@ -143,14 +156,7 @@ export class MetadataManager {
     /**
      * Write the metadata to disk
      */
-    save () {
-        var self = this;
-        // TODO: move to Task
-        var metadataFileName = self.settings.outputDir + "/metadata.json";
-        var metadataStr = JSON.stringify(self.metadata, null, "    ");
-        return writeFileCreateDir(metadataFileName, metadataStr)
-            .map(tap(_ => console.log(green("Metadata written to ") + grey(metadataFileName))))
-    };
+
 
     /**
      * It gives you the not found references

@@ -1,7 +1,7 @@
 import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from "./src/markdown-parser";
 import { CodeReaderError, readCodeReferences } from './src/code-reader';
 import { CodeIncluder } from './src/CodeIncluder';
-import { MetadataManager } from './src/MetadataManager';
+import { MetadataManager, saveMetadataTo, MetadataManagerSettings } from './src/MetadataManager';
 import { getGeneratorManager } from './src/generator/GeneratorManager';
 import { Task, UnknownError } from '@ts-task/task';
 import { Step, sequence } from "./src/utils/ts-task-utils/sequence";
@@ -13,8 +13,6 @@ const GeneratorManager = getGeneratorManager();
 // TODO: Library shouldnt have colors
 const { red, grey } = require("colors");
 
-let _metadataManager: MetadataManager | null = null;
-
 let _codeIncluder: any = null;
 
 export interface VerboseSettings {
@@ -25,21 +23,17 @@ type Settings = VerboseSettings;
 
 export function initialize (settings: Settings) {
     // Initialize the metadata
-    _metadataManager = new MetadataManager(settings);
-    _metadataManager.initialize();
+    const mgr = new MetadataManager();
+    mgr.initialize();
 
     // TODO: Avoid ASAP
-    const metadata = _metadataManager.getPlainMetadata();
+    const metadata = mgr.getPlainMetadata();
 
     // Tool
     _codeIncluder = new CodeIncluder(metadata);
     GeneratorManager.initialize(metadata, settings as any);
-    return _metadataManager;
+    return mgr;
 }
-
-export function getMetadataManager () {
-    return _metadataManager;
-};
 
 // ------------------------------
 // --     STEPS DEFINITION     --
@@ -104,16 +98,15 @@ export function readCode (settings: VerboseSettings, metadataMgr: MetadataManage
     }
 }
 
-export function saveMetadata () {
-    if (_metadataManager === null) {
-        return Task.reject(new LibraryNotInitialized('Metadata manager'));
+export function saveMetadata (settings: MetadataManagerSettings, mgr: MetadataManager) {
+    return function () {
+        return saveMetadataTo(mgr.getPlainMetadata(), settings.outputDir)
+            .catch(err => {
+                console.log(red("Could not write the metadata"));
+                console.log(err);
+                return Task.reject(normalizeError("save metadata", err));
+            });
     }
-    return _metadataManager.save()
-        .catch(err => {
-            console.log(red("Could not write the metadata"));
-            console.log(err);
-            return Task.reject(normalizeError("save metadata", err));
-        });
 }
 
 export function replaceReferences () {
@@ -140,16 +133,3 @@ export function generateOutput () {
             return Task.reject(normalizeError("Output Generator", err));
         });
 };
-
-export function run<E> (steps: Step<E>[]) {
-    return sequence(steps)
-        .chain(() => {
-            if (_metadataManager === null) {
-                return Task.reject(new LibraryNotInitialized('Metadata manager'));
-            }
-
-            // I dont like this, quite much
-            return Task.resolve(_metadataManager.getPlainMetadata());
-        });
-};
-

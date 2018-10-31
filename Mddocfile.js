@@ -2,6 +2,7 @@ module.exports = function(mddoc) {
     mddoc.initConfig({
         "inputDir" : "docs",
         "outputDir": "dist",
+        "verbose": true
     });
 
     mddoc.addGenerator("custom", {
