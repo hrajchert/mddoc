@@ -1,6 +1,6 @@
 import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from "./src/markdown-parser";
 import { CodeReaderError, readCodeReferences } from './src/code-reader';
-import { CodeIncluder } from './src/CodeIncluder';
+import { includeCode } from './src/CodeIncluder';
 import { MetadataManager, saveMetadataTo, MetadataManagerSettings } from './src/MetadataManager';
 import { getGeneratorManager } from './src/generator/GeneratorManager';
 import { Task, UnknownError } from '@ts-task/task';
@@ -12,8 +12,6 @@ const GeneratorManager = getGeneratorManager();
 
 // TODO: Library shouldnt have colors
 const { red, grey } = require("colors");
-
-let _codeIncluder: any = null;
 
 export interface VerboseSettings {
     verbose: boolean;
@@ -30,7 +28,6 @@ export function initialize (settings: Settings) {
     const metadata = mgr.getPlainMetadata();
 
     // Tool
-    _codeIncluder = new CodeIncluder(metadata);
     GeneratorManager.initialize(metadata, settings as any);
     return mgr;
 }
@@ -39,16 +36,6 @@ export function initialize (settings: Settings) {
 // --     STEPS DEFINITION     --
 // ------------------------------
 
-export class LibraryNotInitialized {
-    type = 'LibraryNotInitialized';
-    constructor (public module: string) {
-
-    }
-
-    explain () {
-        return `The library wasnt initialized correctly ${this.module}`;
-    }
-}
 
 export class StepError {
     type = "StepError";
@@ -109,20 +96,18 @@ export function saveMetadata (settings: MetadataManagerSettings, mgr: MetadataMa
     }
 }
 
-export function replaceReferences () {
-    let task: Task<void, LibraryNotInitialized | UnknownError | StepError>;
+export function replaceReferences (metadataMgr: MetadataManager) {
+    return () => {
+        let task: Task<void, UnknownError | StepError>;
 
-    try {
-        if (_codeIncluder === null) {
-            task = Task.reject(new LibraryNotInitialized('Code includer'));
-        } else {
-            _codeIncluder.include();
+        try {
+            includeCode(metadataMgr.getPlainMetadata());
             task = Task.resolve(void 0);
+        } catch (e) {
+            task = Task.reject(normalizeError("code includer", e));
         }
-    } catch (e) {
-        task = Task.reject(normalizeError("code includer", e));
+        return task;
     }
-    return task;
 }
 
 export function generateOutput () {

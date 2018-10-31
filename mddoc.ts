@@ -30,7 +30,7 @@ loadConfig(process.cwd(), commandLineOptions)
             mddoc.readMarkdown(settings, mgr),
             mddoc.readCode(settings, mgr),
             mddoc.saveMetadata(settings, mgr),
-            mddoc.replaceReferences,
+            mddoc.replaceReferences(mgr),
             mddoc.generateOutput
         ];
 
