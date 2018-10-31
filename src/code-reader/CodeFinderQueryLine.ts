@@ -1,13 +1,14 @@
 import { IQueriable, IRange } from "./reader-utils";
 import { CodeFileReader, IFindResult } from "./CodeFileReader";
+import { isObject } from "../utils/is-object";
 
 // The starting and ending line to reference separated by a dash (ex "2-24")
 export interface ICodeFinderLineQuery {
     line: string; // '2-14'
 }
 
-export function isLineQuery (query: any): query is ICodeFinderLineQuery {
-    return query.hasOwnProperty("line");
+export function isLineQuery (query: unknown): query is ICodeFinderLineQuery {
+    return isObject(query) && query.hasOwnProperty("line");
 }
 
 export class CodeFinderQueryLine implements IQueriable {

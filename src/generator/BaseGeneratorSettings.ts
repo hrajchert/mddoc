@@ -2,7 +2,7 @@ import { Settings } from "../config";
 
 var _ = require("underscore");
 
-interface BaseGeneratorSettingsOptions {
+export interface BaseGeneratorSettingsOptions {
     relativeOutputDir?: string;
     outputDir?: string;
     priority?: number;

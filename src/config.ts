@@ -1,5 +1,5 @@
 import {objOf, str, optional, bool, ParmenidesError} from 'parmenides';
-import {getGeneratorManager} from "./generator/GeneratorManager";
+import {getGeneratorManager, GeneratorSettings} from "./generator/GeneratorManager";
 import { findup } from "./utils/ts-task-fs-utils/findup";
 import { Task, UnknownError } from "@ts-task/task";
 import { validateContract } from './utils/parmenides/validate-contract';
@@ -16,6 +16,9 @@ const settingsContract = objOf({
     inputExclude: optional(str)
 });
 
+interface GeneratorOptions {
+    generatorType?: string;
+}
 export class Settings {
     /**
      * Path to the folder that has the Markdown files
@@ -32,7 +35,7 @@ export class Settings {
     /**
      * A list of generators that indicate how the program should be "printed"
      */
-    generators:{[name: string]: GeneratorConfig} = {};
+    generators:{[name: string]: GeneratorSettings} = {};
 
     /**
      * Wether we should be verbose on output or not
@@ -44,20 +47,20 @@ export class Settings {
      * The base path of the project
      */
     basePath = process.cwd();
-    initConfig (config: any) {
+    initConfig (config: unknown) {
         this.extend(config);
     };
 
-    extend (config: any) {
+    extend (config: unknown) {
         _.extend(this, config);
     };
 
 
-    addGenerator (name: string, options: any) {
-        var generatorType = name;
+    addGenerator (name: string, options: GeneratorOptions) {
+        let generatorType = name;
         // By default, the generator type is the name, but you can override it in the options
         // In case you want to have two instances of the same generator
-        if (options.hasOwnProperty("generatorType")) {
+        if (typeof options.generatorType === 'string') {
             generatorType = options.generatorType;
         }
         var generatorFactory = GeneratorManager.findGeneratorFactory(generatorType, this.basePath);
@@ -68,8 +71,6 @@ export class Settings {
     };
 }
 
-
-type GeneratorConfig = any;
 
 export class ErrorLoadingConfig {
     type = "ErrorLoadingConfig";
@@ -90,7 +91,7 @@ export class ErrorLoadingConfig {
     }
 }
 
-export function loadConfig (path: string, runOptions: any) {
+export function loadConfig (path: string, runOptions: unknown) {
     const config = new Settings();
     return findup(path, "Mddocfile.js")
         // TODO: candidate to mapError

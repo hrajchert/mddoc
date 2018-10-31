@@ -4,7 +4,6 @@ import { includeCode } from './src/CodeIncluder';
 import { MetadataManager, saveMetadataTo, MetadataManagerSettings } from './src/MetadataManager';
 import { getGeneratorManager } from './src/generator/GeneratorManager';
 import { Task, UnknownError } from '@ts-task/task';
-import { Step, sequence } from "./src/utils/ts-task-utils/sequence";
 import { renderError } from "./src/utils/explain";
 
 
@@ -64,7 +63,6 @@ export function readMarkdown (settings: MarkdownReaderSettings, metadataMgr: Met
                 if (mdErr instanceof MarkdownReaderError) {
                     console.log("in file " + grey(mdErr.reader.completeFileName));
                 }
-
                 return Task.reject(normalizeError("markdown parser", mdErr));
             });
     }
@@ -79,7 +77,6 @@ export function readCode (settings: VerboseSettings, metadataMgr: MetadataManage
                 if (err instanceof CodeReaderError) {
                     console.log("in file " + grey(err.reader.src));
                 }
-
                 return Task.reject(normalizeError("code reader", err));
             });
     }

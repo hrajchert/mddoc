@@ -7,7 +7,7 @@ export interface IWriteFileOptions {
     flag?: string;
 }
 
-export function writeFile(path: string, data: any, options: IWriteFileOptions = {}) {
+export function writeFile(path: string, data: unknown, options: IWriteFileOptions = {}) {
     return new Task<void, NodeJS.ErrnoException>((resolve, reject) => {
         fs.writeFile(path, data, options, (err) => {
             if (err) {

@@ -9,12 +9,12 @@ var crypto = require("crypto");
 
 const { grey, blue } = require('colors');
 
-interface IFoundResult {
+export interface IFoundResult {
     found: true;
     snippet: string;
     range: IRange;
 }
-interface INotFoundResult {
+export interface INotFoundResult {
     found: false;
 }
 

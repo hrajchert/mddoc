@@ -11,7 +11,7 @@ import { share } from '@ts-task/utils'
  * @param path The path of the file to write
  * @param data The data to write
  */
-export function writeFileCreateDir(path: string, data: any) {
+export function writeFileCreateDir(path: string, data: unknown) {
     path = path.trim();
     // Don't allow absolute paths, for now
 

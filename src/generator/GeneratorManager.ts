@@ -1,6 +1,6 @@
 import { Settings } from "../config";
 import { Metadata } from "../MetadataManager";
-import { BaseGeneratorSettings } from "./BaseGeneratorSettings";
+import { BaseGeneratorSettings, BaseGeneratorSettingsOptions } from "./BaseGeneratorSettings";
 import { Task, UnknownError } from "@ts-task/task";
 
 /** @module GeneratorManager */
@@ -38,7 +38,7 @@ export function registerGenerator (name:string, genpath: string) {
     }
 
     if (!factory.hasOwnProperty("createSettings")) {
-        factory.createSettings = function (options: any, globalSettings: Settings) {
+        factory.createSettings = function (options: BaseGeneratorSettingsOptions, globalSettings: Settings) {
             var settings = new BaseGeneratorSettings(options, globalSettings);
             // Add the generator type to the default settings
             settings.generatorType = name;
@@ -63,8 +63,9 @@ function normalizeProjectGeneratorPath (genpath: string, basePath: string) {
     return genpath;
 };
 
-interface GeneratorSettings {
+export interface GeneratorSettings {
     priority: number;
+    getGeneratorType: () => string;
 }
 
 
@@ -117,19 +118,19 @@ export class GeneratorManager {
 
         this.metadata = metadata;
         // Instantiate all generators
-        for (var generatorName in projectSettings.generators) {
+        for (let generatorName in projectSettings.generators) {
             // Get the generator settings
             // !!!!!!!!!!!!!!!!!!!!!!
             // TODO: IMPORTANT ref
-            var generatorSettings = projectSettings.generators[generatorName];
+            const generatorSettings = projectSettings.generators[generatorName];
 
             // Find the constructor
-            var generatorFactory = this.findGeneratorFactory (generatorSettings.getGeneratorType(), projectSettings.basePath);
+            const generatorFactory = this.findGeneratorFactory (generatorSettings.getGeneratorType(), projectSettings.basePath);
 
             // Instantiate it
             // !!!!!!!!!!!!!!!!!!!!!!
             // TODO: IMPORTANT ref
-            var generatorObject = generatorFactory.createGenerator(metadata, projectSettings, generatorSettings);
+            const generatorObject = generatorFactory.createGenerator(metadata, projectSettings, generatorSettings);
 
             // Add it to the generator instance list
             this.generators.push({

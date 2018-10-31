@@ -1,4 +1,5 @@
 import { UnknownError } from "@ts-task/task";
+import { isObject } from "./is-object";
 
 const PrettyError = require("pretty-error");
 const pe = new PrettyError();
@@ -7,8 +8,8 @@ interface Explainable {
     explain: () => string;
 }
 
-function isExplainable (error: any): error is Explainable {
-    return 'explain' in error;
+function isExplainable (error: unknown): error is Explainable {
+    return isObject(error) && 'explain' in error;
 }
 
 export function explain<T extends Explainable> (error: T | UnknownError) {

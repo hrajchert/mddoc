@@ -3,18 +3,19 @@ import { ICodeFinderLineQuery } from './code-reader/CodeFinderQueryLine';
 import { IFileReaderQuery } from './code-reader/CodeFinderQueryJsText';
 import { writeFileCreateDir } from './utils/ts-task-fs-utils/writeFileCreateDir';
 import { tap } from './utils/tap';
+import { MarkdownFileReader } from './markdown-parser';
+import { CodeFileReader, IFoundResult } from './code-reader/CodeFileReader';
 const crypto = require("crypto");
 const { green, grey } = require("colors");
-interface JSonML {
 
-}
+export type  JSonML = unknown;
 
 export type Directive = 'code_inc' | 'code_ref' | 'code_todo' | 'code_warning';
 
 interface WhatRef {
     found: boolean;
     directive: Directive;
-    jsonml: any;
+    jsonml: JSonML[];
     src: string;
     refhash: string;
 }
@@ -168,7 +169,7 @@ export class MetadataManager {
         return this.metadata.notFound;
     };
 
-    createJsonMLMetadata (mdFileReader: any) {
+    createJsonMLMetadata (mdFileReader: MarkdownFileReader) {
         if (typeof this.metadata === "undefined") {
             throw new Error("Metadata not initialized yet");
         }
@@ -180,9 +181,9 @@ export class MetadataManager {
      * @summary Creates the metadata information of a Markdown file
      * @desc    This method is called when a Markdown file is parsed. TODO: I think eventually this
      *          method will only extract the refhash of each markdown, if this is even required at ALL!
-     * @param {MarkdownFileReader} mdFileReader The object that has parsed the markdown file, and has the references
+     * @param  mdFileReader The object that has parsed the markdown file, and has the references
      */
-    createHrMdMetadata (mdFileReader: any) {
+    createHrMdMetadata (mdFileReader: MarkdownFileReader) {
         if (typeof this.metadata === "undefined") {
             throw new Error("Metadata not initialized yet");
         }
@@ -192,14 +193,18 @@ export class MetadataManager {
         this.metadata.hrMd[mdFileReader.plainFileName] = {
             // TODO: Get from package json or something
             "version" : "0.0.1",
-            "filehash" : mdFileReader.filehash,
-            "refs" : refs
+            "filehash" : mdFileReader.filehash as string,
+            "refs" : refs as any // TODO: Big problem here!!
         };
     };
 
-    updateHrMdMetadata (codeFileReader: any) {
+    updateHrMdMetadata (codeFileReader: CodeFileReader) {
         if (typeof this.metadata === "undefined") {
             throw new Error("Metadata not initialized yet");
+        }
+
+        if (typeof codeFileReader.results === 'undefined') {
+            return;
         }
 
         const hrCode = this.metadata.hrCode[codeFileReader.src];
@@ -216,8 +221,9 @@ export class MetadataManager {
                     // hrMdRef.snippet = hrCode.refs[refhash].snippet;
                     hrMdRef.snippetHash = hrCode.refs[refhash].snippetHash;
                     hrMdRef.char = {
-                        from: codeFileReader.results[refhash].range[0],
-                        to: codeFileReader.results[refhash].range[1]
+                        // TODO: Warning, why am I assuming found here!
+                        from: (codeFileReader.results[refhash] as IFoundResult).range[0],
+                        to: (codeFileReader.results[refhash] as IFoundResult).range[1]
                     };
                 }
             }
@@ -235,10 +241,12 @@ export class MetadataManager {
     /**
      * TODO: comment
      */
-    updateNotFound (codeFileReader: any) {
+    updateNotFound (codeFileReader: CodeFileReader) {
         if (typeof this.metadata === "undefined") {
             throw new Error("Metadata not initialized yet");
         }
+        // TODO: probably should go away
+        if (typeof codeFileReader.results === 'undefined') return;
 
         const hrCode = this.metadata.hrCode[codeFileReader.src];
         for (let refhash in codeFileReader.results) {
@@ -272,7 +280,7 @@ export class MetadataManager {
      * @desc    This method is called when a Markdown file is parsed.
      * @param {MarkdownFileReader} mdFileReader The object that has parsed the markdown file, and has the references
      */
-    createHrCodeMetadata (mdFileReader: any) {
+    createHrCodeMetadata (mdFileReader: MarkdownFileReader) {
         if (typeof this.metadata === "undefined") {
             throw new Error("Metadata not initialized yet");
         }
@@ -327,27 +335,30 @@ export class MetadataManager {
         }
     }
 
-    updateHrCodeMetadata (codeFileReader: any) {
+    updateHrCodeMetadata (codeFileReader: CodeFileReader) {
         if (typeof this.metadata === "undefined") {
             throw new Error("Metadata not initialized yet");
         }
+
+        // TODO: Probably should go away
+        if (typeof codeFileReader.results === "undefined") return;
 
         // Update the hrCode part
         var hrCode = this.metadata.hrCode[codeFileReader.src];
         var refhash, found, snippet, md5;
         hrCode.filehash = codeFileReader.md5;
         for (refhash in codeFileReader.results) {
-            found = codeFileReader.results[refhash].found;
-            hrCode.refs[refhash].found = found;
-            if (found) {
-                snippet = codeFileReader.results[refhash].snippet;
+            const result = codeFileReader.results[refhash];
+            hrCode.refs[refhash].found = result.found;
+            if (result.found) {
+                snippet = result.snippet;
                 md5 = crypto.createHash("md5").update(snippet).digest("hex");
 
                 hrCode.refs[refhash].snippet = snippet;
                 hrCode.refs[refhash].snippetHash = md5;
                 hrCode.refs[refhash].char = {
-                    from: codeFileReader.results[refhash].range[0],
-                    to: codeFileReader.results[refhash].range[1]
+                    from: result.range[0],
+                    to: result.range[1]
                 };
             }
         }

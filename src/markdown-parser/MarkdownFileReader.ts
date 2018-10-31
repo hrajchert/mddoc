@@ -1,4 +1,4 @@
-import { RefQuery, Directive } from "../MetadataManager";
+import { RefQuery, Directive, JSonML } from "../MetadataManager";
 import { readFile } from "../utils/ts-task-fs/readFile";
 import * as crypto from 'crypto';
 
@@ -48,7 +48,7 @@ export class MarkdownFileReader {
 
     filehash?: string;
 
-    jsonml?: any[];
+    jsonml?: JSonML[];
 
     /**
      * @param plainFileName     The logical file path
@@ -93,7 +93,7 @@ export class MarkdownFileReader {
      * @return  {Array.<Reference>}   The references
      * @private
      */
-    private _doGetReferences (jsonml?: any[]) {
+    private _doGetReferences (jsonml?: JSonML[]) {
         if (typeof jsonml === 'undefined') throw 'jsonml shouldnt be undefined';
 
         var references: MarkdownReference[] = [];

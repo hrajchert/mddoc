@@ -33,6 +33,5 @@ export class CodeReaderError extends Error {
     constructor (err: Error, public reader: CodeFileReader) {
         super(err.message);
         this.stack = err.stack;
-
     }
 }

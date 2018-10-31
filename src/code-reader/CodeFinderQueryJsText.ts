@@ -1,6 +1,7 @@
 import { IQueriable, IRange, isOutOfRange } from "./reader-utils";
 import { CodeFileReader, IFindResult } from "./CodeFileReader";
 import * as ts from 'typescript';
+import { isObject } from "../utils/is-object";
 const _ = require('underscore');
 
 /**
@@ -10,8 +11,9 @@ export interface IFileReaderQuery {
     text: string;
 }
 
-export function isTextQuery (query: any): query is IFileReaderQuery {
-    return query.hasOwnProperty("text");
+
+export function isTextQuery (query: unknown): query is IFileReaderQuery {
+    return isObject(query) && query.hasOwnProperty("text");
 }
 
 export class CodeFinderQueryJsText implements IQueriable {
@@ -71,7 +73,7 @@ export class CodeFinderQueryJsText implements IQueriable {
         }
 
         this.queryRange = [charBegin, charEnd];
-        var tree = [] as any[];
+        var tree = [] as ts.Node[];
 
         this.findMinNode(this.codeFileReader.AST as ts.SourceFile, tree);
 
