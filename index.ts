@@ -1,11 +1,12 @@
 import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from "./src/markdown-parser";
-import { CodeReader, CodeReaderError } from './src/code-reader';
+import { CodeReaderError, readCodeReferences } from './src/code-reader';
 import { CodeIncluder } from './src/CodeIncluder';
 import { MetadataManager } from './src/MetadataManager';
 import { getGeneratorManager } from './src/generator/GeneratorManager';
 import { Task, UnknownError } from '@ts-task/task';
 import { Step, sequence } from "./src/utils/ts-task-utils/sequence";
 import { renderError } from "./src/utils/explain";
+
 
 const GeneratorManager = getGeneratorManager();
 
@@ -14,13 +15,7 @@ const { red, grey } = require("colors");
 
 let _metadataManager: MetadataManager | null = null;
 
-let _codeReader: CodeReader | null = null;
-
 let _codeIncluder: any = null;
-
-let _verbose = true;
-
-export const verbose = (v: boolean) => _verbose = v;
 
 export interface VerboseSettings {
     verbose: boolean;
@@ -35,13 +30,6 @@ export function initialize (settings: Settings) {
 
     // TODO: Avoid ASAP
     const metadata = _metadataManager.getPlainMetadata();
-
-    // Add verbosity to the settings, dont quite like it to have it here :S
-    settings.verbose = _verbose;
-
-    // Metadata
-    _codeReader = new CodeReader(metadata, settings);
-
 
     // Tool
     _codeIncluder = new CodeIncluder(metadata);
@@ -102,12 +90,9 @@ export function readMarkdown (settings: MarkdownReaderSettings, metadataMgr: Met
 };
 
 // TODO: Eventually call this read references, as it should read all sort of documents, not just code
-export function readCode (metadataMgr: MetadataManager) {
+export function readCode (settings: VerboseSettings, metadataMgr: MetadataManager) {
     return () => {
-        if (_codeReader === null) {
-            return Task.reject(new LibraryNotInitialized('Code reader'));
-        }
-        return _codeReader.read(metadataMgr.eventPromise)
+        return readCodeReferences(metadataMgr.getPlainMetadata(), settings, metadataMgr.eventPromise)
             .catch(err => {
                 console.log(red("Could not read the code"));
                 if (err instanceof CodeReaderError) {
