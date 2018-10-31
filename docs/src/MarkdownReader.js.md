@@ -20,17 +20,6 @@ I don't like the fact that this is here, its implying that it has 1-1 relation w
 
 
 
-**Warning:**
-Revisit this
-{:.alert .alert-danger }
-
-{%code_warning
-    "src" : "src/MarkdownReader.ts",
-    "ref" : {
-        "text" : "analyzeMarkdownFileReader ("
-    }
-%}
-
 
 Improve the error handling when the block is not valid JSON RECONECTAR
 

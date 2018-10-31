@@ -1,4 +1,4 @@
-import { MarkdownReader, MarkdownReaderError, MarkdownReaderSettings } from "./src/MarkdownReader";
+import { MarkdownReader, MarkdownReaderError, MarkdownReaderSettings } from "./src/markdown-parser";
 import { CodeReader, CodeReaderError } from './src/code-reader';
 import { CodeIncluder } from './src/CodeIncluder';
 import { MetadataManager } from './src/MetadataManager';

@@ -60,9 +60,9 @@ The class in charge of reading all the markdowns and generate the metadata from 
 folder is `MarkdownReader.parse`
 
 {%code_ref
-    "src" : "src/MarkdownReader.ts",
+    "src" : "src/markdown-parser/MarkdownReader.ts",
     "ref" : {
-        "text" : "parse () {"
+        "text" : "parse ("
     }
 %}
 
