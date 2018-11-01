@@ -1,8 +1,9 @@
-var markdown = require("markdown").markdown;
-var _ = require("underscore");
+import { Metadata, JSonML } from "../MetadataManager";
 
-function getHtml (metadata, mdTemplate) {
-    var tree;
+var markdown = require("markdown").markdown;
+
+const getHtml = (metadata: Metadata) => (mdTemplate: string) => {
+    let tree;
     if (!metadata.jsonml.hasOwnProperty(mdTemplate)) {
         throw new Error("We Couldn't find a md template with the name " + mdTemplate);
     }
@@ -15,18 +16,18 @@ function getHtml (metadata, mdTemplate) {
     return markdown.renderJsonML(tree);
 }
 
-function exportFragmentJson (metadata) {
+const exportFragmentJson = (metadata: Metadata) => () => {
     return JSON.stringify(metadata.renderedFragments, null, "   ");
 }
 
-function getRenderHelpers (metadata) {
+export function getRenderHelpers (metadata: Metadata) {
     return {
-        getHtml: _.partial(getHtml, metadata),
-        exportFragmentJson: _.partial(exportFragmentJson, metadata)
+        getHtml: getHtml(metadata),
+        exportFragmentJson: exportFragmentJson(metadata)
     };
 }
 
-function renderMlBlock (jsonml) {
+export function renderMlBlock (jsonml: JSonML) {
     try {
         var tree = markdown.toHTMLTree(jsonml);
         return markdown.renderJsonML(tree);
@@ -35,9 +36,4 @@ function renderMlBlock (jsonml) {
         console.log(e);
         return null;
     }
-
 }
-
-
-exports.getRenderHelpers = getRenderHelpers;
-exports.renderMlBlock = renderMlBlock;

@@ -7,7 +7,7 @@ import { Task, UnknownError } from "@ts-task/task";
 import * as path from 'path';
 import { sequence } from "../utils/ts-task-utils/sequence";
 
-var GeneratorHelperManager = require("./GeneratorHelperManager");
+import * as GeneratorHelperManager from "./GeneratorHelperManager";
 
 interface Generator {
     generate: (helpers?: unknown) => Task<void, UnknownError>
@@ -150,6 +150,7 @@ export class GeneratorManager {
     generate () {
         var self = this;
         const steps = self.generators.map(generator => () => {
+            if (self.metadata === null) throw 'metadata shouldnt be null';
             const helpers = GeneratorHelperManager.getRenderHelpers(self.metadata);
             console.log("Executing the generator: " + generator.generatorName);
             return generator.generatorObject.generate(helpers);
