@@ -1,13 +1,12 @@
-import { Settings } from "../config";
+import { Settings, BaseGeneratorSettings } from "../config";
 import { Metadata } from "../MetadataManager";
-import { BaseGeneratorSettings, BaseGeneratorSettingsOptions } from "./BaseGeneratorSettings";
 import { Task, UnknownError } from "@ts-task/task";
 
-/** @module GeneratorManager */
 import * as path from 'path';
 import { sequence } from "../utils/ts-task-utils/sequence";
 
 import * as GeneratorHelperManager from "./GeneratorHelperManager";
+import { Contract } from "parmenides";
 
 interface Generator {
     generate: (helpers?: unknown) => Task<void, UnknownError>
@@ -20,9 +19,9 @@ interface GeneratorFactory {
     createGenerator: Function;
 
     /**
-     * Method to create the settings of a Generator from a object literal
+     * Contract to see if the generator settings are the correct ones
      */
-    createSettings: Function;
+    contract: Contract<BaseGeneratorSettings>;
 }
 
 /**
@@ -37,14 +36,6 @@ export function registerGenerator (name:string, genpath: string) {
         throw new Error("Module " + genpath + " doesn't have a constructor exported");
     }
 
-    if (!factory.hasOwnProperty("createSettings")) {
-        factory.createSettings = function (options: BaseGeneratorSettingsOptions, globalSettings: Settings) {
-            var settings = new BaseGeneratorSettings(options, globalSettings);
-            // Add the generator type to the default settings
-            settings.generatorType = name;
-            return settings;
-        };
-    }
 
     registeredGenerators[name] = factory;
 
@@ -63,16 +54,12 @@ function normalizeProjectGeneratorPath (genpath: string, basePath: string) {
     return genpath;
 };
 
-export interface GeneratorSettings {
-    priority: number;
-    getGeneratorType: () => string;
-}
 
 
 export class GeneratorManager {
     generators: Array<{
         generatorObject: Generator;
-        generatorSettings: GeneratorSettings;
+        generatorSettings: BaseGeneratorSettings;
         generatorName: string;
     }> = [];
 
@@ -85,11 +72,10 @@ export class GeneratorManager {
     findGeneratorFactory (generatorType: string, basePath: string) {
         var generator,
             genpath;
-
+        // TODO: This should return a task with a possible failure
         // If its already registered, cool
         if (registeredGenerators.hasOwnProperty(generatorType)) {
             generator = registeredGenerators[generatorType];
-
         }
         // If not, try to see if there is a npm dependency with that name
         else {
@@ -125,7 +111,7 @@ export class GeneratorManager {
             const generatorSettings = projectSettings.generators[generatorName];
 
             // Find the constructor
-            const generatorFactory = this.findGeneratorFactory (generatorSettings.getGeneratorType(), projectSettings.basePath);
+            const generatorFactory = this.findGeneratorFactory (generatorSettings.generatorType, projectSettings.basePath);
 
             // Instantiate it
             // !!!!!!!!!!!!!!!!!!!!!!

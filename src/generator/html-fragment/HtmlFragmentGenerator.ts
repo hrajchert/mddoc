@@ -1,6 +1,6 @@
 import { Metadata } from "../../MetadataManager";
-import { Settings } from "../../config";
-import { objOf, str } from "parmenides";
+import { Settings, BaseGeneratorSettings } from "../../config";
+import { objOf, str, Contract, num } from "parmenides";
 import { Task } from "@ts-task/task";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/writeFileCreateDir";
 import { fromUnknown } from "../../utils/parmenides/from-unknown";
@@ -9,20 +9,25 @@ import { fromUnknown } from "../../utils/parmenides/from-unknown";
 var markdown = require("markdown").markdown;
 const { red } = require("colors");
 
-export default {
-    createGenerator : function (metadata: Metadata, projectSettings: Settings, generatorSettings: unknown) {
-        return new HtmlFragmentGenerator(metadata, projectSettings, HtmlFragmentGeneratorSettingsContract(generatorSettings));
-    }
-}
-
-
-const HtmlFragmentGeneratorSettingsContract = fromUnknown(objOf({
-    outputDir: str
+const settingsContract: Contract<HtmlFragmentGeneratorSettings> = (objOf({
+    outputDir: str,
+    priority: num,
+    generatorType: str
 }));
 
-interface HtmlFragmentGeneratorSettings {
+interface HtmlFragmentGeneratorSettings extends BaseGeneratorSettings {
     outputDir: string;
 }
+
+export default {
+    createGenerator : function (metadata: Metadata, projectSettings: Settings, generatorSettings: unknown) {
+        return new HtmlFragmentGenerator(metadata, projectSettings, fromUnknown(settingsContract)(generatorSettings));
+    },
+    contract: settingsContract
+}
+
+
+
 
 export class HtmlFragmentGenerator {
     constructor (private metadata: Metadata, private projectSettings: Settings, private generatorSettings: HtmlFragmentGeneratorSettings) {

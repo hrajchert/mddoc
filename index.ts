@@ -5,6 +5,7 @@ import { MetadataManager, saveMetadataTo, MetadataManagerSettings } from './src/
 import { getGeneratorManager } from './src/generator/GeneratorManager';
 import { Task, UnknownError } from '@ts-task/task';
 import { renderError } from "./src/utils/explain";
+import { Settings } from "./src/config";
 
 
 const GeneratorManager = getGeneratorManager();
@@ -16,8 +17,6 @@ export interface VerboseSettings {
     verbose: boolean;
 }
 
-type Settings = VerboseSettings;
-
 export function initialize (settings: Settings) {
     // Initialize the metadata
     const mgr = new MetadataManager();
@@ -27,7 +26,7 @@ export function initialize (settings: Settings) {
     const metadata = mgr.getPlainMetadata();
 
     // Tool
-    GeneratorManager.initialize(metadata, settings as any);
+    GeneratorManager.initialize(metadata, settings);
     return mgr;
 }
 

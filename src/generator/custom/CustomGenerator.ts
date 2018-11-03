@@ -1,16 +1,34 @@
-import { Settings } from "../../config";
+import { Settings, BaseGeneratorSettings } from "../../config";
 import { Metadata } from "../../MetadataManager";
 import { fromUnknown } from "../../utils/parmenides/from-unknown";
-import { objOf, str, bool, arrOf } from "parmenides";
+import { objOf, str, bool, arrOf, Contract, num, lit } from "parmenides";
 import { Task, UnknownError } from "@ts-task/task";
 import { copyDir } from "../../utils/ts-task-fs-utils/copy-dir";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/writeFileCreateDir";
 import { tap } from "../../utils/tap";
 
+
+const settingsContract: Contract<CustomGeneratorSettings> = objOf({
+    generatorType: str,
+    priority: num,
+    templateDir: str,
+    outputDir: str,
+    copyAssets: bool,
+    files: arrOf(str)
+});
+
+interface CustomGeneratorSettings extends BaseGeneratorSettings {
+    templateDir: string;
+    outputDir: string;
+    copyAssets: boolean;
+    files: string[];
+}
+
 export default {
     createGenerator : function (metadata: Metadata, projectSettings: Settings, generatorSettings: unknown) {
-        return new CustomGenerator(projectSettings, CustomGeneratorSettingsContract(generatorSettings));
-    }
+        return new CustomGenerator(projectSettings, fromUnknown(settingsContract)(generatorSettings));
+    },
+    contract: settingsContract
 }
 
 const { green, grey } = require('colors');
@@ -67,20 +85,6 @@ class HtmlWriterFile {
     }
 }
 
-
-const CustomGeneratorSettingsContract = fromUnknown(objOf({
-    templateDir: str,
-    outputDir: str,
-    copyAssets: bool,
-    files: arrOf(str)
-}));
-
-interface CustomGeneratorSettings {
-    templateDir: string;
-    outputDir: string;
-    copyAssets: boolean;
-    files: string[];
-}
 
 
 class CustomGenerator {
