@@ -8,10 +8,10 @@ export function readCodeReferences (metadata: Metadata, settings: VerboseSetting
     const hrCode = metadata.hrCode;
 
     const files = Object.keys(hrCode);
-    const tasks = files.map(file => {
+    const tasks = files.map(filePath => {
         const codeFileReader = new CodeFileReader({
-            src: file,
-            references: hrCode[file].refs,
+            filePath,
+            references: hrCode[filePath].refs,
             verbose: settings.verbose
         });
 
@@ -24,7 +24,6 @@ export function readCodeReferences (metadata: Metadata, settings: VerboseSetting
             .catch(error => Task.reject(new CodeReaderError(error, codeFileReader)))
         ;
     })
-    // console.log(metadata.hrCode);
     return Task.all(tasks);
 }
 

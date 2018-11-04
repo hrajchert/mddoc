@@ -1,7 +1,7 @@
-import { IRange } from './reader-utils';
+import { IRange, IQueriable } from './reader-utils';
 import { CodeFinderQueryJsText, isTextQuery } from './CodeFinderQueryJsText';
 import { CodeFinderQueryLine, isLineQuery } from './CodeFinderQueryLine';
-import { WhatRef2 } from '../MetadataManager';
+import { InverseReference } from '../MetadataManager';
 import { readFile } from '../utils/ts-task-fs/readFile';
 import * as ts from 'typescript';
 
@@ -21,12 +21,12 @@ export interface INotFoundResult {
 export type IFindResult = IFoundResult | INotFoundResult;
 
 export type IFindReferenceMap = {
-    [ref: string]: WhatRef2
+    [ref: string]: InverseReference
 };
 
 export interface IFindOptions {
     references: IFindReferenceMap;
-    src: string;
+    filePath: string;
     verbose: boolean;
 }
 
@@ -53,10 +53,7 @@ export class CodeFileReader {
     };
 
     constructor (findOptions: IFindOptions) {
-        if ( typeof findOptions.src === "undefined") {
-            throw new Error("You need to provide a source file");
-        }
-        this.src = findOptions.src;
+        this.src = findOptions.filePath;
 
         this.references = findOptions.references;
         this.verbose = findOptions.verbose;
@@ -74,12 +71,12 @@ export class CodeFileReader {
             // Once we have the file, we need to call the right finder for each reference
             .map(() => {
                 this.results = {};
-                var ref, refhash, codeFinder;
-                for (refhash in this.references) {
-                    ref = this.references[refhash];
+                for (let refhash in this.references) {
+                    const ref = this.references[refhash];
                     // console.log("We need to parse a reference ".yellow + refhash.grey);
                     // console.log(ref);
                     // If it has a line property,
+                    let codeFinder: IQueriable | null = null;
                     if (isLineQuery(ref.query)) {
                         // console.log("Instantiating Line query ".yellow);
                         codeFinder = new CodeFinderQueryLine(this, ref.query);

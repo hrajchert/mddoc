@@ -1,4 +1,4 @@
-import { str, optional, bool, ParmenidesError, num, objOf} from 'parmenides';
+import { str, optional, bool, ParmenidesError, num, objOf, arrOf, union} from 'parmenides';
 import {  getGeneratorManager } from "./generator/GeneratorManager";
 import { findup } from "./utils/ts-task-fs-utils/findup";
 import { Task, UnknownError } from "@ts-task/task";
@@ -14,7 +14,7 @@ const settingsContract = objOf({
     outputDir: str,
     basePath: str,
     verbose: bool,
-    inputExclude: optional(str),
+    inputExclude: optional(union(str, arrOf(str))),
     generators: dictionaryOf(
         objOf({
             generatorType: str,
@@ -32,9 +32,23 @@ export interface BaseGeneratorSettings {
 
 export interface Settings {
     /**
+     * Wether we should be verbose on output or not
+     */
+    verbose: boolean;
+
+    // Markdown Reader
+    /**
      * Path to the folder that has the Markdown files
+     * TODO: see if we can change from the path of the markdown files to a list of
+     * blobs of files that can contain references... markdown or even javascript, typescript files
      */
     inputDir: string;
+
+    /**
+     * Regexp to exclude some of the files in the input. TODO: revisit this
+     */
+    inputExclude?: string | string[];
+    // end Markdown Reader
 
     /**
      * Path to the folder that will hold the output of this program
@@ -46,15 +60,6 @@ export interface Settings {
      */
     generators: Dictionary<BaseGeneratorSettings>;
 
-    /**
-     * Wether we should be verbose on output or not
-     */
-    verbose: boolean;
-
-    /**
-     * TODO: what was this for?
-     */
-    inputExclude?: string;
 
     /**
      * The base path of the project
@@ -81,7 +86,7 @@ const loadedSettingsContract = objOf({
     outputDir: str,
     basePath: optional(str),
     verbose: optional(bool),
-    inputExclude: optional(str),
+    inputExclude: optional(union(str, arrOf(str))),
     generators: optional(
         dictionaryOf(
             objOf({

@@ -20,12 +20,9 @@ export interface VerboseSettings {
 export function initialize (settings: Settings) {
     // Initialize the metadata
     const mgr = new MetadataManager();
-    mgr.initialize();
 
-    // TODO: Avoid ASAP
     const metadata = mgr.getPlainMetadata();
 
-    // Tool
     GeneratorManager.initialize(metadata, settings);
     return mgr;
 }
