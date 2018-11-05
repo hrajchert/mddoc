@@ -1,18 +1,18 @@
-Walkdir gives the full path for each file so I have to remove the input dir part. RECONECTAR
+Walkdir gives the full path for each file so I have to remove the input dir part.
 
-{ % code_ref
-    "src" : "src/MarkdownReader.js",
+{%code_ref
+    "src" : "src/markdown-parser/MarkdownReader.ts",
     "ref" : {
-        "text" : "var match = files[i].substr(dirNameLength+1).match(mdre);"
+        "text" : "file.substr(dirNameLength+1).match(mdre)"
     }
 %}
 
 **Warning:**
 I don't like the fact that this is here, its implying that it has 1-1 relation with the metadata saved
-{:.alert .alert-danger } RECONECTAR
+{:.alert .alert-danger }
 
-{ % code_warning
-    "src" : "src/MarkdownReader.js",
+{%code_warning
+    "src" : "src/markdown-parser/MarkdownFileReader.ts",
     "ref" : {
         "text" : "Object.defineProperty(ref,\"jsonml\",{enumerable:false});"
     }
@@ -21,12 +21,12 @@ I don't like the fact that this is here, its implying that it has 1-1 relation w
 
 
 
-Improve the error handling when the block is not valid JSON RECONECTAR
+Improve the error handling when the block is not valid JSON
 
-{ % code_todo
-    "src" : "src/MarkdownReader.js",
+{%code_todo
+    "src" : "src/markdown-parser/MarkdownFileReader.ts",
     "priority" : 3,
     "ref" : {
-        "text" : "var attr = JSON.parse"
+        "text" : "const attr = JSON.parse"
     }
 %}

@@ -39,7 +39,7 @@ export class CodeFinderQueryLine implements IQueriable {
     execute (): IFindResult {
         var lines = this.codeFileReader.lines;
         if (this.lastLine > lines.length) {
-            return {found:false};
+            return {found:false, reason: 'Line range exceeeds file size'};
         }
         var snippet = "";
         var range = [0, 0] as IRange;

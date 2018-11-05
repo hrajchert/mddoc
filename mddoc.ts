@@ -31,7 +31,8 @@ loadConfig(process.cwd(), commandLineOptions)
             mddoc.readCode(settings, mgr),
             mddoc.saveMetadata(settings, mgr),
             mddoc.replaceReferences(mgr),
-            mddoc.generateOutput
+            mddoc.generateOutput,
+            mddoc.reportNotFound(mgr)
         ];
 
         // Run each step

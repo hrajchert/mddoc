@@ -4,8 +4,11 @@ import { CodeFinderQueryLine, isLineQuery } from './CodeFinderQueryLine';
 import { InverseReference } from '../MetadataManager';
 import { readFile } from '../utils/ts-task-fs/readFile';
 import * as ts from 'typescript';
+import { Task } from '@ts-task/task';
 
-var crypto = require("crypto");
+import * as crypto from 'crypto';
+import { isErrnoException } from '../utils/is-errno-exception';
+import { caseError } from '@ts-task/utils';
 
 const { grey, blue } = require('colors');
 
@@ -16,6 +19,7 @@ export interface IFoundResult {
 }
 export interface INotFoundResult {
     found: false;
+    reason: string;
 }
 
 export type IFindResult = IFoundResult | INotFoundResult;
@@ -48,9 +52,9 @@ export class CodeFileReader {
 
     AST: ts.SourceFile | null = null;
 
-    results?: {
+    results: {
         [ref: string]: IFindResult
-    };
+    } = {};
 
     constructor (findOptions: IFindOptions) {
         this.src = findOptions.filePath;
@@ -70,7 +74,6 @@ export class CodeFileReader {
         return this.readAndParseFile()
             // Once we have the file, we need to call the right finder for each reference
             .map(() => {
-                this.results = {};
                 for (let refhash in this.references) {
                     const ref = this.references[refhash];
                     // console.log("We need to parse a reference ".yellow + refhash.grey);
@@ -88,7 +91,7 @@ export class CodeFileReader {
                     if (codeFinder) {
                         this.results[refhash] = codeFinder.execute();
                     } else {
-                        this.results[refhash] = { found: false };
+                        this.results[refhash] = { found: false, reason: 'Invalid query type' };
                     }
                     // console.log("This is the result:".red);
                     // console.log(this.results[refhash].snippet);
@@ -96,6 +99,15 @@ export class CodeFileReader {
                 // The finders are sync, so we can just return this (thus, promise of this)
                 return this;
             })
+            .catch(caseError(
+                isErrnoException,
+                err => {
+                    for (let refhash in this.references) {
+                        this.results[refhash] = { found: false, reason: `cant open file ${err.message}` };
+                    }
+                    return Task.resolve(this)
+                }
+            ))
             ;
     }
 

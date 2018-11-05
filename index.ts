@@ -103,6 +103,9 @@ export function replaceReferences (metadataMgr: MetadataManager) {
     }
 }
 
+
+
+
 export function generateOutput () {
     return GeneratorManager.generate()
         .catch(function(err) {
@@ -111,3 +114,25 @@ export function generateOutput () {
             return Task.reject(normalizeError("Output Generator", err));
         });
 };
+
+export function reportNotFound (metadataMgr: MetadataManager) {
+    return () => {
+        const notFoundReferences = metadataMgr.metadata.notFound;
+        if (notFoundReferences.length > 0) {
+            let notFoundMessages = red('Warning:') + ` ${notFoundReferences.length} references were not found\n`;
+            notFoundMessages += notFoundReferences.map(ref => {
+                const from = ref.loc.map(loc => `${loc.file}:${loc.line}`).join(', ');
+                return `* ref: ${grey(from)}\n` +
+                        `\tReferencing\n` +
+                            `\t\t${grey(ref.src)}\n` +
+                        `\tUsing query\n` +
+                            `\t\t${JSON.stringify(ref.query)}\n` +
+                        `\tBecause:\n` +
+                            `\t\t${ref.reason}`;
+
+            }).join('\n\n');
+            console.log(notFoundMessages);
+        }
+        return Task.resolve(void 0);
+    }
+}

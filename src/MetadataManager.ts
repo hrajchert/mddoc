@@ -73,11 +73,20 @@ export interface InverseReference {
     }
 }
 
+/**
+ * This represents a reference that wasn't found
+ */
 interface NotFoundReference {
+    // Where is this reference defined
     loc: Array<RefLoc>,
+    // The file that is being referenced
     src: string
+    // The reference query that wasn't found
     query: RefQuery;
+    // A unique id that identifies the reference. TODO: Do I need this?
     refhash: string;
+    // An explanation on why the reference was not found
+    reason: string;
 }
 
 export interface Metadata {
@@ -158,10 +167,6 @@ export class MetadataManager {
     getPlainMetadata () {
         return this.metadata;
     };
-    /**
-     * Write the metadata to disk
-     */
-
 
     /**
      * It gives you the not found references
@@ -193,18 +198,15 @@ export class MetadataManager {
     };
 
     updateHrMdMetadata (codeFileReader: CodeFileReader) {
-        if (typeof codeFileReader.results === 'undefined') {
-            throw 'updateHrMdMetadata cant proccess results if they are not defined';
-        }
-
         const hrCode = this.metadata.hrCode[codeFileReader.src];
         // For each reference in the code file
         for (const refhash in codeFileReader.results) {
             const loc = hrCode.refs[refhash].loc;
-            // TODO: Update the status of the markdown that references it
+            // Update the status of the markdown that references it
             for(let i = 0; i < loc.length ; i++ ) {
                 const hrMdRef = loc[i].mdRef;
-                // WARNING: dangerous cast
+                // WARNING: instead of relying on mdRef being present I should modify
+                // the data structure to make it easy to search.
                 if (typeof hrMdRef === 'undefined') throw 'mdRef is not in memory :O';
                 const findResult = codeFileReader.results[refhash];
 
@@ -227,33 +229,23 @@ export class MetadataManager {
             }
         }
     };
-    /**
-     * This represents a reference that wasn't found
-     * @typedef {Object} NotFoundRef
-     * @property {Array.<RefLoc>}   loc     Where is this reference defined
-     * @property {String}           src     The file that is referencing
-     * @property {RefQuery}         query   The reference query that wasn't found
-     * @property {String}           refhash A unique id that identifies the reference. Do I need this?
-     */
+
 
     /**
      * TODO: comment
      */
     updateNotFound (codeFileReader: CodeFileReader) {
-        // TODO: probably should go away
-        if (typeof codeFileReader.results === 'undefined') {
-            throw 'updateNotFound cant proccess results if they are not defined';
-        }
-
         const hrCode = this.metadata.hrCode[codeFileReader.src];
         for (let refhash in codeFileReader.results) {
-            let found = hrCode.refs[refhash].found;
-            if (!found) {
+            const result = codeFileReader.results[refhash];
+            if (!result.found) {
+
                 this.metadata.notFound.push({
                     loc: hrCode.refs[refhash].loc,
                     src: codeFileReader.src,
                     query: hrCode.refs[refhash].query,
-                    refhash: refhash
+                    refhash: refhash,
+                    reason: result.reason
                 });
             }
         }
@@ -262,11 +254,6 @@ export class MetadataManager {
 
 
     /**
-     *      // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // THIS has a ref with more explanation of the TODO, try not to loose the reference
-    // in the refactor
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
      * @summary TODO: this method should be splitted soon.
      * @desc    This method is called when a Markdown file is parsed.
      * @param {MarkdownFileReader} mdFileReader The object that has parsed the markdown file, and has the references
@@ -300,11 +287,7 @@ export class MetadataManager {
                 loc : [loc],
                 query : ref.ref,
                 refhash : ref.refhash,
-                // I dont like this one
-                 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // TODO: THIS has a ref explaining why I made this decision, try not to loose the reference
-                // in the refactor
-                // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // I dont like this one (Refs in doc)
                 directive: ref.directive,
                 // TODO: this were in the types, but not here... possible bug ahead
                 snippetHash: "waat",
@@ -322,11 +305,6 @@ export class MetadataManager {
     }
 
     updateHrCodeMetadata (codeFileReader: CodeFileReader) {
-        // TODO: Probably should go away
-        if (typeof codeFileReader.results === 'undefined') {
-            throw 'updateNotFound cant proccess results if they are not defined';
-        }
-
         // Update the hrCode part
         var hrCode = this.metadata.hrCode[codeFileReader.src];
 

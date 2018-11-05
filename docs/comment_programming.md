@@ -60,7 +60,7 @@ The class in charge of reading all the markdowns and generate the metadata from 
 folder is `MarkdownReader.parse`
 
 {%code_ref
-    "src" : "src/markdown-parser/MarkdownReader.ts",
+    "src" : "src/markdown-parser/MarkdownFileReader.ts",
     "ref" : {
         "text" : "parse ("
     }
@@ -314,11 +314,11 @@ relevant snippets and AST nodes.
 
 **Warning:**
 This is currently not like this doc says, we are storing the snippet in the `hrCode` reference. We should see if its worth to put in a separate object
-or if is fine to leave it here. RESTORE
+or if is fine to leave it here.
 {:.alert .alert-danger }
 
-{ % code_warning
-    "src" : "src/MetadataManager.js",
+{%code_warning
+    "src" : "src/MetadataManager.ts",
     "ref" : {
         "text" : "hrCode.refs[refhash].snippet = snippet;"
     }

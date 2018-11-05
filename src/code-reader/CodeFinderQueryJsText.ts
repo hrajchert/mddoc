@@ -69,7 +69,7 @@ export class CodeFinderQueryJsText implements IQueriable {
 
         // console.log("Char begin = " + charBegin);
         if (charBegin === -1) {
-            return {found: false};
+            return {found: false, reason: 'text not found'};
         }
 
         this.queryRange = [charBegin, charEnd];
@@ -94,7 +94,7 @@ export class CodeFinderQueryJsText implements IQueriable {
                 found: true
             };
         } else {
-            return { found: false };
+            return { found: false, reason: 'AST node not found' };
         }
     }
 }

@@ -2,7 +2,6 @@ import { VerboseSettings } from '../../index';
 import { CodeFileReader } from './CodeFileReader';
 import { Metadata } from '../MetadataManager';
 import { Task } from '@ts-task/task';
-import { tap } from '../utils/tap';
 
 export function readCodeReferences (metadata: Metadata, settings: VerboseSettings, store: any) {
     const hrCode = metadata.hrCode;
@@ -19,11 +18,11 @@ export function readCodeReferences (metadata: Metadata, settings: VerboseSetting
         return codeFileReader.read()
             // Then update the metadata out of it
             // TODO: Replace with redux
-            .map(tap(reader => store.trigger("code-file-read", reader)))
+            .chain(reader => Task.fromPromise(store.trigger("code-file-read", reader)))
             // If anything fails, append the failing reader
             .catch(error => Task.reject(new CodeReaderError(error, codeFileReader)))
         ;
-    })
+    });
     return Task.all(tasks);
 }
 

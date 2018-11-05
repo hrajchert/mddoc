@@ -1,6 +1,5 @@
 import { walkDir } from "../utils/ts-task-fs-utils/walkDir";
 import { Task } from "@ts-task/task";
-import { tap } from "../utils/tap";
 import { VerboseSettings } from "../..";
 import { MarkdownFileReader } from "./MarkdownFileReader";
 
@@ -44,7 +43,7 @@ export function parseMarkdownFiles (settings: MarkdownReaderSettings, store: any
                     return reader.parse()
                         // then extract some metadata out of it
                         // TODO: Replace with redux
-                        .map(tap(fileReader => store.trigger("md-file-parsed", fileReader)))
+                        .chain(fileReader => Task.fromPromise(store.trigger("md-file-parsed", fileReader)))
                         // and if anything fails, append some error information to the promise
                         .catch(error =>
                             Task.reject(new MarkdownReaderError(error, reader))

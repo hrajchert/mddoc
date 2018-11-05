@@ -95,8 +95,7 @@ export class GeneratorManager {
 
     initialize (metadata: Metadata, projectSettings: Settings) {
         // Avoid duplicate initialization
-        // !!!!!!!!!!!!!!!!!!!!!!
-        // TODO: IMPORTANT ref
+        // WARNING: ref in markdown
         if (this.initialized) {
             return;
         }
@@ -105,17 +104,13 @@ export class GeneratorManager {
         this.metadata = metadata;
         // Instantiate all generators
         for (let generatorName in projectSettings.generators) {
-            // Get the generator settings
-            // !!!!!!!!!!!!!!!!!!!!!!
-            // TODO: IMPORTANT ref
+            // Get the generator settings (Ref in code)
             const generatorSettings = projectSettings.generators[generatorName];
 
             // Find the constructor
             const generatorFactory = this.findGeneratorFactory (generatorSettings.generatorType, projectSettings.basePath);
 
             // Instantiate it
-            // !!!!!!!!!!!!!!!!!!!!!!
-            // TODO: IMPORTANT ref
             const generatorObject = generatorFactory.createGenerator(metadata, projectSettings, generatorSettings);
 
             // Add it to the generator instance list
