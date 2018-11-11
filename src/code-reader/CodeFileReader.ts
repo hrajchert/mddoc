@@ -1,14 +1,14 @@
-import { IRange, IQueriable } from './reader-utils';
-import { CodeFinderQueryJsText, isTextQuery } from './CodeFinderQueryJsText';
-import { CodeFinderQueryLine, isLineQuery } from './CodeFinderQueryLine';
+import { Task } from '@ts-task/task';
+import * as ts from 'typescript';
 import { InverseReference } from '../MetadataManager';
 import { readFile } from '../utils/ts-task-fs/readFile';
-import * as ts from 'typescript';
-import { Task } from '@ts-task/task';
+import { CodeFinderQueryJsText, isTextQuery } from './CodeFinderQueryJsText';
+import { CodeFinderQueryLine, isLineQuery } from './CodeFinderQueryLine';
+import { IQueriable, IRange } from './reader-utils';
 
+import { caseError } from '@ts-task/utils';
 import * as crypto from 'crypto';
 import { isErrnoException } from '../utils/is-errno-exception';
-import { caseError } from '@ts-task/utils';
 
 const { grey, blue } = require('colors');
 
@@ -41,6 +41,7 @@ export interface IFindOptions {
  *                            of references to find.
  */
 export class CodeFileReader {
+
     // The filename (TODO: maybe change to path)
     src: string;
     references: IFindReferenceMap;
@@ -55,6 +56,32 @@ export class CodeFileReader {
     results: {
         [ref: string]: IFindResult
     } = {};
+
+    private  _lines?: Array<{text: string, range: IRange}>;
+
+    get lines () {
+        if (typeof this.source === 'undefined') {
+            throw 'Source should be defined';
+        }
+
+        if (!this.hasOwnProperty('_lines')) {
+            // console.log("Calculating lines!".inverse);
+            const _lines = [];
+            let charNumber = 0;
+            const l = this.source.split('\n');
+
+            for (let i = 0; i < l.length ; i++) {
+                const len = l[i].length;
+                _lines.push({
+                    text: l[i],
+                    range: [charNumber, charNumber + len]
+                });
+                charNumber += len;
+            }
+            Object.defineProperty(this, '_lines', {value: _lines});
+        }
+        return this._lines as Array<{text: string, range: IRange}>;
+    }
 
     constructor (findOptions: IFindOptions) {
         this.src = findOptions.filePath;
@@ -74,7 +101,7 @@ export class CodeFileReader {
         return this.readAndParseFile()
             // Once we have the file, we need to call the right finder for each reference
             .map(() => {
-                for (let refhash in this.references) {
+                for (const refhash in this.references) {
                     const ref = this.references[refhash];
                     // console.log("We need to parse a reference ".yellow + refhash.grey);
                     // console.log(ref);
@@ -88,11 +115,9 @@ export class CodeFileReader {
                         codeFinder = new CodeFinderQueryJsText(this, ref.query);
                     }
 
-                    if (codeFinder) {
-                        this.results[refhash] = codeFinder.execute();
-                    } else {
-                        this.results[refhash] = { found: false, reason: 'Invalid query type' };
-                    }
+                    this.results[refhash] = codeFinder ?
+                        codeFinder.execute() :
+                        { found: false, reason: 'Invalid query type' };
                     // console.log("This is the result:".red);
                     // console.log(this.results[refhash].snippet);
                 }
@@ -102,10 +127,10 @@ export class CodeFileReader {
             .catch(caseError(
                 isErrnoException,
                 err => {
-                    for (let refhash in this.references) {
+                    for (const refhash in this.references) {
                         this.results[refhash] = { found: false, reason: `cant open file ${err.message}` };
                     }
-                    return Task.resolve(this)
+                    return Task.resolve(this);
                 }
             ))
             ;
@@ -113,44 +138,19 @@ export class CodeFileReader {
 
     // TODO: Rename this
     readAndParseFile () {
-        return readFile(this.src, "utf8").map(source => {
+        return readFile(this.src, 'utf8').map(source => {
             if (this.verbose) {
-                console.log(blue("reading code file ") + grey(this.src));
+                console.log(blue('reading code file ') + grey(this.src));
             }
 
             this.source = source.toString();
-            this.md5 = crypto.createHash("md5").update(this.source).digest("hex");
+            this.md5 = crypto.createHash('md5').update(this.source).digest('hex');
 
             // TODO: maybe change this only if needed.
-            this.AST = ts.createSourceFile(this.src, source.toString(), ts.ScriptTarget.Latest)
+            this.AST = ts.createSourceFile(this.src, source.toString(), ts.ScriptTarget.Latest);
 
             return this;
         });
-    }
-
-    private _lines?: Array<{text: string, range: IRange}>;
-    get lines () {
-        if (typeof this.source === 'undefined') {
-            throw 'Source should be defined';
-        }
-
-        if (!this.hasOwnProperty('_lines')) {
-            // console.log("Calculating lines!".inverse);
-            var _lines = [];
-            var charNumber = 0,
-                l = this.source.split("\n"),
-                i, len;
-            for (i = 0; i < l.length ; i++) {
-                len = l[i].length;
-                _lines.push({
-                    text: l[i],
-                    range: [charNumber, charNumber + len]
-                });
-                charNumber += len;
-            }
-            Object.defineProperty(this, "_lines", {value: _lines});
-        }
-        return this._lines as Array<{text: string, range: IRange}>;
     }
 }
 

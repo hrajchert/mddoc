@@ -1,13 +1,13 @@
-import { RefQuery, Directive, JSonML } from "../MetadataManager";
-import { readFile } from "../utils/ts-task-fs/readFile";
 import * as crypto from 'crypto';
+import { Directive, JSonML, RefQuery } from '../MetadataManager';
+import { readFile } from '../utils/ts-task-fs/readFile';
 
-const { yellow, grey } = require("colors");
+const { yellow, grey } = require('colors');
 
-const markdown = require("markdown").markdown;
+const markdown = require('markdown').markdown;
 
 // Configure my parser
-require("./MarkdownParser.js")(markdown.Markdown);
+require('./MarkdownParser.js')(markdown.Markdown);
 
 /**
  * An object that represents a reference from markdown to the code
@@ -54,7 +54,7 @@ export interface FoundMarkdownReference extends BaseMarkdownReference {
     char: {
         from: number;
         to: number;
-    }
+    };
 
 }
 export type MarkdownReference = PendingMarkdownReference | FoundMarkdownReference | NotFoundMarkdownReference;
@@ -72,6 +72,9 @@ export class MarkdownFileReader {
 
     jsonml?: JSonML;
 
+
+    private references?: MarkdownReference[];
+
     /**
      * TODO: revisit why we want to have a plainFileName and not use always the completeFileName
      * @param plainFileName     The logical file path. This includes de path from inputDir to
@@ -88,20 +91,19 @@ export class MarkdownFileReader {
 
     /**
      * Read and parse the markdown file into a JsonML object.
-     * @return  {Promise.<MarkdownFileReader>}  A Promise of self that will be resolved
-     *                                          once the file is parsed
+     * @return  A Promise of self that will be resolved once the file is parsed
      */
     parse () {
-        var self = this;
-        return readFile(self.completeFileName, "utf8").map(markdownFile => {
+        const self = this;
+        return readFile(self.completeFileName, 'utf8').map(markdownFile => {
             if (self.verbose) {
-                console.log(yellow("parsing ") + grey(self.completeFileName));
+                console.log(yellow('parsing ') + grey(self.completeFileName));
             }
             // Get an md5 of the md file
-            self.filehash = crypto.createHash("md5").update(markdownFile).digest("hex");
+            self.filehash = crypto.createHash('md5').update(markdownFile).digest('hex');
 
             // Parse the markdown into JsonML
-            self.jsonml = markdown.parse(markdownFile, "miMkd");
+            self.jsonml = markdown.parse(markdownFile, 'miMkd');
 
             // Indicate the job is done
             return self;
@@ -114,33 +116,32 @@ export class MarkdownFileReader {
      * @desc    Traverse the JsonML and extract all code references. Parse needs
      *          to be called before this
      *
-     * @return  {Array.<Reference>}   The references
-     * @private
+     * @return  The references
      */
     private _doGetReferences (jsonml?: JSonML) {
         if (typeof jsonml === 'undefined') throw 'jsonml shouldnt be undefined';
 
         const references: MarkdownReference[] = [];
         // For each markdown block
-        for (let blockNumber=1; blockNumber < jsonml.length ; blockNumber++) {
+        for (let blockNumber = 1; blockNumber < jsonml.length ; blockNumber++) {
             const mlBlock = jsonml[blockNumber];
             // If its not an actual JsonML block, move on
             if (!Array.isArray(mlBlock)) {
                 continue;
             }
             // See if this block is a code reference block
-            if ( mlBlock[0] === "code_reference" ) {
+            if ( mlBlock[0] === 'code_reference' ) {
                 // Get the attributes from the jsonml
 
-                const attr = JSON.parse("{"+mlBlock[1]+"}");
+                const attr = JSON.parse('{' + mlBlock[1] + '}');
 
                 // Each attribute must have a src and a ref
                 // TODO: add parmenides to check the reference is correct
-                if (typeof attr.src === "undefined" || typeof attr.ref === "undefined") {
-                    throw new Error("Invalid reference\n" + mlBlock[1]) ;
+                if (typeof attr.src === 'undefined' || typeof attr.ref === 'undefined') {
+                    throw new Error('Invalid reference\n' + mlBlock[1]) ;
                 }
 
-                const referingBlocks: number = attr.hasOwnProperty("referingBlocks") ? attr.referingBlocks : 1;
+                const referingBlocks: number = attr.hasOwnProperty('referingBlocks') ? attr.referingBlocks : 1;
                 let referencingMl: JSonML | null = null;
                 if ( blockNumber > referingBlocks ) {
                     referencingMl = [];
@@ -156,18 +157,18 @@ export class MarkdownFileReader {
                     ref        : attr.ref,
                     lineNumber : mlBlock[2].lineNumber,
                     // Create a hash from the reference itself
-                    refhash    : crypto.createHash("md5").update(mlBlock[1]).digest("hex"),
+                    refhash    : crypto.createHash('md5').update(mlBlock[1]).digest('hex'),
                     // TODO: Check this out later
-                    status     : "pending",
+                    status     : 'pending',
                     jsonml     : mlBlock,
                     refMl      : referencingMl,
                     directive  : mlBlock[2].type
                 } as PendingMarkdownReference;
 
                 // Make sure the jsonml doesnt get saved into disk
-                Object.defineProperty(ref,"jsonml",{enumerable:false});
+                Object.defineProperty(ref, 'jsonml', {enumerable: false});
                 // Neither there referencing one
-                Object.defineProperty(ref,"refMl",{enumerable:false});
+                Object.defineProperty(ref, 'refMl', {enumerable: false});
 
                 // TODO: eventually this could be removed, i think
                 // I have to remove the third argument as it is the extra data (that cant be rendered).
@@ -181,10 +182,7 @@ export class MarkdownFileReader {
             }
         }
         return references;
-    };
-
-
-    private references?: MarkdownReference[];
+    }
 
     /**
      * Get any code references from the parsed markdown file
@@ -194,12 +192,12 @@ export class MarkdownFileReader {
      *
      */
     getReferences () {
-        if (typeof this.references === "undefined") {
+        if (typeof this.references === 'undefined') {
             this.references = this._doGetReferences(this.jsonml);
 
         }
         return this.references;
-    };
+    }
 
 }
 

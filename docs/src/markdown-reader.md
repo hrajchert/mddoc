@@ -3,7 +3,7 @@ Walkdir gives the full path for each file so I have to remove the input dir part
 {%code_ref
     "src" : "src/markdown-parser/MarkdownReader.ts",
     "ref" : {
-        "text" : "file.substr(dirNameLength+1).match(mdre)"
+        "text" : "file.substr(dirNameLength + 1).match(mdre)"
     }
 %}
 
@@ -14,7 +14,7 @@ I don't like the fact that this is here, its implying that it has 1-1 relation w
 {%code_warning
     "src" : "src/markdown-parser/MarkdownFileReader.ts",
     "ref" : {
-        "text" : "Object.defineProperty(ref,\"jsonml\",{enumerable:false});"
+        "text" : "Object.defineProperty(ref, 'jsonml', {enumerable: false});"
     }
 %}
 

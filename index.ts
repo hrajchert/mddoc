@@ -1,17 +1,17 @@
-import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from "./src/markdown-parser";
+import { Task, UnknownError } from '@ts-task/task';
 import { CodeReaderError, readCodeReferences } from './src/code-reader';
 import { includeCode } from './src/CodeIncluder';
-import { MetadataManager, saveMetadataTo, MetadataManagerSettings } from './src/MetadataManager';
+import { Settings } from './src/config';
 import { getGeneratorManager } from './src/generator/GeneratorManager';
-import { Task, UnknownError } from '@ts-task/task';
-import { renderError } from "./src/utils/explain";
-import { Settings } from "./src/config";
+import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from './src/markdown-parser';
+import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from './src/MetadataManager';
+import { renderError } from './src/utils/explain';
 
 
 const GeneratorManager = getGeneratorManager();
 
 // TODO: Library shouldnt have colors
-const { red, grey } = require("colors");
+const { red, grey } = require('colors');
 
 export interface VerboseSettings {
     verbose: boolean;
@@ -33,7 +33,7 @@ export function initialize (settings: Settings) {
 
 
 export class StepError {
-    type = "StepError";
+    type = 'StepError';
 
     constructor (public step: string, public err: Error) {
 
@@ -47,7 +47,7 @@ export class StepError {
 }
 
 
-function normalizeError(step: string, error: Error): StepError {
+function normalizeError (step: string, error: Error): StepError {
     return new StepError(step, error);
 }
 
@@ -55,38 +55,38 @@ export function readMarkdown (settings: MarkdownReaderSettings, metadataMgr: Met
     return () => {
         return parseMarkdownFiles(settings, metadataMgr.eventPromise)
             .catch((mdErr) => {
-                console.log(red("Could not parse the markdown"));
+                console.log(red('Could not parse the markdown'));
                 if (mdErr instanceof MarkdownReaderError) {
-                    console.log("in file " + grey(mdErr.reader.completeFileName));
+                    console.log('in file ' + grey(mdErr.reader.completeFileName));
                 }
-                return Task.reject(normalizeError("markdown parser", mdErr));
+                return Task.reject(normalizeError('markdown parser', mdErr));
             });
-    }
-};
+    };
+}
 
 // TODO: Eventually call this read references, as it should read all sort of documents, not just code
 export function readCode (settings: VerboseSettings, metadataMgr: MetadataManager) {
     return () => {
         return readCodeReferences(metadataMgr.getPlainMetadata(), settings, metadataMgr.eventPromise)
             .catch(err => {
-                console.log(red("Could not read the code"));
+                console.log(red('Could not read the code'));
                 if (err instanceof CodeReaderError) {
-                    console.log("in file " + grey(err.reader.src));
+                    console.log('in file ' + grey(err.reader.src));
                 }
-                return Task.reject(normalizeError("code reader", err));
+                return Task.reject(normalizeError('code reader', err));
             });
-    }
+    };
 }
 
 export function saveMetadata (settings: MetadataManagerSettings, mgr: MetadataManager) {
     return function () {
         return saveMetadataTo(mgr.getPlainMetadata(), settings.outputDir)
             .catch(err => {
-                console.log(red("Could not write the metadata"));
+                console.log(red('Could not write the metadata'));
                 console.log(err);
-                return Task.reject(normalizeError("save metadata", err));
+                return Task.reject(normalizeError('save metadata', err));
             });
-    }
+    };
 }
 
 export function replaceReferences (metadataMgr: MetadataManager) {
@@ -97,23 +97,21 @@ export function replaceReferences (metadataMgr: MetadataManager) {
             includeCode(metadataMgr.getPlainMetadata());
             task = Task.resolve(void 0);
         } catch (e) {
-            task = Task.reject(normalizeError("code includer", e));
+            task = Task.reject(normalizeError('code includer', e));
         }
         return task;
-    }
+    };
 }
-
-
 
 
 export function generateOutput () {
     return GeneratorManager.generate()
-        .catch(function(err) {
-            console.log(red("Could not generate the HTML"));
+        .catch(function (err) {
+            console.log(red('Could not generate the HTML'));
             console.log(err);
-            return Task.reject(normalizeError("Output Generator", err));
+            return Task.reject(normalizeError('Output Generator', err));
         });
-};
+}
 
 export function reportNotFound (metadataMgr: MetadataManager) {
     return () => {
@@ -121,7 +119,10 @@ export function reportNotFound (metadataMgr: MetadataManager) {
         if (notFoundReferences.length > 0) {
             let notFoundMessages = red('Warning:') + ` ${notFoundReferences.length} references were not found\n`;
             notFoundMessages += notFoundReferences.map(ref => {
-                const from = ref.loc.map(loc => `${loc.file}:${loc.line}`).join(', ');
+                const from = ref.loc
+                    .map(loc => `${loc.file}:${loc.line}`)
+                    .join(', ');
+
                 return `* ref: ${grey(from)}\n` +
                         `\tReferencing\n` +
                             `\t\t${grey(ref.src)}\n` +
@@ -134,5 +135,5 @@ export function reportNotFound (metadataMgr: MetadataManager) {
             console.log(notFoundMessages);
         }
         return Task.resolve(void 0);
-    }
+    };
 }

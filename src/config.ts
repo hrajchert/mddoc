@@ -1,13 +1,15 @@
-import { str, optional, bool, ParmenidesError, num, objOf, arrOf, union} from 'parmenides';
-import {  getGeneratorManager } from "./generator/GeneratorManager";
-import { findup } from "./utils/ts-task-fs-utils/findup";
-import { Task, UnknownError } from "@ts-task/task";
-import { validateContract } from './utils/parmenides/validate-contract';
+import { Task, UnknownError } from '@ts-task/task';
+import { arrOf, bool, num, objOf, optional, ParmenidesError, str, union } from 'parmenides';
+import {  getGeneratorManager } from './generator/GeneratorManager';
 import { renderError } from './utils/explain';
-import { dictionaryOf, Dictionary } from './utils/parmenides/dictionary';
-import { ContractOf } from './utils/parmenides/contract-of';
 import { objMap } from './utils/obj-map';
+import { ContractOf } from './utils/parmenides/contract-of';
+import { Dictionary, dictionaryOf } from './utils/parmenides/dictionary';
+import { validateContract } from './utils/parmenides/validate-contract';
+import { findup } from './utils/ts-task-fs-utils/findup';
 import { traverseDictionary } from './utils/ts-task-utils/traverse-dictionary';
+
+const DEFAULT_PRIORITY = 100;
 
 const settingsContract = objOf({
     inputDir: str,
@@ -74,7 +76,7 @@ export interface Settings {
 function requireConfigFile (dir: string) {
     return new Task<unknown, string>((resolve, reject) => {
         try {
-            resolve(require(dir + "/Mddocfile.js")());
+            resolve(require(dir + '/Mddocfile.js')());
         } catch (err) {
             reject('Could not require the config file');
         }
@@ -100,9 +102,9 @@ const loadedSettingsContract = objOf({
 
 function readAndValidateConfigFile (path: string) {
     // Find the closest config file
-    return findup(path, "Mddocfile.js")
+    return findup(path, 'Mddocfile.js')
         // If we cannot find it, transform the error to a message
-        .catch(_ => Task.reject("Could not find Mddocfile.js")) // TODO: candidate to mapError
+        .catch(_ => Task.reject('Could not find Mddocfile.js')) // TODO: candidate to mapError
         // Load the file
         .chain(requireConfigFile)
         // Validate it has the minumu required settings
@@ -111,17 +113,16 @@ function readAndValidateConfigFile (path: string) {
 }
 
 
-
 class GeneratorConfigError {
     constructor (public name: string, public err: ParmenidesError) {
 
     }
     explain () {
-        return `Invalid configuration for generator type "${this.name}": ${this.err.getMessage()}`
+        return `Invalid configuration for generator type "${this.name}": ${this.err.getMessage()}`;
     }
 }
 
-function validateGenerators(config: ContractOf<typeof loadedSettingsContract>)  {
+function validateGenerators (config: ContractOf<typeof loadedSettingsContract>)  {
     const basePath = config.basePath || process.cwd();
     const generators = config.generators || {};
 
@@ -130,7 +131,7 @@ function validateGenerators(config: ContractOf<typeof loadedSettingsContract>)  
         // By default, the generator type is the name, but you can override it in the options
         // In case you want to have two instances of the same generator
         const generatorType = generator.generatorType || genName;
-        const priority = generator.priority || 100;
+        const priority = generator.priority || DEFAULT_PRIORITY;
         const generatorFactory = getGeneratorManager().findGeneratorFactory(generatorType, basePath);
         return validateContract(generatorFactory.contract)({
             ...generator,
@@ -147,10 +148,9 @@ function validateGenerators(config: ContractOf<typeof loadedSettingsContract>)  
 }
 
 
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
-
-type Overrides = Omit<Partial<Settings>, 'generators'>
+type Overrides = Omit<Partial<Settings>, 'generators'>;
 
 export function loadConfig (path: string, overrides: Overrides) {
     // Find the closest config file
@@ -165,11 +165,11 @@ export function loadConfig (path: string, overrides: Overrides) {
         // Make sure that all values are set
         .chain(validateContract(settingsContract))
         // If anything goes wrong, wrap it in an ErrorLoadingConfig object
-        .catch(err => Task.reject(new ErrorLoadingConfig(err))) // TODO: candidate to mapError
+        .catch(err => Task.reject(new ErrorLoadingConfig(err))); // TODO: candidate to mapError
 }
 
 export class ErrorLoadingConfig {
-    type = "ErrorLoadingConfig";
+    type = 'ErrorLoadingConfig';
     constructor (private error: string | UnknownError | ParmenidesError | GeneratorConfigError) {
     }
 
@@ -181,7 +181,7 @@ export class ErrorLoadingConfig {
         } else if (error instanceof ParmenidesError) {
             ans += error.getMessage();
         } else if (error instanceof GeneratorConfigError) {
-            ans += error.explain()
+            ans += error.explain();
         } else {
             ans += '\n' + renderError(error);
         }

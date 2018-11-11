@@ -1,7 +1,7 @@
-import { walkDir } from "../utils/ts-task-fs-utils/walkDir";
-import { Task } from "@ts-task/task";
-import { VerboseSettings } from "../..";
-import { MarkdownFileReader } from "./MarkdownFileReader";
+import { Task } from '@ts-task/task';
+import { VerboseSettings } from '../..';
+import { walkDir } from '../utils/ts-task-fs-utils/walkDir';
+import { MarkdownFileReader } from './MarkdownFileReader';
 
 export type MarkdownReaderSettings = {
     inputDir: string;
@@ -16,10 +16,10 @@ export function parseMarkdownFiles (settings: MarkdownReaderSettings, store: any
     // Walk the input dir recursively, get a list of all files
     return walkDir(settings.inputDir, {exclude: settings.inputExclude})
         .chain(files => {
-            var mdre = /(.*)\.md$/;
+            const mdre = /(.*)\.md$/;
 
             // Precalculate the lenght of the name of the input dir
-            var dirNameLength = settings.inputDir.length;
+            const dirNameLength = settings.inputDir.length;
 
             // TODO: If there are too many input files this will try to read them all, which can cause
             // a too many open files error. I have to divide the work in chunks for each input file.
@@ -27,7 +27,7 @@ export function parseMarkdownFiles (settings: MarkdownReaderSettings, store: any
 
             const tasks = files
                 // Check that the file is a markdown file
-                .map(file => ({file, match: file.substr(dirNameLength+1).match(mdre)}))
+                .map(file => ({file, match: file.substr(dirNameLength + 1).match(mdre)}))
                 .filter(({match}) => match)
                 .map(({file, match}) => {
                     if (match === null) throw 'match shouldnt be null :/';
@@ -43,7 +43,7 @@ export function parseMarkdownFiles (settings: MarkdownReaderSettings, store: any
                     return reader.parse()
                         // then extract some metadata out of it
                         // TODO: Replace with redux
-                        .chain(fileReader => Task.fromPromise(store.trigger("md-file-parsed", fileReader)))
+                        .chain(fileReader => Task.fromPromise(store.trigger('md-file-parsed', fileReader)))
                         // and if anything fails, append some error information to the promise
                         .catch(error =>
                             Task.reject(new MarkdownReaderError(error, reader))

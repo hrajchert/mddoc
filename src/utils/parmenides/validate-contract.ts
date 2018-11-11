@@ -1,6 +1,6 @@
-import { Contract, ParmenidesError } from "parmenides";
-import { Task } from "@ts-task/task";
-import { fromUnknown } from "./from-unknown";
+import { Task } from '@ts-task/task';
+import { Contract, ParmenidesError } from 'parmenides';
+import { fromUnknown } from './from-unknown';
 
 
 export function validateContract<T> (contract: Contract<T>) {
@@ -12,5 +12,5 @@ export function validateContract<T> (contract: Contract<T>) {
                 reject(err);
             }
         });
-    }
+    };
 }

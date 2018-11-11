@@ -1,15 +1,15 @@
-import { Settings, BaseGeneratorSettings } from "../config";
-import { Metadata } from "../MetadataManager";
-import { Task, UnknownError } from "@ts-task/task";
+import { Task, UnknownError } from '@ts-task/task';
+import { BaseGeneratorSettings, Settings } from '../config';
+import { Metadata } from '../MetadataManager';
 
 import * as path from 'path';
-import { sequence } from "../utils/ts-task-utils/sequence";
+import { sequence } from '../utils/ts-task-utils/sequence';
 
-import * as GeneratorHelperManager from "./GeneratorHelperManager";
-import { Contract } from "parmenides";
+import { Contract } from 'parmenides';
+import * as GeneratorHelperManager from './GeneratorHelperManager';
 
 interface Generator {
-    generate: (helpers?: unknown) => Task<void, UnknownError>
+    generate: (helpers?: unknown) => Task<void, UnknownError>;
 }
 
 interface GeneratorFactory {
@@ -29,11 +29,11 @@ interface GeneratorFactory {
  */
 const registeredGenerators: {[name: string]: GeneratorFactory} = {};
 
-export function registerGenerator (name:string, genpath: string) {
-    var factory: GeneratorFactory = require (genpath).default;
+export function registerGenerator (name: string, genpath: string) {
+    const factory: GeneratorFactory = require (genpath).default;
 
-    if (!factory.hasOwnProperty("createGenerator")) {
-        throw new Error("Module " + genpath + " doesn't have a constructor exported");
+    if (!factory.hasOwnProperty('createGenerator')) {
+        throw new Error('Module ' + genpath + ' doesn\'t have a constructor exported');
     }
 
 
@@ -47,13 +47,12 @@ export function registerGenerator (name:string, genpath: string) {
  * Make the path absolute. If it was relative, make it from the project base path
  */
 function normalizeProjectGeneratorPath (genpath: string, basePath: string) {
-    genpath = path.normalize(genpath);
-    if (genpath[0] !== "/") {
-        genpath = path.join(basePath, genpath);
+    let ans = path.normalize(genpath);
+    if (ans[0] !== '/') {
+        ans = path.join(basePath, ans);
     }
-    return genpath;
-};
-
+    return ans;
+}
 
 
 export class GeneratorManager {
@@ -66,11 +65,8 @@ export class GeneratorManager {
     metadata: Metadata | null = null;
     initialized = false;
 
-    /**
-     * @returns {GeneratorFactory}
-     */
     findGeneratorFactory (generatorType: string, basePath: string) {
-        var generator,
+        let generator,
             genpath;
         // TODO: This should return a task with a possible failure
         // If its already registered, cool
@@ -79,19 +75,19 @@ export class GeneratorManager {
         }
         // If not, try to see if there is a npm dependency with that name
         else {
-            genpath = normalizeProjectGeneratorPath("./node_modules/" + generatorType, basePath );
+            genpath = normalizeProjectGeneratorPath('./node_modules/' + generatorType, basePath );
             try {
                 generator = registerGenerator(generatorType, genpath);
-            } catch(err) {
+            } catch (err) {
                 if (err.message.indexOf(genpath) !== -1) {
-                    throw new Error("Generator " + generatorType + " not defined");
+                    throw new Error('Generator ' + generatorType + ' not defined');
                 } else {
                     throw err;
                 }
             }
         }
         return generator;
-    };
+    }
 
     initialize (metadata: Metadata, projectSettings: Settings) {
         // Avoid duplicate initialization
@@ -103,7 +99,7 @@ export class GeneratorManager {
 
         this.metadata = metadata;
         // Instantiate all generators
-        for (let generatorName in projectSettings.generators) {
+        for (const generatorName in projectSettings.generators) {
             // Get the generator settings (Ref in code)
             const generatorSettings = projectSettings.generators[generatorName];
 
@@ -121,23 +117,23 @@ export class GeneratorManager {
             });
         }
         // Sort them by priority
-        this.generators.sort(function(a, b) {
+        this.generators.sort(function (a, b) {
             return b.generatorSettings.priority - a.generatorSettings.priority;
         });
 
 
-    };
+    }
 
     generate () {
-        var self = this;
+        const self = this;
         const steps = self.generators.map(generator => () => {
             if (self.metadata === null) throw 'metadata shouldnt be null';
             const helpers = GeneratorHelperManager.getRenderHelpers(self.metadata);
-            console.log("Executing the generator: " + generator.generatorName);
+            console.log('Executing the generator: ' + generator.generatorName);
             return generator.generatorObject.generate(helpers);
-        })
+        });
         return sequence(steps);
-    };
+    }
 
 }
 
@@ -147,6 +143,6 @@ export function getGeneratorManager () {
 }
 
 
-registerGenerator("custom", "./custom/CustomGenerator");
-registerGenerator("html-fragment", "./html-fragment/HtmlFragmentGenerator");
+registerGenerator('custom', './custom/CustomGenerator');
+registerGenerator('html-fragment', './html-fragment/HtmlFragmentGenerator');
 

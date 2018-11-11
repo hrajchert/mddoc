@@ -1,3 +1,3 @@
-import {Contract} from 'parmenides';
+import { Contract } from 'parmenides';
 
-export const unk: Contract<unknown> = (val: unknown) => val
+export const unk: Contract<unknown> = (val: unknown) => val;

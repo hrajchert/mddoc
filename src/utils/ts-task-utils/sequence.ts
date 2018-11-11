@@ -4,7 +4,7 @@ export type Step<E> =  () => Task<any, E>;
 
 export function sequence<E1> (steps: Step<E1>[]): Task<void, E1> {
     // clone the steps
-    let newSteps = [...steps] as [Step<any>];
+    const newSteps = [...steps] as [Step<any>];
     // Remove the next step from the array
     const nextStep = newSteps.shift();
     // If there are any left, resolve inmediatly

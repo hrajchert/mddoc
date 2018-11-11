@@ -1,5 +1,5 @@
-import * as fs from 'fs';
 import { Task } from '@ts-task/task';
+import * as fs from 'fs';
 
 export interface IWriteFileOptions {
     encoding?: string | null;
@@ -7,14 +7,14 @@ export interface IWriteFileOptions {
     flag?: string;
 }
 
-export function writeFile(path: string, data: unknown, options: IWriteFileOptions = {}) {
+export function writeFile (path: string, data: unknown, options: IWriteFileOptions = {}) {
     return new Task<void, NodeJS.ErrnoException>((resolve, reject) => {
         fs.writeFile(path, data, options, (err) => {
             if (err) {
-                return reject(err);
+                reject(err);
             } else {
-                return resolve(void 0);
+                resolve(void 0);
             }
-        })
+        });
     });
 }

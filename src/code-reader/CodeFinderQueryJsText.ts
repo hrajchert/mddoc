@@ -1,8 +1,7 @@
-import { IQueriable, IRange, isOutOfRange } from "./reader-utils";
-import { CodeFileReader, IFindResult } from "./CodeFileReader";
 import * as ts from 'typescript';
-import { isObject } from "../utils/is-object";
-const _ = require('underscore');
+import { isObject } from '../utils/is-object';
+import { CodeFileReader, IFindResult } from './CodeFileReader';
+import { IQueriable, IRange, isOutOfRange } from './reader-utils';
 
 /**
  * This is a plain text search in the document.
@@ -13,7 +12,7 @@ export interface IFileReaderQuery {
 
 
 export function isTextQuery (query: unknown): query is IFileReaderQuery {
-    return isObject(query) && query.hasOwnProperty("text");
+    return isObject(query) && query.hasOwnProperty('text');
 }
 
 export class CodeFinderQueryJsText implements IQueriable {
@@ -62,10 +61,10 @@ export class CodeFinderQueryJsText implements IQueriable {
     }
 
     execute (): IFindResult {
-        var source = this.codeFileReader.source as string;
-        var str = this.query.text;
-        var charBegin = source.indexOf(str);
-        var charEnd   = charBegin + str.length;
+        const source = this.codeFileReader.source as string;
+        const str = this.query.text;
+        const charBegin = source.indexOf(str);
+        const charEnd   = charBegin + str.length;
 
         // console.log("Char begin = " + charBegin);
         if (charBegin === -1) {
@@ -73,7 +72,7 @@ export class CodeFinderQueryJsText implements IQueriable {
         }
 
         this.queryRange = [charBegin, charEnd];
-        var tree = [] as ts.Node[];
+        const tree = [] as ts.Node[];
 
         this.findMinNode(this.codeFileReader.AST as ts.SourceFile, tree);
 
@@ -89,7 +88,7 @@ export class CodeFinderQueryJsText implements IQueriable {
 
         if (this.minNode) {
             return {
-                snippet: source.substring(this.minNode.pos,this.minNode.end),
+                snippet: source.substring(this.minNode.pos, this.minNode.end),
                 range: [this.minNode.pos, this.minNode.end],
                 found: true
             };

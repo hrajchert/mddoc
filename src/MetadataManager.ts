@@ -1,13 +1,12 @@
-import * as fs from 'fs';
-import { ICodeFinderLineQuery } from './code-reader/CodeFinderQueryLine';
-import { IFileReaderQuery } from './code-reader/CodeFinderQueryJsText';
-import { writeFileCreateDir } from './utils/ts-task-fs-utils/writeFileCreateDir';
-import { tap } from './utils/tap';
-import { MarkdownFileReader, MarkdownReference, FoundMarkdownReference, NotFoundMarkdownReference } from './markdown-parser';
-import { CodeFileReader, IFoundResult } from './code-reader/CodeFileReader';
 import * as crypto from 'crypto';
+import { CodeFileReader } from './code-reader/CodeFileReader';
+import { IFileReaderQuery } from './code-reader/CodeFinderQueryJsText';
+import { ICodeFinderLineQuery } from './code-reader/CodeFinderQueryLine';
+import { FoundMarkdownReference, MarkdownFileReader, MarkdownReference, NotFoundMarkdownReference } from './markdown-parser';
+import { tap } from './utils/tap';
+import { writeFileCreateDir } from './utils/ts-task-fs-utils/writeFileCreateDir';
 
-const { green, grey } = require("colors");
+const { green, grey } = require('colors');
 
 // TODO: convert any to unknown and check stuff. This structure is holding other stuff as well (refhash??)
 export type  JSonML = Array<string | any[] | {refhash?: string, id?: string, class?: string}>;
@@ -15,16 +14,16 @@ export type  JSonML = Array<string | any[] | {refhash?: string, id?: string, cla
 export type Directive = 'code_inc' | 'code_ref' | 'code_todo' | 'code_warning';
 
 interface MarkdownToCodeReference {
-    version: string,
-    filehash: string,
-    refs: MarkdownReference[]
+    version: string;
+    filehash: string;
+    refs: MarkdownReference[];
 }
 
 
 /**
  * Defines a location where the reference was defined.
  */
-interface RefLoc{
+interface RefLoc {
     // mdFileReader.completeFileName
     // The actual file path from the project directory to the markdown file
     file: string;
@@ -37,7 +36,7 @@ interface RefLoc{
     // This is a memory reference to the MarkdownReference to be able to modify it in the
     // updateHrMdMetadata without having to look for it. But this is not stored to file
     mdRef?: MarkdownReference;
-};
+}
 
 
 // What to look for in the referenced file
@@ -46,7 +45,7 @@ export type RefQuery = IFileReaderQuery | ICodeFinderLineQuery;
 interface FileInverseReference {
     // TODO: remove
     version: string;
-    refs: {[refid: string]: InverseReference} // refid it's normally the refhash, but it could potentially be the name
+    refs: {[refid: string]: InverseReference}; // refid it's normally the refhash, but it could potentially be the name
     // This is the md5 of the file being referenced
     filehash?: string;
 }
@@ -70,7 +69,7 @@ export interface InverseReference {
     char: {
         from: number,
         to: number
-    }
+    };
 }
 
 /**
@@ -78,9 +77,9 @@ export interface InverseReference {
  */
 interface NotFoundReference {
     // Where is this reference defined
-    loc: Array<RefLoc>,
+    loc: Array<RefLoc>;
     // The file that is being referenced
-    src: string
+    src: string;
     // The reference query that wasn't found
     query: RefQuery;
     // A unique id that identifies the reference. TODO: Do I need this?
@@ -116,7 +115,7 @@ export interface Metadata {
     // that it cares about, and we could have that for all the plugins we need
     renderedFragments?: {
         [mdTemplate: string]: string
-    }
+    };
 }
 
 export interface MetadataManagerSettings {
@@ -126,31 +125,17 @@ export interface MetadataManagerSettings {
 export function saveMetadataTo (metadata: Metadata, outputDir?: string) {
     // TODO: Remove optional
     if (typeof outputDir === 'undefined') throw 'outputDir shouldnt be undefined';
-    var metadataFileName = outputDir + "/metadata.json";
-    var metadataStr = JSON.stringify(metadata, null, "    ");
+    const metadataFileName = outputDir + '/metadata.json';
+    const metadataStr = JSON.stringify(metadata, null, '    ');
     return writeFileCreateDir(metadataFileName, metadataStr)
-        .map(tap(_ => console.log(green("Metadata written to ") + grey(metadataFileName))))
+        .map(tap(_ => console.log(green('Metadata written to ') + grey(metadataFileName))));
 }
 
-const EventPromise = require("./EventPromise");
+const EventPromise = require('./EventPromise');
 
 export class MetadataManager {
 
     eventPromise: any;
-
-    constructor () {
-        this.eventPromise = EventPromise.create();
-        this.eventPromise.on("md-file-parsed", "createJsonMLMetadata", this.createJsonMLMetadata.bind(this));
-        this.eventPromise.on("md-file-parsed", "createHrMdMetadata", this.createHrMdMetadata.bind(this));
-        this.eventPromise.on("md-file-parsed", "createHrCodeMetadata", this.createHrCodeMetadata.bind(this));
-
-        this.eventPromise.on("code-file-read", "updateHrMdMetadata", this.updateHrMdMetadata.bind(this),["updateHrCodeMetadata"]);
-        this.eventPromise.on("code-file-read", "updateHrCodeMetadata", this.updateHrCodeMetadata.bind(this));
-        this.eventPromise.on("code-file-read", "updateNotFound", this.updateNotFound.bind(this),["updateHrCodeMetadata"]);
-
-        // Make sure the jsonml doesn't get saved into disk
-        Object.defineProperty(this.metadata, "jsonml",{enumerable:false});
-    }
 
     metadata: Metadata = {
         jsonml: {},
@@ -159,26 +144,40 @@ export class MetadataManager {
         notFound: []
     };
 
+    constructor () {
+        this.eventPromise = EventPromise.create();
+        this.eventPromise.on('md-file-parsed', 'createJsonMLMetadata', this.createJsonMLMetadata.bind(this));
+        this.eventPromise.on('md-file-parsed', 'createHrMdMetadata', this.createHrMdMetadata.bind(this));
+        this.eventPromise.on('md-file-parsed', 'createHrCodeMetadata', this.createHrCodeMetadata.bind(this));
+
+        this.eventPromise.on('code-file-read', 'updateHrMdMetadata', this.updateHrMdMetadata.bind(this), ['updateHrCodeMetadata']);
+        this.eventPromise.on('code-file-read', 'updateHrCodeMetadata', this.updateHrCodeMetadata.bind(this));
+        this.eventPromise.on('code-file-read', 'updateNotFound', this.updateNotFound.bind(this), ['updateHrCodeMetadata']);
+
+        // Make sure the jsonml doesn't get saved into disk
+        Object.defineProperty(this.metadata, 'jsonml', {enumerable: false});
+    }
+
 
     /**
      * Expose the metadata.
      * TODO: This shouldn't exists
-    */
+     */
     getPlainMetadata () {
         return this.metadata;
-    };
+    }
 
     /**
      * It gives you the not found references
      */
     getNotFoundList () {
         return this.metadata.notFound;
-    };
+    }
 
     createJsonMLMetadata (mdFileReader: MarkdownFileReader) {
         // The jsonml goes directly
         this.metadata.jsonml[mdFileReader.plainFileName] = mdFileReader.jsonml as JSonML;
-    };
+    }
 
     /**
      * @summary Creates the metadata information of a Markdown file
@@ -187,15 +186,15 @@ export class MetadataManager {
      * @param  mdFileReader The object that has parsed the markdown file, and has the references
      */
     createHrMdMetadata (mdFileReader: MarkdownFileReader) {
-        var refs = mdFileReader.getReferences();
+        const refs = mdFileReader.getReferences();
         // The hrMd represents the metadata of this file
         this.metadata.hrMd[mdFileReader.plainFileName] = {
             // TODO: Move this to the global scope of the metadata
-            version: "0.0.1",
+            version: '0.0.1',
             filehash: mdFileReader.filehash as string,
             refs: refs
         };
-    };
+    }
 
     updateHrMdMetadata (codeFileReader: CodeFileReader) {
         const hrCode = this.metadata.hrCode[codeFileReader.src];
@@ -203,7 +202,7 @@ export class MetadataManager {
         for (const refhash in codeFileReader.results) {
             const loc = hrCode.refs[refhash].loc;
             // Update the status of the markdown that references it
-            for(let i = 0; i < loc.length ; i++ ) {
+            for (let i = 0; i < loc.length ; i++ ) {
                 const hrMdRef = loc[i].mdRef;
                 // WARNING: instead of relying on mdRef being present I should modify
                 // the data structure to make it easy to search.
@@ -228,7 +227,7 @@ export class MetadataManager {
                 }
             }
         }
-    };
+    }
 
 
     /**
@@ -236,7 +235,7 @@ export class MetadataManager {
      */
     updateNotFound (codeFileReader: CodeFileReader) {
         const hrCode = this.metadata.hrCode[codeFileReader.src];
-        for (let refhash in codeFileReader.results) {
+        for (const refhash in codeFileReader.results) {
             const result = codeFileReader.results[refhash];
             if (!result.found) {
 
@@ -252,11 +251,10 @@ export class MetadataManager {
     }
 
 
-
     /**
      * @summary TODO: this method should be splitted soon.
      * @desc    This method is called when a Markdown file is parsed.
-     * @param {MarkdownFileReader} mdFileReader The object that has parsed the markdown file, and has the references
+     * @param mdFileReader The object that has parsed the markdown file, and has the references
      */
     createHrCodeMetadata (mdFileReader: MarkdownFileReader) {
         const refs = mdFileReader.getReferences();
@@ -267,10 +265,10 @@ export class MetadataManager {
             // console.log(mdFileReader.plainFileName + ": " + ref.lineNumber );
             let hrCodeSrc = this.metadata.hrCode[ref.src];
 
-            if (typeof hrCodeSrc === "undefined") {
+            if (typeof hrCodeSrc === 'undefined') {
                 hrCodeSrc = this.metadata.hrCode[ref.src] = {
-                    "version" : "0.0.1",
-                    "refs" : {}
+                    'version' : '0.0.1',
+                    'refs' : {}
                 };
             }
             // TODO: I wont be creating a ref when setting a global var
@@ -281,7 +279,7 @@ export class MetadataManager {
             };
             // Add a reference to this ref, so we can later resolve it, but dont make it enumerable, so
             // it doesnt serialize
-            Object.defineProperty(loc, "mdRef", {value: ref, enumerable:false});
+            Object.defineProperty(loc, 'mdRef', {value: ref, enumerable: false});
 
             const hrCodeRef = {
                 loc : [loc],
@@ -290,14 +288,14 @@ export class MetadataManager {
                 // I dont like this one (Refs in doc)
                 directive: ref.directive,
                 // TODO: this were in the types, but not here... possible bug ahead
-                snippetHash: "waat",
+                snippetHash: 'waat',
                 found: true,
-                snippet: "waat",
+                snippet: 'waat',
                 char: { from: 0, to: 0}
                 // -- til here
             };
-            if (typeof hrCodeSrc.refs[ref.refhash] !== "undefined") {
-                throw new Error("Duplicated reference");
+            if (typeof hrCodeSrc.refs[ref.refhash] !== 'undefined') {
+                throw new Error('Duplicated reference');
                 // TODO: Instead of err, warn but add loc
             }
             hrCodeSrc.refs[ref.refhash] = hrCodeRef;
@@ -306,15 +304,15 @@ export class MetadataManager {
 
     updateHrCodeMetadata (codeFileReader: CodeFileReader) {
         // Update the hrCode part
-        var hrCode = this.metadata.hrCode[codeFileReader.src];
+        const hrCode = this.metadata.hrCode[codeFileReader.src];
 
         hrCode.filehash = codeFileReader.md5;
-        for (let refhash in codeFileReader.results) {
+        for (const refhash in codeFileReader.results) {
             const result = codeFileReader.results[refhash];
             hrCode.refs[refhash].found = result.found;
             if (result.found) {
                 const snippet = result.snippet;
-                const md5 = crypto.createHash("md5").update(snippet).digest("hex");
+                const md5 = crypto.createHash('md5').update(snippet).digest('hex');
 
                 hrCode.refs[refhash].snippet = snippet;
                 hrCode.refs[refhash].snippetHash = md5;
@@ -324,6 +322,6 @@ export class MetadataManager {
                 };
             }
         }
-    };
+    }
 }
 

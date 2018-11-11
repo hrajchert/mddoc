@@ -8,4 +8,4 @@ Thus, I always set this node to be the min node and avoid an extra check
     "ref" : {
         "text" : "const size = nodeRange[1] - nodeRange[0];"
     }
-% }
+%}

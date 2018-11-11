@@ -1,4 +1,4 @@
-import { IFindResult } from "./CodeFileReader";
+import { IFindResult } from './CodeFileReader';
 
 export type IRange = [number, number];
 /**
@@ -18,6 +18,6 @@ export function isOutOfRange (outerRange: IRange, innerRange: IRange) {
 }
 
 export interface IQueriable {
-    execute (): IFindResult
+    execute (): IFindResult;
 }
 

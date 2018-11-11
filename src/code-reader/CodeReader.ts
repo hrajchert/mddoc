@@ -1,7 +1,7 @@
-import { VerboseSettings } from '../../index';
-import { CodeFileReader } from './CodeFileReader';
-import { Metadata } from '../MetadataManager';
 import { Task } from '@ts-task/task';
+import { VerboseSettings } from '../../index';
+import { Metadata } from '../MetadataManager';
+import { CodeFileReader } from './CodeFileReader';
 
 export function readCodeReferences (metadata: Metadata, settings: VerboseSettings, store: any) {
     const hrCode = metadata.hrCode;
@@ -18,7 +18,7 @@ export function readCodeReferences (metadata: Metadata, settings: VerboseSetting
         return codeFileReader.read()
             // Then update the metadata out of it
             // TODO: Replace with redux
-            .chain(reader => Task.fromPromise(store.trigger("code-file-read", reader)))
+            .chain(reader => Task.fromPromise(store.trigger('code-file-read', reader)))
             // If anything fails, append the failing reader
             .catch(error => Task.reject(new CodeReaderError(error, codeFileReader)))
         ;
@@ -27,7 +27,7 @@ export function readCodeReferences (metadata: Metadata, settings: VerboseSetting
 }
 
 export class CodeReaderError extends Error {
-    type = "CodeReaderError";
+    type = 'CodeReaderError';
     constructor (err: Error, public reader: CodeFileReader) {
         super(err.message);
         this.stack = err.stack;
