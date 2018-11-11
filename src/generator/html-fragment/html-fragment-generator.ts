@@ -1,9 +1,9 @@
 import { Task } from '@ts-task/task';
 import { Contract, num, objOf, str } from 'parmenides';
 import { BaseGeneratorSettings, Settings } from '../../config';
-import { Metadata } from '../../MetadataManager';
+import { Metadata } from '../../metadata-manager';
 import { fromUnknown } from '../../utils/parmenides/from-unknown';
-import { writeFileCreateDir } from '../../utils/ts-task-fs-utils/writeFileCreateDir';
+import { writeFileCreateDir } from '../../utils/ts-task-fs-utils/write-file-create-dir';
 
 // TODO: remove
 const markdown = require('markdown').markdown;

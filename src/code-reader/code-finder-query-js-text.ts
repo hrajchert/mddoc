@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { isObject } from '../utils/is-object';
-import { CodeFileReader, IFindResult } from './CodeFileReader';
+import { CodeFileReader, IFindResult } from './code-file-reader';
 import { IQueriable, IRange, isOutOfRange } from './reader-utils';
 
 /**

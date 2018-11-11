@@ -1,10 +1,10 @@
 import { Task, UnknownError } from '@ts-task/task';
+import { includeCode } from './src/code-includer';
 import { CodeReaderError, readCodeReferences } from './src/code-reader';
-import { includeCode } from './src/CodeIncluder';
 import { Settings } from './src/config';
-import { getGeneratorManager } from './src/generator/GeneratorManager';
+import { getGeneratorManager } from './src/generator/generator-manager';
 import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from './src/markdown-parser';
-import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from './src/MetadataManager';
+import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from './src/metadata-manager';
 import { renderError } from './src/utils/explain';
 
 

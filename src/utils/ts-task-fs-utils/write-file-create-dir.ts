@@ -2,7 +2,7 @@ import { Task } from '@ts-task/task';
 import { share } from '@ts-task/utils';
 import { mkdir } from '../ts-task-fs/mkdir';
 import { stat } from '../ts-task-fs/stat';
-import { writeFile } from '../ts-task-fs/writeFile';
+import { writeFile } from '../ts-task-fs/write-file';
 import { taskReduce } from '../ts-task-utils/task-reduce';
 
 /**

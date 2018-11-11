@@ -1,2 +1,2 @@
-export * from './MarkdownFileReader';
-export * from './MarkdownReader';
+export * from './markdown-file-reader';
+export * from './markdown-reader';

@@ -1,1 +1,1 @@
-export * from './CodeReader';
+export * from './code-reader';

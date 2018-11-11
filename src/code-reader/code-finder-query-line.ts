@@ -1,5 +1,5 @@
 import { isObject } from '../utils/is-object';
-import { CodeFileReader, IFindResult } from './CodeFileReader';
+import { CodeFileReader, IFindResult } from './code-file-reader';
 import { IQueriable, IRange } from './reader-utils';
 
 // The starting and ending line to reference separated by a dash (ex "2-24")

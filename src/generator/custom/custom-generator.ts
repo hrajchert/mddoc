@@ -1,11 +1,11 @@
 import { Task, UnknownError } from '@ts-task/task';
 import { arrOf, bool, Contract, num, objOf, str } from 'parmenides';
 import { BaseGeneratorSettings, Settings } from '../../config';
-import { Metadata } from '../../MetadataManager';
+import { Metadata } from '../../metadata-manager';
 import { fromUnknown } from '../../utils/parmenides/from-unknown';
 import { tap } from '../../utils/tap';
 import { copyDir } from '../../utils/ts-task-fs-utils/copy-dir';
-import { writeFileCreateDir } from '../../utils/ts-task-fs-utils/writeFileCreateDir';
+import { writeFileCreateDir } from '../../utils/ts-task-fs-utils/write-file-create-dir';
 
 
 const settingsContract: Contract<CustomGeneratorSettings> = objOf({

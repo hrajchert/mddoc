@@ -60,7 +60,7 @@ The class in charge of reading all the markdowns and generate the metadata from 
 folder is `MarkdownReader.parse`
 
 {%code_ref
-    "src" : "src/markdown-parser/MarkdownFileReader.ts",
+    "src" : "src/markdown-parser/markdown-file-reader.ts",
     "ref" : {
         "text" : "parse ("
     }
@@ -318,7 +318,7 @@ or if is fine to leave it here.
 {:.alert .alert-danger }
 
 {%code_warning
-    "src" : "src/MetadataManager.ts",
+    "src" : "src/metadata-manager.ts",
     "ref" : {
         "text" : "hrCode.refs[refhash].snippet = snippet;"
     }

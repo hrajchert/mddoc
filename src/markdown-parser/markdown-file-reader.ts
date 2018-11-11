@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
-import { Directive, JSonML, RefQuery } from '../MetadataManager';
-import { readFile } from '../utils/ts-task-fs/readFile';
+import { Directive, JSonML, RefQuery } from '../metadata-manager';
+import { readFile } from '../utils/ts-task-fs/read-file';
 
 const { yellow, grey } = require('colors');
 

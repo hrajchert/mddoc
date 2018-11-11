@@ -1,6 +1,6 @@
 import { Task } from '@ts-task/task';
 import { copyFile } from './copy-file';
-import { walkDir } from './walkDir';
+import { walkDir } from './walk-dir';
 
 /**
  * Works like unix copy -R.

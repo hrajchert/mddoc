@@ -1,7 +1,7 @@
 import { Task } from '@ts-task/task';
 import { VerboseSettings } from '../../index';
-import { Metadata } from '../MetadataManager';
-import { CodeFileReader } from './CodeFileReader';
+import { Metadata } from '../metadata-manager';
+import { CodeFileReader } from './code-file-reader';
 
 export function readCodeReferences (metadata: Metadata, settings: VerboseSettings, store: any) {
     const hrCode = metadata.hrCode;

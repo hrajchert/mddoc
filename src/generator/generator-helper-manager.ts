@@ -1,4 +1,4 @@
-import { JSonML, Metadata } from '../MetadataManager';
+import { JSonML, Metadata } from '../metadata-manager';
 
 const markdown = require('markdown').markdown;
 

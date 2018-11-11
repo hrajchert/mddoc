@@ -1,9 +1,9 @@
 import { Task } from '@ts-task/task';
 import * as ts from 'typescript';
-import { InverseReference } from '../MetadataManager';
-import { readFile } from '../utils/ts-task-fs/readFile';
-import { CodeFinderQueryJsText, isTextQuery } from './CodeFinderQueryJsText';
-import { CodeFinderQueryLine, isLineQuery } from './CodeFinderQueryLine';
+import { InverseReference } from '../metadata-manager';
+import { readFile } from '../utils/ts-task-fs/read-file';
+import { CodeFinderQueryJsText, isTextQuery } from './code-finder-query-js-text';
+import { CodeFinderQueryLine, isLineQuery } from './code-finder-query-line';
 import { IQueriable, IRange } from './reader-utils';
 
 import { caseError } from '@ts-task/utils';

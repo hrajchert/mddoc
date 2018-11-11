@@ -7,7 +7,7 @@ TODO: Add a how to extend the markdown syntax.
 The structure is stored in the metadata under the key `jsonml` in the method `MarkdownReader.prototype.parse`.
 
 {%code_ref
-    "src" : "src/MetadataManager.ts",
+    "src" : "src/metadata-manager.ts",
     "ref" : {
         "text" : "metadata.jsonml[mdFileReader.plainFileName] = mdFileReader.jsonml"
     }

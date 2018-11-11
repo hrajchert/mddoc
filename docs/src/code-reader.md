@@ -4,7 +4,7 @@ the node will always be smaller and smaller in each children.
 Thus, I always set this node to be the min node and avoid an extra check
 
 {%code_ref
-    "src" : "src/code-reader/CodeFinderQueryJsText.ts",
+    "src" : "src/code-reader/code-finder-query-js-text.ts",
     "ref" : {
         "text" : "const size = nodeRange[1] - nodeRange[0];"
     }

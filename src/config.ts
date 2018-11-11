@@ -1,6 +1,6 @@
 import { Task, UnknownError } from '@ts-task/task';
 import { arrOf, bool, num, objOf, optional, ParmenidesError, str, union } from 'parmenides';
-import {  getGeneratorManager } from './generator/GeneratorManager';
+import {  getGeneratorManager } from './generator/generator-manager';
 import { renderError } from './utils/explain';
 import { objMap } from './utils/obj-map';
 import { ContractOf } from './utils/parmenides/contract-of';

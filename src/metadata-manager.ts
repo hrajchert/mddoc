@@ -1,10 +1,10 @@
 import * as crypto from 'crypto';
-import { CodeFileReader } from './code-reader/CodeFileReader';
-import { IFileReaderQuery } from './code-reader/CodeFinderQueryJsText';
-import { ICodeFinderLineQuery } from './code-reader/CodeFinderQueryLine';
+import { CodeFileReader } from './code-reader/code-file-reader';
+import { IFileReaderQuery } from './code-reader/code-finder-query-js-text';
+import { ICodeFinderLineQuery } from './code-reader/code-finder-query-line';
 import { FoundMarkdownReference, MarkdownFileReader, MarkdownReference, NotFoundMarkdownReference } from './markdown-parser';
 import { tap } from './utils/tap';
-import { writeFileCreateDir } from './utils/ts-task-fs-utils/writeFileCreateDir';
+import { writeFileCreateDir } from './utils/ts-task-fs-utils/write-file-create-dir';
 
 const { green, grey } = require('colors');
 

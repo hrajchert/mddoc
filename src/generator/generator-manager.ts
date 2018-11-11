@@ -1,12 +1,12 @@
 import { Task, UnknownError } from '@ts-task/task';
 import { BaseGeneratorSettings, Settings } from '../config';
-import { Metadata } from '../MetadataManager';
+import { Metadata } from '../metadata-manager';
 
 import * as path from 'path';
 import { sequence } from '../utils/ts-task-utils/sequence';
 
 import { Contract } from 'parmenides';
-import * as GeneratorHelperManager from './GeneratorHelperManager';
+import * as GeneratorHelperManager from './generator-helper-manager';
 
 interface Generator {
     generate: (helpers?: unknown) => Task<void, UnknownError>;

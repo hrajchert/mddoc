@@ -2,7 +2,7 @@ I added this because a gulp task was executing the generator multiple times when
 a singleton and aparently the initialize was being called multiple times. Although this does no harm, I don't quite like it.
 
 {%code_ref
-    "src" : "src/generator/GeneratorManager.ts",
+    "src" : "src/generator/generator-manager.ts",
     "ref" : {
         "text" : "if (this.initialized) {"
     }
@@ -18,7 +18,7 @@ the later on generate method.
 {:.alert .alert-danger }
 
 {%code_warning
-    "src" : "src/generator/GeneratorManager.ts",
+    "src" : "src/generator/generator-manager.ts",
     "ref" : {
         "text" : "createGenerator(metadata"
     }
