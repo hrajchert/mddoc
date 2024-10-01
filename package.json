@@ -18,7 +18,7 @@
   "author": "Hernan Rajchert",
   "scripts": {
     "start": "tsc && node  --experimental-vm-modules ts-dist/mddoc.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test": "tsc && node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "tdd": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "serve-docs": "npx http-server ./dist/custom-generator"
   },

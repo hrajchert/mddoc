@@ -1,6 +1,6 @@
-var EventPromise = require("./EventPromise");
-var when = require("when");
-var delay = require("when/delay");
+import * as EventPromise from "./EventPromise.js"
+import when from "when";
+import delay from "when/delay";
 
 describe ("EventPromise", function () {
 
