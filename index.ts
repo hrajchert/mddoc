@@ -97,7 +97,8 @@ export function replaceReferences (metadataMgr: MetadataManager) {
             includeCode(metadataMgr.getPlainMetadata());
             task = Task.resolve(void 0);
         } catch (e) {
-            task = Task.reject(normalizeError('code includer', e));
+            // TODO: I should check if e is an error
+            task = Task.reject(normalizeError('code includer', e as Error));
         }
         return task;
     };

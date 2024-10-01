@@ -7,6 +7,7 @@ import { sequence } from '../utils/ts-task-utils/sequence';
 
 import { Contract } from 'parmenides';
 import * as GeneratorHelperManager from './generator-helper-manager';
+import { FixAnyTypeScriptVersion } from '../utils/typescript';
 
 interface Generator {
     generate: (helpers?: unknown) => Task<void, UnknownError>;
@@ -78,7 +79,7 @@ export class GeneratorManager {
             genpath = normalizeProjectGeneratorPath('./node_modules/' + generatorType, basePath );
             try {
                 generator = registerGenerator(generatorType, genpath);
-            } catch (err) {
+            } catch (err: FixAnyTypeScriptVersion) {
                 if (err.message.indexOf(genpath) !== -1) {
                     throw new Error('Generator ' + generatorType + ' not defined');
                 } else {
