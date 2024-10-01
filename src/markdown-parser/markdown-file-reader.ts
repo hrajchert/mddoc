@@ -1,13 +1,17 @@
 import * as crypto from 'crypto';
-import { Directive, JSonML, RefQuery } from '../metadata-manager';
-import { readFile } from '../utils/ts-task-fs/read-file';
+import { Directive, JSonML, RefQuery } from '../metadata-manager.js';
+import { readFile } from '../utils/ts-task-fs/read-file.js';
 
-const { yellow, grey } = require('colors');
+// @ts-expect-error TODO: Update markdown to markdown-it or similar
+import {markdown}  from 'markdown';
+import colors from 'colors';
 
-const markdown = require('markdown').markdown;
+const { yellow, grey } = colors;
+
 
 // Configure my parser
-require('./MarkdownParser.js')(markdown.Markdown);
+const parserConfigurator = await import('./markdown-parser.js');
+parserConfigurator.default(markdown.Markdown);
 
 /**
  * An object that represents a reference from markdown to the code

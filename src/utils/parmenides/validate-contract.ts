@@ -1,7 +1,7 @@
 import { Task } from '@ts-task/task';
 import { Contract, ParmenidesError } from 'parmenides';
-import { fromUnknown } from './from-unknown';
-import { FixAnyTypeScriptVersion } from '../typescript';
+import { fromUnknown } from './from-unknown.js';
+import { FixAnyTypeScriptVersion } from '../typescript.js';
 
 
 export function validateContract<T> (contract: Contract<T>) {

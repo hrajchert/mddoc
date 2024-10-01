@@ -1,13 +1,14 @@
 import { Task, UnknownError } from '@ts-task/task';
 import { arrOf, bool, Contract, num, objOf, str } from 'parmenides';
-import { BaseGeneratorSettings, Settings } from '../../config';
-import { Metadata } from '../../metadata-manager';
-import { fromUnknown } from '../../utils/parmenides/from-unknown';
-import { tap } from '../../utils/tap';
-import { copyDir } from '../../utils/ts-task-fs-utils/copy-dir';
-import { writeFileCreateDir } from '../../utils/ts-task-fs-utils/write-file-create-dir';
-
-
+import { BaseGeneratorSettings, Settings } from '../../config.js';
+import { Metadata } from '../../metadata-manager.js';
+import { fromUnknown } from '../../utils/parmenides/from-unknown.js';
+import { tap } from '../../utils/tap.js';
+import { copyDir } from '../../utils/ts-task-fs-utils/copy-dir.js';
+import { writeFileCreateDir } from '../../utils/ts-task-fs-utils/write-file-create-dir.js';
+import colors from 'colors';
+// @ts-expect-error: Check if ECT has types or if it is a better alternative
+import ECT from 'ect';
 const settingsContract: Contract<CustomGeneratorSettings> = objOf({
     generatorType: str,
     priority: num,
@@ -31,7 +32,7 @@ export default {
     contract: settingsContract
 };
 
-const { green, grey } = require('colors');
+const { green, grey } = colors;
 
 interface HtmlWriterFileOptions {
     inputFile: string;
@@ -79,9 +80,7 @@ class CustomGenerator {
     constructor (private generatorSettings: CustomGeneratorSettings) {
         // TODO: this should be in the HtmlWriterFile, but i dont want to create
         // one every time
-        const ECT = require('ect');
         this.renderer = ECT({ root : generatorSettings.templateDir });
-
     }
 
     copyAssets () {

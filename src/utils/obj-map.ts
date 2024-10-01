@@ -1,4 +1,4 @@
-import { Dictionary } from './parmenides/dictionary';
+import { Dictionary } from './parmenides/dictionary.js';
 
 export function objMap<A, B> (obj: Dictionary<A>, mapFn: (a: A, key: string) => B) {
     const ans: Dictionary<B> = {};

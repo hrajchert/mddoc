@@ -1,12 +1,13 @@
 import * as crypto from 'crypto';
-import { CodeFileReader } from './code-reader/code-file-reader';
-import { IFileReaderQuery } from './code-reader/code-finder-query-js-text';
-import { ICodeFinderLineQuery } from './code-reader/code-finder-query-line';
-import { FoundMarkdownReference, MarkdownFileReader, MarkdownReference, NotFoundMarkdownReference } from './markdown-parser';
-import { tap } from './utils/tap';
-import { writeFileCreateDir } from './utils/ts-task-fs-utils/write-file-create-dir';
-
-const { green, grey } = require('colors');
+import { CodeFileReader } from './code-reader/code-file-reader.js';
+import { IFileReaderQuery } from './code-reader/code-finder-query-js-text.js';
+import { ICodeFinderLineQuery } from './code-reader/code-finder-query-line.js';
+import { FoundMarkdownReference, MarkdownFileReader, MarkdownReference, NotFoundMarkdownReference } from './markdown-parser/index.js';
+import { tap } from './utils/tap.js';
+import { writeFileCreateDir } from './utils/ts-task-fs-utils/write-file-create-dir.js';
+import colors from 'colors';
+import * as EventPromise from './EventPromise.js';
+const { green, grey } = colors;
 
 // TODO: convert any to unknown and check stuff. This structure is holding other stuff as well (refhash??)
 export type  JSonML = Array<string | any[] | {refhash?: string, id?: string, class?: string}>;
@@ -131,7 +132,7 @@ export function saveMetadataTo (metadata: Metadata, outputDir?: string) {
         .map(tap(_ => console.log(green('Metadata written to ') + grey(metadataFileName))));
 }
 
-const EventPromise = require('./EventPromise');
+
 
 export class MetadataManager {
 

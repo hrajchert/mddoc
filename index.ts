@@ -1,17 +1,17 @@
 import { Task, UnknownError } from '@ts-task/task';
-import { includeCode } from './src/code-includer';
-import { CodeReaderError, readCodeReferences } from './src/code-reader';
-import { Settings } from './src/config';
-import { getGeneratorManager } from './src/generator/generator-manager';
-import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from './src/markdown-parser';
-import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from './src/metadata-manager';
-import { renderError } from './src/utils/explain';
-
+import { includeCode } from './src/code-includer.js';
+import { CodeReaderError, readCodeReferences } from './src/code-reader/code-reader.js';
+import { Settings } from './src/config.js';
+import { getGeneratorManager } from './src/generator/generator-manager.js';
+import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from './src/markdown-parser/markdown-reader.js';
+import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from './src/metadata-manager.js';
+import { renderError } from './src/utils/explain.js';
+import colors from 'colors';
 
 const GeneratorManager = getGeneratorManager();
 
 // TODO: Library shouldnt have colors
-const { red, grey } = require('colors');
+const { red, grey } = colors;
 
 export interface VerboseSettings {
     verbose: boolean;

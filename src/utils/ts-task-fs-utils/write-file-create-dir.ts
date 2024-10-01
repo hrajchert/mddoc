@@ -1,9 +1,9 @@
 import { Task } from '@ts-task/task';
 import { share } from '@ts-task/utils';
-import { mkdir } from '../ts-task-fs/mkdir';
-import { stat } from '../ts-task-fs/stat';
-import { writeFile } from '../ts-task-fs/write-file';
-import { taskReduce } from '../ts-task-utils/task-reduce';
+import { mkdir } from '../ts-task-fs/mkdir.js';
+import { stat } from '../ts-task-fs/stat.js';
+import { writeFile } from '../ts-task-fs/write-file.js';
+import { taskReduce } from '../ts-task-utils/task-reduce.js';
 
 /**
  * Writes the contents of data in a file with filename. It creates
@@ -11,7 +11,7 @@ import { taskReduce } from '../ts-task-utils/task-reduce';
  * @param path The path of the file to write
  * @param data The data to write
  */
-export function writeFileCreateDir (path: string, data: unknown) {
+export function writeFileCreateDir (path: string, data: string | Buffer) {
     const trimmedPath = path.trim();
     // Don't allow absolute paths, for now
 

@@ -1,11 +1,12 @@
 // #!/usr/bin/env node
 
-import * as mddoc from './index';
-import { loadConfig } from './src/config';
-import { explain } from './src/utils/explain';
-import { sequence } from './src/utils/ts-task-utils/sequence';
-const _       = require('underscore');
-const program = require('commander');
+import * as mddoc from './index.js';
+import { loadConfig } from './src/config.js';
+import { explain } from './src/utils/explain.js';
+import { sequence } from './src/utils/ts-task-utils/sequence.js';
+import { pick } from 'underscore';
+import { program } from 'commander';
+import { FixAnyTypeScriptVersion } from './src/utils/typescript.js';
 
 // Configure command line options
 program
@@ -14,13 +15,13 @@ program
   .option('-o, --outputDir [dir]', 'Output dir')
   .parse(process.argv);
 
-const commandLineOptions = _.pick(program, 'inputDir', 'outputDir');
+const commandLineOptions = pick(program, 'inputDir', 'outputDir');
 
 // Set proccess title
 process.title = 'mddoc';
 
 // Load the program options
-loadConfig(process.cwd(), commandLineOptions)
+loadConfig(process.cwd(), commandLineOptions as FixAnyTypeScriptVersion)
     .chain(settings => {
         // Initialize the mddoc steps
         const mgr = mddoc.initialize(settings);

@@ -1,2 +1,2 @@
-export * from './markdown-file-reader';
-export * from './markdown-reader';
+export * from './markdown-file-reader.js';
+export * from './markdown-reader.js';

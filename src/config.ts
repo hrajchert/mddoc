@@ -1,13 +1,13 @@
 import { Task, UnknownError } from '@ts-task/task';
 import { arrOf, bool, num, objOf, optional, ParmenidesError, str, union } from 'parmenides';
-import {  getGeneratorManager } from './generator/generator-manager';
-import { renderError } from './utils/explain';
-import { objMap } from './utils/obj-map';
-import { ContractOf } from './utils/parmenides/contract-of';
-import { Dictionary, dictionaryOf } from './utils/parmenides/dictionary';
-import { validateContract } from './utils/parmenides/validate-contract';
-import { findup } from './utils/ts-task-fs-utils/findup';
-import { traverseDictionary } from './utils/ts-task-utils/traverse-dictionary';
+import { getGeneratorManager } from './generator/generator-manager.js';
+import { renderError } from './utils/explain.js';
+import { objMap } from './utils/obj-map.js';
+import { ContractOf } from './utils/parmenides/contract-of.js';
+import { Dictionary, dictionaryOf } from './utils/parmenides/dictionary.js';
+import { validateContract } from './utils/parmenides/validate-contract.js';
+import { findup } from './utils/ts-task-fs-utils/findup.js';
+import { traverseDictionary } from './utils/ts-task-utils/traverse-dictionary.js';
 
 const DEFAULT_PRIORITY = 100;
 
@@ -74,10 +74,14 @@ export interface Settings {
 
 
 function requireConfigFile (dir: string) {
-    return new Task<unknown, string>((resolve, reject) => {
+    const configFile = dir + '/Mddocfile.js';   
+    return new Task<unknown, string>(async (resolve, reject) => {
         try {
-            resolve(require(dir + '/Mddocfile.js')());
+            const config = await import(configFile);
+            resolve(config.default());
         } catch (err) {
+            // TODO: improve this error message by using a custom error class 
+            //       that includes the file name and the error stack.
             reject('Could not require the config file');
         }
     });
@@ -132,12 +136,12 @@ function validateGenerators (config: ContractOf<typeof loadedSettingsContract>) 
         // In case you want to have two instances of the same generator
         const generatorType = generator.generatorType || genName;
         const priority = generator.priority || DEFAULT_PRIORITY;
-        const generatorFactory = getGeneratorManager().findGeneratorFactory(generatorType, basePath);
-        return validateContract(generatorFactory.contract)({
+        const generatorFactory = Task.fromPromise(getGeneratorManager().findGeneratorFactory(generatorType, basePath));
+        return generatorFactory.chain(factory => validateContract(factory.contract)({
             ...generator,
             priority,
             generatorType
-        }).catch(err => Task.reject(new GeneratorConfigError(genName, err))); // TODO: mapError
+        }).catch(err => Task.reject(new GeneratorConfigError(genName, err)))); // TODO: mapError
     });
     return traverseDictionary(tasks)
         .map(generators => ({
@@ -148,7 +152,6 @@ function validateGenerators (config: ContractOf<typeof loadedSettingsContract>) 
 }
 
 
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 type Overrides = Omit<Partial<Settings>, 'generators'>;
 

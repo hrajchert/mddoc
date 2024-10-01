@@ -1,7 +1,7 @@
 import { UnknownError } from '@ts-task/task';
-import { isObject } from './is-object';
+import { isObject } from './is-object.js';
+import PrettyError from 'pretty-error';
 
-const PrettyError = require('pretty-error');
 const pe = new PrettyError();
 
 interface Explainable {

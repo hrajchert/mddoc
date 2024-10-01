@@ -1,13 +1,13 @@
 import { Task, UnknownError } from '@ts-task/task';
-import { BaseGeneratorSettings, Settings } from '../config';
-import { Metadata } from '../metadata-manager';
+import { BaseGeneratorSettings, Settings } from '../config.js';
+import { Metadata } from '../metadata-manager.js';
 
 import * as path from 'path';
-import { sequence } from '../utils/ts-task-utils/sequence';
+import { sequence } from '../utils/ts-task-utils/sequence.js';
 
 import { Contract } from 'parmenides';
-import * as GeneratorHelperManager from './generator-helper-manager';
-import { FixAnyTypeScriptVersion } from '../utils/typescript';
+import * as GeneratorHelperManager from './generator-helper-manager.js';
+import { FixAnyTypeScriptVersion } from '../utils/typescript.js';
 
 interface Generator {
     generate: (helpers?: unknown) => Task<void, UnknownError>;
@@ -30,19 +30,20 @@ interface GeneratorFactory {
  */
 const registeredGenerators: {[name: string]: GeneratorFactory} = {};
 
-export function registerGenerator (name: string, genpath: string) {
-    const factory: GeneratorFactory = require (genpath).default;
+export async function registerGenerator (name: string, genpath: string) {
+    // TODO: use a logger
+    console.debug('registering generator', name, genpath);
+    const module = await import(genpath);
+    const factory: GeneratorFactory = module.default;
 
-    if (!factory.hasOwnProperty('createGenerator')) {
-        throw new Error('Module ' + genpath + ' doesn\'t have a constructor exported');
+    if (!('createGenerator' in factory)) {
+        throw new Error(`Module ${genpath} doesn't have a createGenerator exported`);
     }
-
 
     registeredGenerators[name] = factory;
 
     return factory;
 }
-
 
 /**
  * Make the path absolute. If it was relative, make it from the project base path
@@ -55,7 +56,6 @@ function normalizeProjectGeneratorPath (genpath: string, basePath: string) {
     return ans;
 }
 
-
 export class GeneratorManager {
     generators: Array<{
         generatorObject: Generator;
@@ -66,22 +66,23 @@ export class GeneratorManager {
     metadata: Metadata | null = null;
     initialized = false;
 
-    findGeneratorFactory (generatorType: string, basePath: string) {
+    async findGeneratorFactory (generatorType: string, basePath: string) {
         let generator,
             genpath;
-        // TODO: This should return a task with a possible failure
-        // If its already registered, cool
-        if (registeredGenerators.hasOwnProperty(generatorType)) {
+        // If it's already registered, cool
+        if (generatorType in registeredGenerators) {
             generator = registeredGenerators[generatorType];
         }
         // If not, try to see if there is a npm dependency with that name
         else {
-            genpath = normalizeProjectGeneratorPath('./node_modules/' + generatorType, basePath );
+            genpath = normalizeProjectGeneratorPath(`./node_modules/${generatorType}`, basePath);
             try {
-                generator = registerGenerator(generatorType, genpath);
+                console.log('findGeneratorFactory', generatorType, genpath);
+                generator = await registerGenerator(generatorType, genpath);
             } catch (err: FixAnyTypeScriptVersion) {
-                if (err.message.indexOf(genpath) !== -1) {
-                    throw new Error('Generator ' + generatorType + ' not defined');
+                console.error(err);
+                if (err instanceof Error && err.message.includes(genpath)) {
+                    throw new Error(`Generator ${generatorType} not defined`);
                 } else {
                     throw err;
                 }
@@ -90,9 +91,8 @@ export class GeneratorManager {
         return generator;
     }
 
-    initialize (metadata: Metadata, projectSettings: Settings) {
+    async initialize (metadata: Metadata, projectSettings: Settings) {
         // Avoid duplicate initialization
-        // WARNING: ref in markdown
         if (this.initialized) {
             return;
         }
@@ -101,11 +101,11 @@ export class GeneratorManager {
         this.metadata = metadata;
         // Instantiate all generators
         for (const generatorName in projectSettings.generators) {
-            // Get the generator settings (Ref in code)
+            // Get the generator settings
             const generatorSettings = projectSettings.generators[generatorName];
 
             // Find the constructor
-            const generatorFactory = this.findGeneratorFactory (generatorSettings.generatorType, projectSettings.basePath);
+            const generatorFactory = await this.findGeneratorFactory(generatorSettings.generatorType, projectSettings.basePath);
 
             // Instantiate it
             const generatorObject = generatorFactory.createGenerator(metadata, projectSettings, generatorSettings);
@@ -118,11 +118,7 @@ export class GeneratorManager {
             });
         }
         // Sort them by priority
-        this.generators.sort(function (a, b) {
-            return b.generatorSettings.priority - a.generatorSettings.priority;
-        });
-
-
+        this.generators.sort((a, b) => b.generatorSettings.priority - a.generatorSettings.priority);
     }
 
     generate () {
@@ -143,7 +139,6 @@ export function getGeneratorManager () {
     return singleton;
 }
 
-
-registerGenerator('custom', './custom/CustomGenerator');
-registerGenerator('html-fragment', './html-fragment/HtmlFragmentGenerator');
-
+// Use dynamic imports for registering generators
+await registerGenerator('custom', new URL('./custom/custom-generator.js', import.meta.url).pathname);
+await registerGenerator('html-fragment', new URL('./html-fragment/html-fragment-generator.js', import.meta.url).pathname);

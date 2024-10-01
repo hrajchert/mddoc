@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
-import { isObject } from '../utils/is-object';
-import { CodeFileReader, IFindResult } from './code-file-reader';
-import { IQueriable, IRange, isOutOfRange } from './reader-utils';
+import { isObject } from '../utils/is-object.js';
+import { CodeFileReader, IFindResult } from './code-file-reader.js';
+import { IQueriable, IRange, isOutOfRange } from './reader-utils.js';
 
 /**
  * This is a plain text search in the document.

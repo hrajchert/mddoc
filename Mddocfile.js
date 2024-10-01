@@ -1,4 +1,4 @@
-module.exports = function() {
+export default function() {
     const customGenerator = {
         copyAssets  : true,
         templateDir : "docs/custom-generator",

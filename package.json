@@ -2,7 +2,11 @@
   "name": "mddoc",
   "version": "0.0.2",
   "description": "Unopinionated documentation tool",
-  "main": "index.js",
+  "type": "module",
+  "main": "./ts-dist/mddoc.js",
+  "exports": {
+    ".": "./ts-dist/mddoc.js"
+  },
   "directories": {
     "doc": "docs"
   },
@@ -13,29 +17,32 @@
   },
   "author": "Hernan Rajchert",
   "scripts": {
-    "start": "tsc && node ts-dist/mddoc.js",
-    "test": "jest",
-    "tdd": "jest --watch"
+    "start": "tsc && node  --experimental-vm-modules ts-dist/mddoc.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "tdd": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "serve-docs": "npx http-server ./dist/custom-generator"
   },
   "dependencies": {
     "@ts-task/task": "^1.0.1",
     "@ts-task/utils": "^1.0.0",
-    "colors": "~0.6.2",
-    "commander": "^2.2.0",
-    "ect": "~0.5.9",
+    "colors": "^1.4.0",
+    "commander": "^9.0.0",
+    "ect": "^0.5.9",
     "findup": "^0.1.5",
     "markdown": "~0.5.0",
     "parmenides": "0.0.2",
-    "pretty-error": "~0.1.17",
+    "pretty-error": "^4.0.0",
     "typescript": "^5.6.2",
     "underscore": "^1.13.7",
     "when": "~2.8.0"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.14",
-    "@types/node": "^9.6.61",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^18.15.0",
+    "@types/underscore": "^1.11.15",
+    "http-server": "^14.1.1",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
-    "tslint": "^5.11.0"
+    "tslint": "^6.1.3"
   }
 }

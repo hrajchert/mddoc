@@ -1,5 +1,5 @@
 
-module.exports = function (Markdown) {
+export default function (Markdown) {
     var miMkd = Markdown.subclassDialect(Markdown.dialects.Maruku);
     miMkd.processMetaHash = Markdown.dialects.Maruku.processMetaHash;
 

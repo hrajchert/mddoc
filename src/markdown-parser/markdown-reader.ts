@@ -1,7 +1,7 @@
 import { Task } from '@ts-task/task';
-import { VerboseSettings } from '../..';
-import { walkDir } from '../utils/ts-task-fs-utils/walk-dir';
-import { MarkdownFileReader } from './markdown-file-reader';
+import { VerboseSettings } from '../../index.js';
+import { walkDir } from '../utils/ts-task-fs-utils/walk-dir.js';
+import { MarkdownFileReader } from './markdown-file-reader.js';
 
 export type MarkdownReaderSettings = {
     inputDir: string;

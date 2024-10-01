@@ -1,5 +1,6 @@
 import { Task } from '@ts-task/task';
-const nodefindup = require('findup');
+// @ts-expect-error findup is not typed
+import nodefindup from 'findup';
 
 export function findup (path: string, file: string) {
     return new Task<string, NodeJS.ErrnoException>((resolve, reject) => {

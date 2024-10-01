@@ -1,5 +1,6 @@
 import { Task } from '@ts-task/task';
 import * as fs from 'fs';
+import { WriteFileOptions } from 'fs';
 
 export interface IWriteFileOptions {
     encoding?: string | null;
@@ -7,7 +8,7 @@ export interface IWriteFileOptions {
     flag?: string;
 }
 
-export function writeFile (path: string, data: unknown, options: IWriteFileOptions = {}) {
+export function writeFile (path: string, data: string | Buffer, options: WriteFileOptions = {}) {
     return new Task<void, NodeJS.ErrnoException>((resolve, reject) => {
         fs.writeFile(path, data, options, (err) => {
             if (err) {

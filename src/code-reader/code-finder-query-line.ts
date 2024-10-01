@@ -1,6 +1,6 @@
-import { isObject } from '../utils/is-object';
-import { CodeFileReader, IFindResult } from './code-file-reader';
-import { IQueriable, IRange } from './reader-utils';
+import { isObject } from '../utils/is-object.js';
+import { CodeFileReader, IFindResult } from './code-file-reader.js';
+import { IQueriable, IRange } from './reader-utils.js';
 
 // The starting and ending line to reference separated by a dash (ex "2-24")
 export interface ICodeFinderLineQuery {

@@ -1,5 +1,5 @@
 // TODO: Try to avoid using when, implement mini promises if needed
-var when = require("when");
+import when from "when";
 
 function _getEventPromise(obj) {
     if (!obj.hasOwnProperty("_eventPromise")) {
@@ -92,14 +92,14 @@ function trigger (eventName, data) {
     return when.all(promiseArray);
 }
 
-exports.create = function () {
+export function create () {
     return {
         on,
         trigger
     }
 }
 
-exports.mixin = function(obj) {
+export function mixin(obj) {
     obj.on = on;
     obj.trigger = trigger;
 };
