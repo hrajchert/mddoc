@@ -1,4 +1,4 @@
-import { IFindResult } from './code-file-reader';
+import { IFindResult } from './code-file-reader.js';
 
 export type IRange = [number, number];
 /**

@@ -1,1 +1,1 @@
-export * from './code-reader';
+export * from './code-reader.js';

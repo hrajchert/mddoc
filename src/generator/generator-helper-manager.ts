@@ -1,4 +1,4 @@
-import { JSonML, Metadata } from '../metadata-manager';
+import { JSonML, Metadata } from '../metadata-manager.js';
 // @ts-expect-error TODO: Update markdown to markdown-it or similar
 import { markdown } from 'markdown';
 
