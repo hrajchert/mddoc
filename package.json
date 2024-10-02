@@ -33,8 +33,7 @@
     "parmenides": "0.0.2",
     "pretty-error": "^4.0.0",
     "typescript": "^5.6.2",
-    "underscore": "^1.13.7",
-    "when": "~2.8.0"
+    "underscore": "^1.13.7"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",

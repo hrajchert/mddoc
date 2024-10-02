@@ -1,7 +1,7 @@
 import * as EventPromise from "./EventPromise.js"
-import when from "when";
-import delay from "when/delay";
-
+import { EventPromiseMixin } from "./EventPromise.js";
+import { defer } from "./utils/promises/defer.js";
+import { delay } from "./utils/promises/delay.js";
 describe ("EventPromise", function () {
 
     describe("creation", function () {
@@ -14,10 +14,9 @@ describe ("EventPromise", function () {
     });
 
     describe("on method", function () {
-        var obj;
+        var obj: EventPromiseMixin;
         beforeEach(function(){
-            obj = {};
-            EventPromise.mixin(obj);
+            obj = EventPromise.create();
         });
 
         test("should be called after a trigger", function(done) {
@@ -38,20 +37,22 @@ describe ("EventPromise", function () {
         });
 
         test("should call multiple handlers", function(done) {
-            var h1 = when.defer(),
-                h2 = when.defer();
+            var h1 = defer<number>(),
+                h2 = defer<string>();
 
             obj.on("myEvent", "handler1", function() {
-                h1.resolve();
+                h1.resolve(1);
             });
 
             obj.on("myEvent", "handler2", function() {
-                h2.resolve();
+                h2.resolve('2');
             });
 
             obj.trigger("myEvent");
 
-            when.all([h1.promise, h2.promise]).then(function(){
+            Promise.all([h1.promise, h2.promise]).then(([h1Result, h2Result]) => {
+                expect(h1Result).toEqual(1);
+                expect(h2Result).toEqual('2');
                 done();
             });
 
@@ -60,12 +61,12 @@ describe ("EventPromise", function () {
         test("should call the handlers in respecting order", function(done) {
             var handler2Called = false;
             // Define handler1 that depends on handler 2 to be called first
-            obj.on("myEvent", "handler1", function(arg, deps) {
+            obj.on("myEvent", "handler1", function(arg, depsResults) {
                 if (!handler2Called) {
                     return done("handler 2 hasnt been called");
                 }
 
-                if (arg !== "my argument" || deps[0] !== "handler2Result") {
+                if (arg !== "my argument" || depsResults[0] !== "handler2Result") {
                     return done("Invalid arguments");
                 }
 
@@ -89,12 +90,14 @@ describe ("EventPromise", function () {
             var h1Called = false,
                 h2Called = false;
 
-            obj.on("myEvent", "handler1", function() {
-                return delay(200).then(function(){ h1Called = true;});
+            obj.on("myEvent", "handler1", async function() {
+                await delay(200);
+                h1Called = true;
             });
 
-            obj.on("myEvent", "handler2", function() {
-                return delay(400).then(function(){ h2Called = true;});
+            obj.on("myEvent", "handler2", async function() {
+                await delay(400);
+                h2Called = true;
             });
 
             obj.trigger("myEvent").then(function(){
