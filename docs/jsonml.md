@@ -9,7 +9,7 @@ The structure is stored in the metadata under the key `jsonml` in the method `Ma
 {%code_ref
     "src" : "src/metadata-manager.ts",
     "ref" : {
-        "text" : "metadata.jsonml[mdFileReader.plainFileName] = mdFileReader.jsonml"
+        "text" : "metadata.jsonml[mdFileReader.plainFileName]"
     }
 %}
 

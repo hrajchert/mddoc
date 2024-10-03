@@ -62,7 +62,7 @@ folder is `MarkdownReader.parse`
 {%code_ref
     "src" : "src/markdown-parser/markdown-file-reader.ts",
     "ref" : {
-        "text" : "parse ("
+        "text" : "parse("
     }
 %}
 

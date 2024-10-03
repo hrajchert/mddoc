@@ -6,7 +6,7 @@ export function toEffect<V, E>(task: Task<V, E>): Effect<V, E> {
   return E.async<V, E>((resume) => {
     task.fork(
       (err) => resume(E.fail(err)),
-      (value) => resume(E.succeed(value))
+      (value) => resume(E.succeed(value)),
     );
   });
 }

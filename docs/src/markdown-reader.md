@@ -14,7 +14,7 @@ I don't like the fact that this is here, its implying that it has 1-1 relation w
 {%code_warning
     "src" : "src/markdown-parser/markdown-file-reader.ts",
     "ref" : {
-        "text" : "Object.defineProperty(ref, 'jsonml', {enumerable: false});"
+        "text" : "Object.defineProperty(ref, \"jsonml\", { enumerable: false });"
     }
 %}
 

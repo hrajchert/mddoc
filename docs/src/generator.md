@@ -20,6 +20,6 @@ the later on generate method.
 {%code_warning
     "src" : "src/generator/generator-manager.ts",
     "ref" : {
-        "text" : "createGenerator(metadata"
+        "text" : "generatorFactory.createGenerator("
     }
 %}
