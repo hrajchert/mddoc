@@ -12,6 +12,7 @@ import { tap } from "./utils/tap.js";
 import { writeFileCreateDir } from "./utils/ts-task-fs-utils/write-file-create-dir.js";
 import colors from "colors";
 import * as EventPromise from "./EventPromise.js";
+import { EventPromiseMixin } from "./EventPromise.js";
 const { green, grey } = colors;
 
 // TODO: convert any to unknown and check stuff. This structure is holding other stuff as well (refhash??)
@@ -134,13 +135,13 @@ export function saveMetadataTo(metadata: Metadata, outputDir?: string) {
   const metadataStr = JSON.stringify(metadata, null, "    ");
   return writeFileCreateDir(metadataFileName, metadataStr).map(
     tap((_) =>
-      console.log(green("Metadata written to ") + grey(metadataFileName)),
-    ),
+      console.log(green("Metadata written to ") + grey(metadataFileName))
+    )
   );
 }
 
 export class MetadataManager {
-  eventPromise: any;
+  eventPromise: EventPromiseMixin;
 
   metadata: Metadata = {
     jsonml: {},
@@ -154,35 +155,35 @@ export class MetadataManager {
     this.eventPromise.on(
       "md-file-parsed",
       "createJsonMLMetadata",
-      this.createJsonMLMetadata.bind(this),
+      this.createJsonMLMetadata.bind(this)
     );
     this.eventPromise.on(
       "md-file-parsed",
       "createHrMdMetadata",
-      this.createHrMdMetadata.bind(this),
+      this.createHrMdMetadata.bind(this)
     );
     this.eventPromise.on(
       "md-file-parsed",
       "createHrCodeMetadata",
-      this.createHrCodeMetadata.bind(this),
+      this.createHrCodeMetadata.bind(this)
     );
 
     this.eventPromise.on(
       "code-file-read",
       "updateHrMdMetadata",
       this.updateHrMdMetadata.bind(this),
-      ["updateHrCodeMetadata"],
+      ["updateHrCodeMetadata"]
     );
     this.eventPromise.on(
       "code-file-read",
       "updateHrCodeMetadata",
-      this.updateHrCodeMetadata.bind(this),
+      this.updateHrCodeMetadata.bind(this)
     );
     this.eventPromise.on(
       "code-file-read",
       "updateNotFound",
       this.updateNotFound.bind(this),
-      ["updateHrCodeMetadata"],
+      ["updateHrCodeMetadata"]
     );
 
     // Make sure the jsonml doesn't get saved into disk
@@ -204,7 +205,10 @@ export class MetadataManager {
     return this.metadata.notFound;
   }
 
-  createJsonMLMetadata(mdFileReader: MarkdownFileReader) {
+  createJsonMLMetadata(mdFileReader: unknown) {
+    if (!(mdFileReader instanceof MarkdownFileReader)) {
+      throw new Error("mdFileReader must be an instance of MarkdownFileReader");
+    }
     // The jsonml goes directly
     this.metadata.jsonml[mdFileReader.plainFileName] =
       mdFileReader.jsonml as JSonML;
@@ -216,7 +220,10 @@ export class MetadataManager {
    *          method will only extract the refhash of each markdown, if this is even required at ALL!
    * @param  mdFileReader The object that has parsed the markdown file, and has the references
    */
-  createHrMdMetadata(mdFileReader: MarkdownFileReader) {
+  createHrMdMetadata(mdFileReader: unknown) {
+    if (!(mdFileReader instanceof MarkdownFileReader)) {
+      throw new Error("mdFileReader must be an instance of MarkdownFileReader");
+    }
     const refs = mdFileReader.getReferences();
     // The hrMd represents the metadata of this file
     this.metadata.hrMd[mdFileReader.plainFileName] = {
@@ -227,7 +234,11 @@ export class MetadataManager {
     };
   }
 
-  updateHrMdMetadata(codeFileReader: CodeFileReader) {
+  updateHrMdMetadata(codeFileReader: unknown) {
+    if (!(codeFileReader instanceof CodeFileReader)) {
+      throw new Error("codeFileReader must be an instance of CodeFileReader");
+    }
+
     const hrCode = this.metadata.hrCode[codeFileReader.src];
     // For each reference in the code file
     for (const refhash in codeFileReader.results) {
@@ -263,7 +274,11 @@ export class MetadataManager {
   /**
    * TODO: comment
    */
-  updateNotFound(codeFileReader: CodeFileReader) {
+  updateNotFound(codeFileReader: unknown) {
+    if (!(codeFileReader instanceof CodeFileReader)) {
+      throw new Error("codeFileReader must be an instance of CodeFileReader");
+    }
+
     const hrCode = this.metadata.hrCode[codeFileReader.src];
     for (const refhash in codeFileReader.results) {
       const result = codeFileReader.results[refhash];
@@ -284,7 +299,13 @@ export class MetadataManager {
    * @desc    This method is called when a Markdown file is parsed.
    * @param mdFileReader The object that has parsed the markdown file, and has the references
    */
-  createHrCodeMetadata(mdFileReader: MarkdownFileReader) {
+  createHrCodeMetadata(mdFileReader: unknown) {
+    if (!(mdFileReader instanceof MarkdownFileReader)) {
+      throw new Error(
+        "Invalid argument: mdFileReader must be an instance of MarkdownFileReader"
+      );
+    }
+
     const refs = mdFileReader.getReferences();
 
     // For each reference, add it in hrCode in its proper "file"
@@ -330,7 +351,13 @@ export class MetadataManager {
     }
   }
 
-  updateHrCodeMetadata(codeFileReader: CodeFileReader) {
+  updateHrCodeMetadata(codeFileReader: unknown) {
+    if (!(codeFileReader instanceof CodeFileReader)) {
+      throw new Error(
+        "Invalid argument: codeFileReader must be an instance of CodeFileReader"
+      );
+    }
+
     // Update the hrCode part
     const hrCode = this.metadata.hrCode[codeFileReader.src];
 
