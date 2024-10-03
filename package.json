@@ -34,12 +34,10 @@
     "markdown": "~0.5.0",
     "parmenides": "0.0.2",
     "pretty-error": "^4.0.0",
-    "typescript": "^5.6.2",
-    "underscore": "^1.13.7"
+    "typescript": "^5.6.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
-    "@types/underscore": "^1.11.15",
     "http-server": "^14.1.1",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",

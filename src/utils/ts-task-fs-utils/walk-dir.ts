@@ -2,8 +2,7 @@ import { Task, UnknownError } from '@ts-task/task';
 import * as fs from 'fs';
 import { readdir } from '../ts-task-fs/readdir.js';
 import { stat } from '../ts-task-fs/stat.js';
-import { flatten } from 'underscore';
-
+import * as A from 'effect/Array';
 interface WalkDirOptions {
     exclude?: string | string[];
 }
@@ -44,7 +43,7 @@ function doWalkDir (dir: string, options?: WalkDirOptions): Task<string[], NodeJ
                     .chain(checkIsDirectory(filename, options))
             );
         }
-        return Task.all(filePromises).map(x => flatten(x));
+        return Task.all(filePromises).map(x => A.flatten(x));
     });
 }
 
