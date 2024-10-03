@@ -4,7 +4,7 @@ The library will be in charge of generating and interpreting the metadata.
 {%code_todo
     "src" : "mddoc.ts",
     "ref" : {
-        "text" : "import * as mddoc from './index"
+        "text" : "import * as mddoc from \"./index"
     }
 %}
 

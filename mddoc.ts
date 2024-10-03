@@ -1,45 +1,64 @@
 // #!/usr/bin/env node
 
-import * as mddoc from './index.js';
-import { loadConfig } from './src/config.js';
-import { explain } from './src/utils/explain.js';
-import { sequence } from './src/utils/ts-task-utils/sequence.js';
-import { pick } from 'underscore';
-import { program } from 'commander';
-import { FixAnyTypeScriptVersion } from './src/utils/typescript.js';
+import * as mddoc from "./index.js";
+import { loadConfig } from "./src/config.js";
+import { toEffect } from "./src/utils/effect/ts-task.js";
+import { explain } from "./src/utils/explain.js";
+import { sequence } from "./src/utils/ts-task-utils/sequence.js";
+import { Options, Command } from "@effect/cli";
+import { NodeContext, NodeRuntime } from "@effect/platform-node";
+import { Console, Effect, pipe } from "effect";
+import * as R from "effect/Record";
 
-// Configure command line options
-program
-  .version('0.0.2')
-  .option('-i, --inputDir [dir]', 'Input dir')
-  .option('-o, --outputDir [dir]', 'Output dir')
-  .parse(process.argv);
+// Define the top-level command
+const inputDir = Options.text("inputDir").pipe(
+  Options.optional,
+  Options.withDescription("Path to the folder that has the Markdown files")
+);
+const outputDir = Options.text("outputDir").pipe(
+  Options.optional,
+  Options.withDescription("Location of the generated files")
+);
 
-const commandLineOptions = pick(program, 'inputDir', 'outputDir');
-
-// Set proccess title
-process.title = 'mddoc';
-
-// Load the program options
-loadConfig(process.cwd(), commandLineOptions as FixAnyTypeScriptVersion)
-    .chain(settings => {
+const command = Command.make("hello-world", { inputDir, outputDir }, (args) => {
+  return pipe(
+    toEffect(
+      loadConfig(
+        process.cwd(),
+        R.getSomes({
+          inputDir: args.inputDir,
+          outputDir: args.outputDir,
+        })
+      ).chain((settings) => {
         // Initialize the mddoc steps
         const mgr = mddoc.initialize(settings);
 
         // Indicate which steps to run
         const steps = [
-            mddoc.readMarkdown(settings, mgr),
-            mddoc.readCode(settings, mgr),
-            mddoc.saveMetadata(settings, mgr),
-            mddoc.replaceReferences(mgr),
-            mddoc.generateOutput,
-            mddoc.reportNotFound(mgr)
+          mddoc.readMarkdown(settings, mgr),
+          mddoc.readCode(settings, mgr),
+          mddoc.saveMetadata(settings, mgr),
+          mddoc.replaceReferences(mgr),
+          mddoc.generateOutput,
+          mddoc.reportNotFound(mgr),
         ];
 
         // Run each step
         return sequence(steps);
+      })
+    ),
+    Effect.tapBoth({
+      onFailure: (err) => Console.error(explain(err)),
+      onSuccess: () => Console.log("Program finished"),
     })
-    .fork(
-        error => console.error(explain(error)),
-        _ => console.log('Program finished')
-    );
+  );
+});
+
+// Set up the CLI application
+const cli = Command.run(command, {
+  name: "mddoc",
+  version: "0.0.2",
+});
+
+// Prepare and run the CLI application
+cli(process.argv).pipe(Effect.provide(NodeContext.layer), NodeRuntime.runMain);
