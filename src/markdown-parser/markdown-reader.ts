@@ -2,6 +2,7 @@ import { Task } from "@ts-task/task";
 import { VerboseSettings } from "../../index.js";
 import { walkDir } from "../utils/ts-task-fs-utils/walk-dir.js";
 import { MarkdownFileReader } from "./markdown-file-reader.js";
+import { EventPromiseMixin } from "../EventPromise.js";
 
 export type MarkdownReaderSettings = {
   inputDir: string;
@@ -12,7 +13,7 @@ export type MarkdownReaderSettings = {
  * Walks the documentation folder, also known as input dir, and parses the markdown files
  * in it
  */
-export function parseMarkdownFiles(settings: MarkdownReaderSettings, store: any) {
+export function parseMarkdownFiles(settings: MarkdownReaderSettings, store: EventPromiseMixin) {
   // Walk the input dir recursively, get a list of all files
   return walkDir(settings.inputDir, { exclude: settings.inputExclude }).chain((files) => {
     const mdre = /(.*)\.md$/;
