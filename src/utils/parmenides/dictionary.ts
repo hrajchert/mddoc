@@ -1,17 +1,10 @@
-import {
-  Contract,
-  obj,
-  ParmenidesError,
-  ParmenidesObjOfError,
-} from "parmenides";
+import { Contract, obj, ParmenidesError, ParmenidesObjOfError } from "parmenides";
 
 export interface Dictionary<T> {
   [key: string]: T;
 }
 
-export const dictionaryOf = <T>(
-  contract: Contract<T>,
-): Contract<Dictionary<T>> => {
+export const dictionaryOf = <T>(contract: Contract<T>): Contract<Dictionary<T>> => {
   return (dictionary: Dictionary<T>) => {
     obj(dictionary);
     for (const key in dictionary) {

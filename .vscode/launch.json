@@ -12,7 +12,9 @@
             "program": "${workspaceFolder}/ts-dist/mddoc.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
-            ]
+            ],
+            "console": "integratedTerminal", // Use integrated terminal for console output
+            "internalConsoleOptions": "openOnSessionStart" // Open console on start
         }
     ]
 }

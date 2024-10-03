@@ -5,9 +5,7 @@ import { markdown } from "markdown";
 const getHtml = (metadata: Metadata) => (mdTemplate: string) => {
   let tree;
   if (!metadata.jsonml.hasOwnProperty(mdTemplate)) {
-    throw new Error(
-      "We Couldn't find a md template with the name " + mdTemplate,
-    );
+    throw new Error("We Couldn't find a md template with the name " + mdTemplate);
   }
   try {
     tree = markdown.toHTMLTree(metadata.jsonml[mdTemplate]);

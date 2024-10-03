@@ -26,14 +26,8 @@ interface CustomGeneratorSettings extends BaseGeneratorSettings {
 }
 
 export default {
-  createGenerator: function (
-    metadata: Metadata,
-    projectSettings: Settings,
-    generatorSettings: unknown,
-  ) {
-    return new CustomGenerator(
-      fromUnknown(settingsContract)(generatorSettings),
-    );
+  createGenerator: function (metadata: Metadata, projectSettings: Settings, generatorSettings: unknown) {
+    return new CustomGenerator(fromUnknown(settingsContract)(generatorSettings));
   },
   contract: settingsContract,
 };
@@ -73,9 +67,7 @@ class HtmlWriterFile {
   render() {
     const self = this;
     return Task.resolve(this)
-      .map(({ inputFile, helpers }) =>
-        this.renderer.render(inputFile, { mddoc: helpers }),
-      )
+      .map(({ inputFile, helpers }) => this.renderer.render(inputFile, { mddoc: helpers }))
       .chain((html) => writeFileCreateDir(self.outputFile, html))
       .map(tap((_) => console.log(green("We wrote ") + grey(self.outputFile))));
   }
@@ -112,11 +104,7 @@ class CustomGenerator {
       // Create the object in charge of rendering the html
       const renderObject = new HtmlWriterFile({
         inputFile: self.generatorSettings.files[i] + ".tpl",
-        outputFile:
-          self.generatorSettings.outputDir +
-          "/" +
-          self.generatorSettings.files[i] +
-          ".html",
+        outputFile: self.generatorSettings.outputDir + "/" + self.generatorSettings.files[i] + ".html",
         renderer: self.renderer,
       });
 

@@ -40,8 +40,7 @@ export class CodeFinderQueryJsText implements IQueriable {
    * @return integer      The number of visited nodes to find the min one
    */
   findMinNode(node: ts.Node, path: ts.Node[]) {
-    if (typeof this.queryRange === "undefined")
-      throw "queryRange should be defined";
+    if (typeof this.queryRange === "undefined") throw "queryRange should be defined";
     const nodeRange = [node.pos, node.end] as IRange;
 
     if (isOutOfRange(nodeRange, this.queryRange)) {

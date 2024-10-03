@@ -24,12 +24,7 @@ type EventPromiseMap = Record<EventName, Record<HandlerName, Handler>>;
 // TODO: Remove the Mixin and just use a class.
 export type EventPromiseMixin = {
   _eventPromise?: EventPromiseMap;
-  on: (
-    eventName: EventName,
-    handlerName: HandlerName,
-    handler: HandlerFn,
-    dependencies?: string[],
-  ) => EventPromiseMixin;
+  on: (eventName: EventName, handlerName: HandlerName, handler: HandlerFn, dependencies?: string[]) => EventPromiseMixin;
   trigger: (eventName: EventName, data?: unknown) => Promise<unknown>;
 };
 
@@ -46,25 +41,14 @@ function _getEventPromise(obj: EventPromiseMixin): EventPromiseMap {
   return obj._eventPromise;
 }
 
-function on(
-  this: EventPromiseMixin,
-  eventName: string,
-  handlerName: string,
-  handler: HandlerFn,
-  dependencies: string[] = [],
-) {
+function on(this: EventPromiseMixin, eventName: string, handlerName: string, handler: HandlerFn, dependencies: string[] = []) {
   var ep = _getEventPromise(this);
 
   if (!ep.hasOwnProperty(eventName)) {
     ep[eventName] = {};
   }
   if (ep[eventName].hasOwnProperty(handlerName)) {
-    throw new Error(
-      "The object already has a handler called " +
-        handlerName +
-        " for the event " +
-        eventName,
-    );
+    throw new Error("The object already has a handler called " + handlerName + " for the event " + eventName);
   }
   ep[eventName][handlerName] = {
     fn: handler,
@@ -89,11 +73,7 @@ class EventHandlerTriggerer {
   }
 }
 
-async function trigger(
-  this: FixAnyUsingClass,
-  eventName: EventName,
-  data: unknown,
-): Promise<unknown> {
+async function trigger(this: FixAnyUsingClass, eventName: EventName, data: unknown): Promise<unknown> {
   var ep = _getEventPromise(this);
 
   // If we don't have an event listenin, do nothing
@@ -131,11 +111,7 @@ async function trigger(
       deps.push(promises[dep].promise);
     }
 
-    var eht = new EventHandlerTriggerer(
-      handlers[handlerName].fn,
-      handlerName,
-      data,
-    );
+    var eht = new EventHandlerTriggerer(handlers[handlerName].fn, handlerName, data);
     // When all the dependencies have been met, execute the handler
     var p = Promise.all(deps).then(eht.trigger.bind(eht));
     // and resolve its promise

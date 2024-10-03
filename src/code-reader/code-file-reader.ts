@@ -2,10 +2,7 @@ import { Task } from "@ts-task/task";
 import * as ts from "typescript";
 import { InverseReference } from "../metadata-manager.js";
 import { readFile } from "../utils/ts-task-fs/read-file.js";
-import {
-  CodeFinderQueryJsText,
-  isTextQuery,
-} from "./code-finder-query-js-text.js";
+import { CodeFinderQueryJsText, isTextQuery } from "./code-finder-query-js-text.js";
 import { CodeFinderQueryLine, isLineQuery } from "./code-finder-query-line.js";
 import { IQueriable, IRange } from "./reader-utils.js";
 
@@ -117,9 +114,7 @@ export class CodeFileReader {
               codeFinder = new CodeFinderQueryJsText(this, ref.query);
             }
 
-            this.results[refhash] = codeFinder
-              ? codeFinder.execute()
-              : { found: false, reason: "Invalid query type" };
+            this.results[refhash] = codeFinder ? codeFinder.execute() : { found: false, reason: "Invalid query type" };
             // console.log("This is the result:".red);
             // console.log(this.results[refhash].snippet);
           }
@@ -151,11 +146,7 @@ export class CodeFileReader {
       this.md5 = crypto.createHash("md5").update(this.source).digest("hex");
 
       // TODO: maybe change this only if needed.
-      this.AST = ts.createSourceFile(
-        this.src,
-        source.toString(),
-        ts.ScriptTarget.Latest,
-      );
+      this.AST = ts.createSourceFile(this.src, source.toString(), ts.ScriptTarget.Latest);
 
       return this;
     });

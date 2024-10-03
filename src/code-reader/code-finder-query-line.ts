@@ -35,9 +35,7 @@ export class CodeFinderQueryLine implements IQueriable {
     }
 
     if (this.firstLine > this.lastLine) {
-      throw new Error(
-        "Last line number cannot be bigger than first line number",
-      );
+      throw new Error("Last line number cannot be bigger than first line number");
     }
   }
 

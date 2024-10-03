@@ -22,16 +22,11 @@ export function walkDir(dir: string, options?: WalkDirOptions) {
  * needed to have both methods as this recursiveness doesn't provide a flattened
  * array
  */
-function doWalkDir(
-  dir: string,
-  options?: WalkDirOptions,
-): Task<string[], NodeJS.ErrnoException | UnknownError> {
+function doWalkDir(dir: string, options?: WalkDirOptions): Task<string[], NodeJS.ErrnoException | UnknownError> {
   // Get all the files (including subdirectories)
   return readdir(dir).chain((files) => {
     // An array of tasks of the file stat (to see if we need to recurse or not)
-    const filePromises: Array<
-      Task<string[], NodeJS.ErrnoException | UnknownError>
-    > = [];
+    const filePromises: Array<Task<string[], NodeJS.ErrnoException | UnknownError>> = [];
 
     // For each file, check if directory. If it is, recurse, if not
     // boom.
@@ -42,9 +37,7 @@ function doWalkDir(
         continue;
       }
       // Check if it is a directory or not
-      filePromises.push(
-        stat(filename).chain(checkIsDirectory(filename, options)),
-      );
+      filePromises.push(stat(filename).chain(checkIsDirectory(filename, options)));
     }
     return Task.all(filePromises).map((x) => A.flatten(x));
   });
@@ -67,8 +60,7 @@ function isFileExcluded(file: string, options?: WalkDirOptions) {
   let isExcluded = false;
   if (typeof options === "undefined") return false;
   if (typeof options.exclude !== "undefined") {
-    const exclude =
-      typeof options.exclude === "string" ? [options.exclude] : options.exclude;
+    const exclude = typeof options.exclude === "string" ? [options.exclude] : options.exclude;
 
     exclude.forEach((exc) => {
       if (file.match(exc)) {

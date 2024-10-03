@@ -59,10 +59,7 @@ export interface FoundMarkdownReference extends BaseMarkdownReference {
     to: number;
   };
 }
-export type MarkdownReference =
-  | PendingMarkdownReference
-  | FoundMarkdownReference
-  | NotFoundMarkdownReference;
+export type MarkdownReference = PendingMarkdownReference | FoundMarkdownReference | NotFoundMarkdownReference;
 
 /**
  * Class that reads a markdown file and gets references to the code out of it
@@ -105,10 +102,7 @@ export class MarkdownFileReader {
         console.log(yellow("parsing ") + grey(self.completeFileName));
       }
       // Get an md5 of the md file
-      self.filehash = crypto
-        .createHash("md5")
-        .update(markdownFile)
-        .digest("hex");
+      self.filehash = crypto.createHash("md5").update(markdownFile).digest("hex");
 
       // Parse the markdown into JsonML
       self.jsonml = markdown.parse(markdownFile, "miMkd");
@@ -145,16 +139,11 @@ export class MarkdownFileReader {
 
         // Each attribute must have a src and a ref
         // TODO: add parmenides to check the reference is correct
-        if (
-          typeof attr.src === "undefined" ||
-          typeof attr.ref === "undefined"
-        ) {
+        if (typeof attr.src === "undefined" || typeof attr.ref === "undefined") {
           throw new Error("Invalid reference\n" + mlBlock[1]);
         }
 
-        const referingBlocks: number = attr.hasOwnProperty("referingBlocks")
-          ? attr.referingBlocks
-          : 1;
+        const referingBlocks: number = attr.hasOwnProperty("referingBlocks") ? attr.referingBlocks : 1;
         let referencingMl: JSonML | null = null;
         if (blockNumber > referingBlocks) {
           referencingMl = [];

@@ -37,9 +37,7 @@ export async function registerGenerator(name: string, genpath: string) {
   const factory: GeneratorFactory = module.default;
 
   if (!("createGenerator" in factory)) {
-    throw new Error(
-      `Module ${genpath} doesn't have a createGenerator exported`
-    );
+    throw new Error(`Module ${genpath} doesn't have a createGenerator exported`);
   }
 
   registeredGenerators[name] = factory;
@@ -76,10 +74,7 @@ export class GeneratorManager {
     }
     // If not, try to see if there is a npm dependency with that name
     else {
-      genpath = normalizeProjectGeneratorPath(
-        `./node_modules/${generatorType}`,
-        basePath
-      );
+      genpath = normalizeProjectGeneratorPath(`./node_modules/${generatorType}`, basePath);
       try {
         console.log("findGeneratorFactory", generatorType, genpath);
         generator = await registerGenerator(generatorType, genpath);
@@ -109,17 +104,10 @@ export class GeneratorManager {
       const generatorSettings = projectSettings.generators[generatorName];
 
       // Find the constructor
-      const generatorFactory = await this.findGeneratorFactory(
-        generatorSettings.generatorType,
-        projectSettings.basePath
-      );
+      const generatorFactory = await this.findGeneratorFactory(generatorSettings.generatorType, projectSettings.basePath);
 
       // Instantiate it
-      const generatorObject = generatorFactory.createGenerator(
-        metadata,
-        projectSettings,
-        generatorSettings
-      );
+      const generatorObject = generatorFactory.createGenerator(metadata, projectSettings, generatorSettings);
 
       // Add it to the generator instance list
       this.generators.push({
@@ -129,9 +117,7 @@ export class GeneratorManager {
       });
     }
     // Sort them by priority
-    this.generators.sort(
-      (a, b) => b.generatorSettings.priority - a.generatorSettings.priority
-    );
+    this.generators.sort((a, b) => b.generatorSettings.priority - a.generatorSettings.priority);
   }
 
   generate() {
@@ -152,12 +138,5 @@ export function getGeneratorManager() {
 }
 
 // Use dynamic imports for registering generators
-await registerGenerator(
-  "custom",
-  new URL("./custom/custom-generator.js", import.meta.url).pathname
-);
-await registerGenerator(
-  "html-fragment",
-  new URL("./html-fragment/html-fragment-generator.js", import.meta.url)
-    .pathname
-);
+await registerGenerator("custom", new URL("./custom/custom-generator.js", import.meta.url).pathname);
+await registerGenerator("html-fragment", new URL("./html-fragment/html-fragment-generator.js", import.meta.url).pathname);

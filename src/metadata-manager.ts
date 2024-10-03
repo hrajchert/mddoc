@@ -16,9 +16,7 @@ import { EventPromiseMixin } from "./EventPromise.js";
 const { green, grey } = colors;
 
 // TODO: convert any to unknown and check stuff. This structure is holding other stuff as well (refhash??)
-export type JSonML = Array<
-  string | any[] | { refhash?: string; id?: string; class?: string }
->;
+export type JSonML = Array<string | any[] | { refhash?: string; id?: string; class?: string }>;
 
 export type Directive = "code_inc" | "code_ref" | "code_todo" | "code_warning";
 
@@ -134,9 +132,7 @@ export function saveMetadataTo(metadata: Metadata, outputDir?: string) {
   const metadataFileName = outputDir + "/metadata.json";
   const metadataStr = JSON.stringify(metadata, null, "    ");
   return writeFileCreateDir(metadataFileName, metadataStr).map(
-    tap((_) =>
-      console.log(green("Metadata written to ") + grey(metadataFileName))
-    )
+    tap((_) => console.log(green("Metadata written to ") + grey(metadataFileName))),
   );
 }
 
@@ -152,39 +148,13 @@ export class MetadataManager {
 
   constructor() {
     this.eventPromise = EventPromise.create();
-    this.eventPromise.on(
-      "md-file-parsed",
-      "createJsonMLMetadata",
-      this.createJsonMLMetadata.bind(this)
-    );
-    this.eventPromise.on(
-      "md-file-parsed",
-      "createHrMdMetadata",
-      this.createHrMdMetadata.bind(this)
-    );
-    this.eventPromise.on(
-      "md-file-parsed",
-      "createHrCodeMetadata",
-      this.createHrCodeMetadata.bind(this)
-    );
+    this.eventPromise.on("md-file-parsed", "createJsonMLMetadata", this.createJsonMLMetadata.bind(this));
+    this.eventPromise.on("md-file-parsed", "createHrMdMetadata", this.createHrMdMetadata.bind(this));
+    this.eventPromise.on("md-file-parsed", "createHrCodeMetadata", this.createHrCodeMetadata.bind(this));
 
-    this.eventPromise.on(
-      "code-file-read",
-      "updateHrMdMetadata",
-      this.updateHrMdMetadata.bind(this),
-      ["updateHrCodeMetadata"]
-    );
-    this.eventPromise.on(
-      "code-file-read",
-      "updateHrCodeMetadata",
-      this.updateHrCodeMetadata.bind(this)
-    );
-    this.eventPromise.on(
-      "code-file-read",
-      "updateNotFound",
-      this.updateNotFound.bind(this),
-      ["updateHrCodeMetadata"]
-    );
+    this.eventPromise.on("code-file-read", "updateHrMdMetadata", this.updateHrMdMetadata.bind(this), ["updateHrCodeMetadata"]);
+    this.eventPromise.on("code-file-read", "updateHrCodeMetadata", this.updateHrCodeMetadata.bind(this));
+    this.eventPromise.on("code-file-read", "updateNotFound", this.updateNotFound.bind(this), ["updateHrCodeMetadata"]);
 
     // Make sure the jsonml doesn't get saved into disk
     Object.defineProperty(this.metadata, "jsonml", { enumerable: false });
@@ -210,8 +180,7 @@ export class MetadataManager {
       throw new Error("mdFileReader must be an instance of MarkdownFileReader");
     }
     // The jsonml goes directly
-    this.metadata.jsonml[mdFileReader.plainFileName] =
-      mdFileReader.jsonml as JSonML;
+    this.metadata.jsonml[mdFileReader.plainFileName] = mdFileReader.jsonml as JSonML;
   }
 
   /**
@@ -301,9 +270,7 @@ export class MetadataManager {
    */
   createHrCodeMetadata(mdFileReader: unknown) {
     if (!(mdFileReader instanceof MarkdownFileReader)) {
-      throw new Error(
-        "Invalid argument: mdFileReader must be an instance of MarkdownFileReader"
-      );
+      throw new Error("Invalid argument: mdFileReader must be an instance of MarkdownFileReader");
     }
 
     const refs = mdFileReader.getReferences();
@@ -353,9 +320,7 @@ export class MetadataManager {
 
   updateHrCodeMetadata(codeFileReader: unknown) {
     if (!(codeFileReader instanceof CodeFileReader)) {
-      throw new Error(
-        "Invalid argument: codeFileReader must be an instance of CodeFileReader"
-      );
+      throw new Error("Invalid argument: codeFileReader must be an instance of CodeFileReader");
     }
 
     // Update the hrCode part

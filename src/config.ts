@@ -1,14 +1,5 @@
 import { Task, UnknownError } from "@ts-task/task";
-import {
-  arrOf,
-  bool,
-  num,
-  objOf,
-  optional,
-  ParmenidesError,
-  str,
-  union,
-} from "parmenides";
+import { arrOf, bool, num, objOf, optional, ParmenidesError, str, union } from "parmenides";
 import { getGeneratorManager } from "./generator/generator-manager.js";
 import { renderError } from "./utils/explain.js";
 import { objMap } from "./utils/obj-map.js";
@@ -143,9 +134,7 @@ function validateGenerators(config: ContractOf<typeof loadedSettingsContract>) {
     // In case you want to have two instances of the same generator
     const generatorType = generator.generatorType || genName;
     const priority = generator.priority || DEFAULT_PRIORITY;
-    const generatorFactory = Task.fromPromise(
-      getGeneratorManager().findGeneratorFactory(generatorType, basePath),
-    );
+    const generatorFactory = Task.fromPromise(getGeneratorManager().findGeneratorFactory(generatorType, basePath));
     return generatorFactory.chain((factory) =>
       validateContract(factory.contract)({
         ...generator,
@@ -183,13 +172,7 @@ export function loadConfig(path: string, overrides: Overrides) {
 
 export class ErrorLoadingConfig {
   type = "ErrorLoadingConfig";
-  constructor(
-    private error:
-      | string
-      | UnknownError
-      | ParmenidesError
-      | GeneratorConfigError,
-  ) {}
+  constructor(private error: string | UnknownError | ParmenidesError | GeneratorConfigError) {}
 
   explain() {
     let ans = `There was a problem loading the settings: `;

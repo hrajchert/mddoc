@@ -23,16 +23,8 @@ interface HtmlFragmentGeneratorSettings extends BaseGeneratorSettings {
 }
 
 export default {
-  createGenerator: function (
-    metadata: Metadata,
-    projectSettings: Settings,
-    generatorSettings: unknown,
-  ) {
-    return new HtmlFragmentGenerator(
-      metadata,
-      projectSettings,
-      fromUnknown(settingsContract)(generatorSettings),
-    );
+  createGenerator: function (metadata: Metadata, projectSettings: Settings, generatorSettings: unknown) {
+    return new HtmlFragmentGenerator(metadata, projectSettings, fromUnknown(settingsContract)(generatorSettings));
   },
   contract: settingsContract,
 };
@@ -55,11 +47,9 @@ export class HtmlFragmentGenerator {
         const tree = markdown.toHTMLTree(self.metadata.jsonml[mdTemplate]);
         const html = markdown.renderJsonML(tree);
 
-        const outputFilename =
-          self.generatorSettings.outputDir + "/" + mdTemplate + ".html";
+        const outputFilename = self.generatorSettings.outputDir + "/" + mdTemplate + ".html";
         // mhmhmh TODO: This is sooo hardcoded
-        self.metadata.renderedFragments[mdTemplate] =
-          "fragment/" + mdTemplate + ".html";
+        self.metadata.renderedFragments[mdTemplate] = "fragment/" + mdTemplate + ".html";
 
         tasks.push(writeFileCreateDir(outputFilename, html));
       } catch (e) {

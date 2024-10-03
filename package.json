@@ -20,7 +20,8 @@
     "start": "tsc && node  --experimental-vm-modules ts-dist/mddoc.js",
     "test": "tsc && node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "tdd": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "serve-docs": "npx http-server ./dist/custom-generator"
+    "serve-docs": "npx http-server ./dist/custom-generator",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
     "@effect/cli": "^0.45.2",

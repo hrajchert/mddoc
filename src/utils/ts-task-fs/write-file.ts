@@ -8,11 +8,7 @@ export interface IWriteFileOptions {
   flag?: string;
 }
 
-export function writeFile(
-  path: string,
-  data: string | Buffer,
-  options: WriteFileOptions = {},
-) {
+export function writeFile(path: string, data: string | Buffer, options: WriteFileOptions = {}) {
   return new Task<void, NodeJS.ErrnoException>((resolve, reject) => {
     fs.writeFile(path, data, options, (err) => {
       if (err) {

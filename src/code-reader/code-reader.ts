@@ -3,11 +3,7 @@ import { VerboseSettings } from "../../index.js";
 import { Metadata } from "../metadata-manager.js";
 import { CodeFileReader } from "./code-file-reader.js";
 
-export function readCodeReferences(
-  metadata: Metadata,
-  settings: VerboseSettings,
-  store: any,
-) {
+export function readCodeReferences(metadata: Metadata, settings: VerboseSettings, store: any) {
   const hrCode = metadata.hrCode;
 
   const files = Object.keys(hrCode);
@@ -24,13 +20,9 @@ export function readCodeReferences(
         .read()
         // Then update the metadata out of it
         // TODO: Replace with redux
-        .chain((reader) =>
-          Task.fromPromise(store.trigger("code-file-read", reader)),
-        )
+        .chain((reader) => Task.fromPromise(store.trigger("code-file-read", reader)))
         // If anything fails, append the failing reader
-        .catch((error) =>
-          Task.reject(new CodeReaderError(error, codeFileReader)),
-        )
+        .catch((error) => Task.reject(new CodeReaderError(error, codeFileReader)))
     );
   });
   return Task.all(tasks);
