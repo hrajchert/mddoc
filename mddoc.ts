@@ -7,50 +7,46 @@ import { explain } from "./src/utils/explain.js";
 import { sequence } from "./src/utils/ts-task-utils/sequence.js";
 import { Options, Command } from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
-import { Console, Effect, pipe } from "effect";
+import { Console, Effect, pipe, Option } from "effect";
 import * as R from "effect/Record";
 
 // Define the top-level command
 const inputDir = Options.text("inputDir").pipe(
   Options.optional,
-  Options.withDescription("Path to the folder that has the Markdown files")
+  Options.withDescription("Path to the folder that has the Markdown files"),
 );
-const outputDir = Options.text("outputDir").pipe(
-  Options.optional,
-  Options.withDescription("Location of the generated files")
-);
+const outputDir = Options.text("outputDir").pipe(Options.optional, Options.withDescription("Location of the generated files"));
 
-const command = Command.make("hello-world", { inputDir, outputDir }, (args) => {
+const command = Command.make("mddoc", { inputDir, outputDir }, (args) => {
   return pipe(
-    toEffect(
-      loadConfig(
-        process.cwd(),
-        R.getSomes({
-          inputDir: args.inputDir,
-          outputDir: args.outputDir,
-        })
-      ).chain((settings) => {
-        // Initialize the mddoc steps
-        const mgr = mddoc.initialize(settings);
+    Effect.gen(function* () {
+      const cliOptions = R.getSomes({
+        inputDir: args.inputDir,
+        outputDir: args.outputDir,
+      });
 
-        // Indicate which steps to run
-        const steps = [
-          mddoc.readMarkdown(settings, mgr),
-          mddoc.readCode(settings, mgr),
-          mddoc.saveMetadata(settings, mgr),
-          mddoc.replaceReferences(mgr),
-          mddoc.generateOutput,
-          mddoc.reportNotFound(mgr),
-        ];
+      const config = yield* loadConfig(process.cwd(), cliOptions);
 
-        // Run each step
-        return sequence(steps);
-      })
-    ),
+      // Initialize the mddoc steps
+      const mgr = mddoc.initialize(config);
+
+      // Indicate which steps to run
+      const steps = [
+        mddoc.readMarkdown(config, mgr),
+        mddoc.readCode(config, mgr),
+        mddoc.saveMetadata(config, mgr),
+        mddoc.replaceReferences(mgr),
+        mddoc.generateOutput,
+        mddoc.reportNotFound(mgr),
+      ];
+
+      // Run each step
+      yield* toEffect(sequence(steps));
+    }),
     Effect.tapBoth({
       onFailure: (err) => Console.error(explain(err)),
-      onSuccess: () => Console.log("Program finished"),
-    })
+      onSuccess: () => Console.log("MDDoc finished successfully 🎉"),
+    }),
   );
 });
 

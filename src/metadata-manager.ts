@@ -123,13 +123,11 @@ export interface Metadata {
 }
 
 export interface MetadataManagerSettings {
-  outputDir?: string;
+  outputDir: string;
 }
 
-export function saveMetadataTo(metadata: Metadata, outputDir?: string) {
-  // TODO: Remove optional
-  if (typeof outputDir === "undefined") throw "outputDir shouldnt be undefined";
-  const metadataFileName = outputDir + "/metadata.json";
+export function saveMetadataTo(metadata: Metadata, outputDir: string) {
+  const metadataFileName = `${outputDir}/metadata.json`;
   const metadataStr = JSON.stringify(metadata, null, "    ");
   return writeFileCreateDir(metadataFileName, metadataStr).map(
     tap((_) => console.log(green("Metadata written to ") + grey(metadataFileName))),

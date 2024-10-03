@@ -10,7 +10,8 @@ import colors from "colors";
 
 const GeneratorManager = getGeneratorManager();
 
-// TODO: Library shouldnt have colors
+// TODO: Library shouldnt have unix colors, I should use a data type for
+//       enhanced messages, with formatting.
 const { red, grey } = colors;
 
 export interface VerboseSettings {

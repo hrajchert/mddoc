@@ -8,6 +8,7 @@ import { Dictionary, dictionaryOf } from "./utils/parmenides/dictionary.js";
 import { validateContract } from "./utils/parmenides/validate-contract.js";
 import { findup } from "./utils/ts-task-fs-utils/findup.js";
 import { traverseDictionary } from "./utils/ts-task-utils/traverse-dictionary.js";
+import { toEffect } from "./utils/effect/ts-task.js";
 
 const DEFAULT_PRIORITY = 100;
 
@@ -154,7 +155,7 @@ type Overrides = Omit<Partial<Settings>, "generators">;
 
 export function loadConfig(path: string, overrides: Overrides) {
   // Find the closest config file
-  return (
+  return toEffect(
     readAndValidateConfigFile(path)
       // Override the config using the overrides
       .map((config) => ({
@@ -166,7 +167,7 @@ export function loadConfig(path: string, overrides: Overrides) {
       // Make sure that all values are set
       .chain(validateContract(settingsContract))
       // If anything goes wrong, wrap it in an ErrorLoadingConfig object
-      .catch((err) => Task.reject(new ErrorLoadingConfig(err)))
+      .catch((err) => Task.reject(new ErrorLoadingConfig(err))),
   ); // TODO: candidate to mapError
 }
 
