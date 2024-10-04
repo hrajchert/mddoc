@@ -1,4 +1,4 @@
-import { Metadata } from "./metadata-manager.js";
+import { Metadata } from "./metadata/metadata-manager.js";
 /*
 Este archivo muestra claramente cual es el problema de la metadata como "variable global"
 Para hacer el unit test tengo que precargar hrMd y jsonml, cuando en realidad yo requiero de

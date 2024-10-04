@@ -1,18 +1,18 @@
 import * as crypto from "crypto";
-import { CodeFileReader } from "./code-reader/code-file-reader.js";
-import { IFileReaderQuery } from "./code-reader/code-finder-query-js-text.js";
-import { ICodeFinderLineQuery } from "./code-reader/code-finder-query-line.js";
+import { CodeFileReader } from "../code-reader/code-file-reader.js";
+import { IFileReaderQuery } from "../code-reader/code-finder-query-js-text.js";
+import { ICodeFinderLineQuery } from "../code-reader/code-finder-query-line.js";
 import {
   FoundMarkdownReference,
   MarkdownFileReader,
   MarkdownReference,
   NotFoundMarkdownReference,
-} from "./markdown-parser/index.js";
-import { tap } from "./utils/tap.js";
-import { writeFileCreateDir } from "./utils/ts-task-fs-utils/write-file-create-dir.js";
+} from "../markdown-parser/index.js";
+import { tap } from "../utils/tap.js";
+import { writeFileCreateDir } from "../utils/ts-task-fs-utils/write-file-create-dir.js";
 import colors from "colors";
-import * as EventPromise from "./EventPromise.js";
-import { EventPromiseMixin } from "./EventPromise.js";
+import * as EventPromise from "../EventPromise.js";
+import { EventPromiseMixin } from "../EventPromise.js";
 const { green, grey } = colors;
 
 // TODO: convert any to unknown and check stuff. This structure is holding other stuff as well (refhash??)

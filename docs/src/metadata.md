@@ -6,7 +6,7 @@ directives. For now the solution is to have it duplicated, but I should go in fa
 the directive in O(1), or think if I really really need to have both hrCode and hrDoc.
 
 {%code_todo
-    "src" : "src/metadata-manager.ts",
+    "src" : "src/metadata/metadata-manager.ts",
     "ref" : {
         "text" : "directive: ref.directive"
     }
@@ -17,7 +17,7 @@ the directive in O(1), or think if I really really need to have both hrCode and 
 See if its necesary or even convenient to have this new type of structure
 
 {%code_todo
-    "src" : "src/metadata-manager.ts",
+    "src" : "src/metadata/metadata-manager.ts",
     "ref" : {
         "text" : "metadata.notFound.push"
     }

@@ -1,7 +1,7 @@
 import { Task } from "@ts-task/task";
 import { Contract, num, objOf, str } from "parmenides";
 import { BaseGeneratorSettings, Settings } from "../../config.js";
-import { Metadata } from "../../metadata-manager.js";
+import { Metadata } from "../../metadata/metadata-manager.js";
 import { fromUnknown } from "../../utils/parmenides/from-unknown.js";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/write-file-create-dir.js";
 import colors from "colors";

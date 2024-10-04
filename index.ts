@@ -4,7 +4,7 @@ import { CodeReaderError, readCodeReferences } from "./src/code-reader/code-read
 import { Settings } from "./src/config.js";
 import { getGeneratorManager } from "./src/generator/generator-manager.js";
 import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from "./src/markdown-parser/markdown-reader.js";
-import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from "./src/metadata-manager.js";
+import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from "./src/metadata/metadata-manager.js";
 import { renderError } from "./src/utils/explain.js";
 import colors from "colors";
 

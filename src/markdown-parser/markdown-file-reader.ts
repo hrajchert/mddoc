@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-import { Directive, JSonML, RefQuery } from "../metadata-manager.js";
+import { Directive, JSonML, RefQuery } from "../metadata/metadata-manager.js";
 import { readFile } from "../utils/ts-task-fs/read-file.js";
 
 // @ts-expect-error TODO: Update markdown to markdown-it or similar

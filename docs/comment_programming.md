@@ -318,7 +318,7 @@ or if is fine to leave it here.
 {:.alert .alert-danger }
 
 {%code_warning
-    "src" : "src/metadata-manager.ts",
+    "src" : "src/metadata/metadata-manager.ts",
     "ref" : {
         "text" : "hrCode.refs[refhash].snippet = snippet;"
     }
