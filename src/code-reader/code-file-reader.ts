@@ -1,6 +1,6 @@
 import { Task } from "@ts-task/task";
 import * as ts from "typescript";
-import { InverseReference } from "../metadata/metadata-manager.js";
+import { InverseReference } from "../metadata/metadata.js";
 import { readFile } from "../utils/ts-task-fs/read-file.js";
 import { CodeFinderQueryJsText, isTextQuery } from "./code-finder-query-js-text.js";
 import { CodeFinderQueryLine, isLineQuery } from "./code-finder-query-line.js";

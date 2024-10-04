@@ -1,7 +1,7 @@
 import { Task, UnknownError } from "@ts-task/task";
 import { arrOf, bool, Contract, num, objOf, str } from "parmenides";
 import { BaseGeneratorSettings, Settings } from "../../config.js";
-import { Metadata } from "../../metadata/metadata-manager.js";
+import { Metadata } from "../../metadata/metadata.js";
 import { fromUnknown } from "../../utils/parmenides/from-unknown.js";
 import { tap } from "../../utils/tap.js";
 import { copyDir } from "../../utils/ts-task-fs-utils/copy-dir.js";

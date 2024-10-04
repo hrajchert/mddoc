@@ -1,6 +1,6 @@
 import { Task, UnknownError } from "@ts-task/task";
 import { BaseGeneratorSettings, Settings } from "../config.js";
-import { Metadata } from "../metadata/metadata-manager.js";
+import { Metadata } from "../metadata/metadata.js";
 
 import * as path from "path";
 import { sequence } from "../utils/ts-task-utils/sequence.js";
