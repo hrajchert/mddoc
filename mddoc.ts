@@ -38,6 +38,7 @@ const command = Command.make("mddoc", { inputDir, outputDir }, (args) => {
         mddoc.replaceReferences(mgr),
         mddoc.generateOutput,
         mddoc.reportNotFound(mgr),
+        mddoc.reportStats(mgr),
       ];
 
       // Run each step

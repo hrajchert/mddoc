@@ -7,12 +7,13 @@ import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from 
 import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from "./src/metadata/metadata-manager.js";
 import { renderError } from "./src/utils/explain.js";
 import colors from "colors";
+import { calculateStats } from "./src/metadata/stats.js";
 
 const GeneratorManager = getGeneratorManager();
 
 // TODO: Library shouldnt have unix colors, I should use a data type for
 //       enhanced messages, with formatting.
-const { red, grey } = colors;
+const { red, grey, green, blue, yellow } = colors;
 
 export interface VerboseSettings {
   verbose: boolean;
@@ -131,6 +132,34 @@ export function reportNotFound(metadataMgr: MetadataManager) {
         .join("\n\n");
       console.log(notFoundMessages);
     }
+    return Task.resolve(void 0);
+  };
+}
+
+export function reportStats(metadataMgr: MetadataManager) {
+  return () => {
+    const stats = calculateStats(metadataMgr.getPlainMetadata());
+    console.log(green("\nMDDoc Stats:"));
+    console.log(
+      blue(" - Analyzed Files:    ") +
+        yellow(stats.analyzedFiles.toString()) +
+        grey(" (Total number of markdown files analyzed)"),
+    );
+    console.log(
+      blue(" - Referencing Files: ") +
+        yellow(stats.referencingFiles.toString()) +
+        grey(" (Number of markdown files with at least one reference)"),
+    );
+    console.log(
+      blue(" - Total References:  ") +
+        yellow(stats.references.toString()) +
+        grey(" (Total number of references across all markdown files)"),
+    );
+    console.log(
+      blue(" - Not Found References: ") +
+        yellow(stats.notFoundReferences.toString()) +
+        grey(" (Number of references that were not found)"),
+    );
     return Task.resolve(void 0);
   };
 }
