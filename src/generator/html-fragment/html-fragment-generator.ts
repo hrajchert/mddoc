@@ -1,21 +1,22 @@
 import { Task } from "@ts-task/task";
-import { Contract, num, objOf, str } from "parmenides";
 import { BaseGeneratorSettings, Settings } from "../../config.js";
 import { Metadata } from "../../metadata/metadata.js";
-import { fromUnknown } from "../../utils/parmenides/from-unknown.js";
+import { fromUnknownWithSchema } from "../../utils/parmenides/from-unknown.js";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/write-file-create-dir.js";
 import colors from "colors";
+import * as S from "@effect/schema/Schema";
+import { Schema } from "@effect/schema/Schema";
 
 // TODO: remove
 // @ts-expect-error TODO: Update markdown to markdown-it or similar
 import { markdown } from "markdown";
-// TODO: remove
+// TODO: remove and use something like @effect/printer
 const { red } = colors;
 
-const settingsContract: Contract<HtmlFragmentGeneratorSettings> = objOf({
-  outputDir: str,
-  priority: num,
-  generatorType: str,
+const settingsSchema: Schema<HtmlFragmentGeneratorSettings> = S.Struct({
+  outputDir: S.String,
+  priority: S.Number,
+  generatorType: S.String,
 });
 
 interface HtmlFragmentGeneratorSettings extends BaseGeneratorSettings {
@@ -24,9 +25,10 @@ interface HtmlFragmentGeneratorSettings extends BaseGeneratorSettings {
 
 export default {
   createGenerator: function (metadata: Metadata, projectSettings: Settings, generatorSettings: unknown) {
-    return new HtmlFragmentGenerator(metadata, projectSettings, fromUnknown(settingsContract)(generatorSettings));
+    // TODO: Use Effect to remove fromUnknownWithSchema
+    return new HtmlFragmentGenerator(metadata, projectSettings, fromUnknownWithSchema(settingsSchema)(generatorSettings));
   },
-  contract: settingsContract,
+  schema: settingsSchema,
 };
 
 export class HtmlFragmentGenerator {

@@ -1,8 +1,10 @@
-import { Contract } from "parmenides";
-import { AnyWontFix } from "../typescript.js";
-// TODO: Delete this in favour of Effect schemas.
-export function fromUnknown<T>(contract: Contract<T>) {
+import * as S from "@effect/schema/Schema";
+import { Schema } from "@effect/schema/Schema";
+import { Effect } from "effect";
+
+// TODO: Remove this and use Effect instead.
+export function fromUnknownWithSchema<T>(schema: Schema<T>) {
   return (value: unknown): T => {
-    return contract(value as AnyWontFix);
+    return Effect.runSync(S.decodeUnknown(schema)(value));
   };
 }

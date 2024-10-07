@@ -11,3 +11,15 @@ export type FixAnyTypeScriptVersion = any;
  * pointing to the eventual changes to be made.
  */
 export type AnyWontFix = any;
+
+/**
+ * A type function that prettifies type aliases using the intersection (&) operator.
+ * It simplifies intersections of object types by merging their properties.
+ */
+export type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
+
+// Example usage:
+// type Messy = { a: string } & { b: number } & { c: boolean };
+// type Clean = Prettify<Messy>; // { a: string; b: number; c: boolean }

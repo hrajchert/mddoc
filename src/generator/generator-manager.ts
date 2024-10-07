@@ -5,14 +5,15 @@ import { Metadata } from "../metadata/metadata.js";
 import * as path from "path";
 import { sequence } from "../utils/ts-task-utils/sequence.js";
 
-import { Contract } from "parmenides";
 import * as GeneratorHelperManager from "./generator-helper-manager.js";
 import { FixAnyTypeScriptVersion } from "../utils/typescript.js";
+import { Schema } from "@effect/schema/Schema";
 
 interface Generator {
   generate: (helpers?: unknown) => Task<void, UnknownError>;
 }
 
+// TODO: Move to a plugin interface file.
 interface GeneratorFactory {
   /**
    * Method to create a Generator
@@ -20,9 +21,9 @@ interface GeneratorFactory {
   createGenerator: Function;
 
   /**
-   * Contract to see if the generator settings are the correct ones
+   * Schema to see if the generator settings are the correct ones
    */
-  contract: Contract<BaseGeneratorSettings>;
+  schema: Schema<BaseGeneratorSettings>;
 }
 
 /**

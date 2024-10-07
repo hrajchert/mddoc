@@ -1,31 +1,33 @@
-import { Task, UnknownError } from "@ts-task/task";
-import { arrOf, bool, num, objOf, optional, ParmenidesError, str, union } from "parmenides";
 import { getGeneratorManager } from "./generator/generator-manager.js";
 import { renderError } from "./utils/explain.js";
-import { objMap } from "./utils/obj-map.js";
-import { ContractOf } from "./utils/parmenides/contract-of.js";
-import { Dictionary, dictionaryOf } from "./utils/parmenides/dictionary.js";
-import { validateContract } from "./utils/parmenides/validate-contract.js";
 import { findup } from "./utils/ts-task-fs-utils/findup.js";
-import { traverseDictionary } from "./utils/ts-task-utils/traverse-dictionary.js";
 import { toEffect } from "./utils/effect/ts-task.js";
+import { Schema } from "@effect/schema/Schema";
+import * as S from "@effect/schema/Schema";
+import { Console, Effect, pipe } from "effect";
+import * as R from "effect/Record";
+import { ParseError } from "@effect/schema/ParseResult";
 
 const DEFAULT_PRIORITY = 100;
 
-const settingsContract = objOf({
-  inputDir: str,
-  outputDir: str,
-  basePath: str,
-  verbose: bool,
-  inputExclude: optional(union(str, arrOf(str))),
-  generators: dictionaryOf(
-    objOf({
-      generatorType: str,
-      priority: num,
-      outputDir: str,
+// This schema is used to validate the final settings object.
+// It is used after the config file is read, the cli arguments are parsed
+// and its a final check to all the required settings are present.
+const settingsSchema = S.Struct({
+  inputDir: S.String,
+  outputDir: S.String,
+  basePath: S.String,
+  verbose: S.Boolean,
+  inputExclude: S.optional(S.Union(S.String, S.Array(S.String))),
+  generators: S.Record({
+    key: S.String,
+    value: S.Struct({
+      generatorType: S.String,
+      priority: S.Number,
+      outputDir: S.String,
     }),
-  ),
-});
+  }),
+}).annotations({ title: "Settings" });
 
 export interface BaseGeneratorSettings {
   generatorType: string;
@@ -50,7 +52,7 @@ export interface Settings {
   /**
    * Regexp to exclude some of the files in the input. TODO: revisit this
    */
-  inputExclude?: string | string[];
+  inputExclude?: string | readonly string[] | undefined;
   // end Markdown Reader
 
   /**
@@ -61,7 +63,7 @@ export interface Settings {
   /**
    * A list of generators that indicate how the program should be "printed"
    */
-  generators: Dictionary<BaseGeneratorSettings>;
+  generators: Record<string, BaseGeneratorSettings>;
 
   /**
    * The base path of the project
@@ -72,116 +74,144 @@ export interface Settings {
 
 function requireConfigFile(dir: string) {
   const configFile = dir + "/Mddocfile.js";
-  return new Task<unknown, string>(async (resolve, reject) => {
-    try {
-      const config = await import(configFile);
-      resolve(config.default());
-    } catch (err) {
-      // TODO: improve this error message by using a custom error class
-      //       that includes the file name and the error stack.
-      reject("Could not require the config file");
-    }
+  return Effect.tryPromise({
+    try: () => import(configFile).then((x) => x.default()),
+    catch: (err) => new ConfigFileError(`Could not require the config file: ${err}`),
   });
 }
 
-const loadedSettingsContract = objOf({
-  inputDir: str,
-  outputDir: str,
-  basePath: optional(str),
-  verbose: optional(bool),
-  inputExclude: optional(union(str, arrOf(str))),
-  generators: optional(
-    dictionaryOf(
-      objOf({
-        generatorType: optional(str),
-        priority: optional(num),
-        outputDir: optional(str),
+// This schema is used to validate the config file.
+const configFileSettings = S.Struct({
+  inputDir: S.String,
+  outputDir: S.String,
+  basePath: S.optional(S.String),
+  verbose: S.optional(S.Boolean),
+  inputExclude: S.optional(S.Union(S.String, S.Array(S.String))),
+  generators: S.optional(
+    S.Record({
+      key: S.String,
+      value: S.Struct({
+        generatorType: S.optional(S.String),
+        priority: S.optional(S.Number),
+        outputDir: S.optional(S.String),
       }),
-    ),
+    }),
   ),
-});
+}).annotations({ title: "ConfigFileSettings" });
+
+type ConfigFileSettings = Schema.Type<typeof configFileSettings>;
 
 function readAndValidateConfigFile(path: string) {
   // Find the closest config file
-  return (
-    findup(path, "Mddocfile.js")
-      // If we cannot find it, transform the error to a message
-      .catch((_) => Task.reject("Could not find Mddocfile.js")) // TODO: candidate to mapError
-      // Load the file
-      .chain(requireConfigFile)
-      // Validate it has the minumu required settings
-      // and if other values are provided, they have the correct type
-      .chain(validateContract(loadedSettingsContract))
+  return pipe(
+    toEffect(findup(path, "Mddocfile.js")),
+    Effect.mapError((_) => new ConfigFileError("Could not find Mddocfile.js")),
+    Effect.andThen((path) => requireConfigFile(path)),
+    Effect.andThen(S.decodeUnknown(configFileSettings, { onExcessProperty: "preserve" })),
+    Effect.catchTag("ParseError", (err) => Effect.fail(new ErrorParsingConfigFile(err))),
   );
 }
 
-class GeneratorConfigError {
-  constructor(
-    public name: string,
-    public err: ParmenidesError,
-  ) {}
-  explain() {
-    return `Invalid configuration for generator type "${this.name}": ${this.err.getMessage()}`;
-  }
-}
-
-function validateGenerators(config: ContractOf<typeof loadedSettingsContract>) {
+function validateGenerators(config: ConfigFileSettings) {
   const basePath = config.basePath || process.cwd();
   const generators = config.generators || {};
 
-  // const basePath = config.basePath
-  const tasks = objMap(generators, (generator, genName) => {
-    // By default, the generator type is the name, but you can override it in the options
-    // In case you want to have two instances of the same generator
-    const generatorType = generator.generatorType || genName;
-    const priority = generator.priority || DEFAULT_PRIORITY;
-    const generatorFactory = Task.fromPromise(getGeneratorManager().findGeneratorFactory(generatorType, basePath));
-    return generatorFactory.chain((factory) =>
-      validateContract(factory.contract)({
-        ...generator,
-        priority,
-        generatorType,
-      }).catch((err) => Task.reject(new GeneratorConfigError(genName, err))),
-    ); // TODO: mapError
-  });
-  return traverseDictionary(tasks).map((generators) => ({
-    ...config,
-    basePath,
+  const tasks = pipe(
     generators,
-  }));
+    R.map((generator, genName) =>
+      Effect.gen(function* () {
+        // By default, the generator type is the name, but you can override it in the options
+        // In case you want to have two instances of the same generator
+        const generatorType = generator.generatorType || genName;
+        const priority = generator.priority || DEFAULT_PRIORITY;
+        const generatorFactory = yield* Effect.promise(() => getGeneratorManager().findGeneratorFactory(generatorType, basePath));
+        const generatorSettings = yield* pipe(
+          {
+            ...generator,
+            priority,
+            generatorType,
+          },
+          S.decodeUnknown(generatorFactory.schema, { onExcessProperty: "preserve" }),
+          Effect.mapError((err) => new GeneratorConfigError(genName, err)),
+        );
+        return generatorSettings;
+      }),
+    ),
+  );
+  return pipe(
+    Effect.all(tasks),
+    Effect.andThen((generators) => ({
+      ...config,
+      basePath,
+      generators,
+    })),
+  );
 }
 
 type Overrides = Omit<Partial<Settings>, "generators">;
 
-export function loadConfig(path: string, overrides: Overrides) {
+export function loadConfig(
+  path: string,
+  overrides: Overrides,
+  // TODO: Use a single englobing error here. (I Think ErrorLoadingConfig)
+): Effect.Effect<Settings, ConfigFileError | ErrorParsingConfigFile | ErrorLoadingConfig> {
   // Find the closest config file
-  return toEffect(
-    readAndValidateConfigFile(path)
-      // Override the config using the overrides
-      .map((config) => ({
-        ...config,
-        ...overrides,
-      }))
-      // Valiedate each validator with it's custom settings contract
-      .chain(validateGenerators)
-      // Make sure that all values are set
-      .chain(validateContract(settingsContract))
-      // If anything goes wrong, wrap it in an ErrorLoadingConfig object
-      .catch((err) => Task.reject(new ErrorLoadingConfig(err))),
-  ); // TODO: candidate to mapError
+  return Effect.gen(function* () {
+    const fileConfig = yield* readAndValidateConfigFile(path);
+    const config = {
+      ...fileConfig,
+      ...overrides,
+    };
+
+    const configWithGenerators = yield* validateGenerators(config);
+
+    const finalConfig = yield* Effect.mapError(
+      S.decodeUnknown(settingsSchema)(configWithGenerators, { onExcessProperty: "preserve" }),
+      (err) => new ErrorLoadingConfig(err),
+    );
+    return finalConfig;
+  });
+}
+
+// TODO: Improve these errors
+class ErrorParsingConfigFile {
+  _tag = "ErrorParsingConfigFile";
+  constructor(public err: ParseError) {}
+  explain() {
+    return `Error parsing the config file: ${this.err.message}`;
+  }
+}
+
+class ConfigFileError {
+  _tag = "ConfigFileError";
+  constructor(public err: string) {}
+  explain() {
+    return `Error reading the config file: ${this.err}`;
+  }
+}
+
+class GeneratorConfigError {
+  _tag = "GeneratorConfigError";
+  constructor(
+    public name: string,
+    public err: ParseError,
+  ) {}
+  explain() {
+    return `Invalid configuration for generator type "${this.name}": ${this.err.message}`;
+  }
 }
 
 export class ErrorLoadingConfig {
   type = "ErrorLoadingConfig";
-  constructor(private error: string | UnknownError | ParmenidesError | GeneratorConfigError) {}
+  constructor(private error: string | ParseError | GeneratorConfigError) {}
 
   explain() {
     let ans = `There was a problem loading the settings: `;
     const error = this.error;
     if (typeof error === "string") {
       ans += error;
-    } else if (error instanceof ParmenidesError) {
-      ans += error.getMessage();
+    } else if (error instanceof ParseError) {
+      ans += error.message;
     } else if (error instanceof GeneratorConfigError) {
       ans += error.explain();
     } else {

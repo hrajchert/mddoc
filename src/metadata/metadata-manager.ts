@@ -210,8 +210,10 @@ export class MetadataManager {
 
     // Update the hrCode part
     const hrCode = this.metadata.hrCode[codeFileReader.src];
-
-    hrCode.filehash = codeFileReader.md5;
+    // TODO: See if we should error if md5 is not present
+    if (codeFileReader.md5) {
+      hrCode.filehash = codeFileReader.md5;
+    }
     for (const refhash in codeFileReader.results) {
       const result = codeFileReader.results[refhash];
       hrCode.refs[refhash].found = result.found;

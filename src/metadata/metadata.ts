@@ -1,8 +1,6 @@
 import { IFileReaderQuery } from "../code-reader/code-finder-query-js-text.js";
 import { ICodeFinderLineQuery } from "../code-reader/code-finder-query-line.js";
 import { MarkdownReference } from "../markdown-parser/index.js";
-import colors from "colors";
-const { green, grey } = colors;
 
 // TODO: JSonML should be in a markdown parsing folder and in here we should have a mddoc DSL instead.
 // TODO: convert any to unknown and check stuff. This structure is holding other stuff as well (refhash??)

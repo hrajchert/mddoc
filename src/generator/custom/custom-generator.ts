@@ -1,35 +1,38 @@
 import { Task, UnknownError } from "@ts-task/task";
-import { arrOf, bool, Contract, num, objOf, str } from "parmenides";
 import { BaseGeneratorSettings, Settings } from "../../config.js";
 import { Metadata } from "../../metadata/metadata.js";
-import { fromUnknown } from "../../utils/parmenides/from-unknown.js";
+import { fromUnknownWithSchema } from "../../utils/parmenides/from-unknown.js";
 import { tap } from "../../utils/tap.js";
 import { copyDir } from "../../utils/ts-task-fs-utils/copy-dir.js";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/write-file-create-dir.js";
 import colors from "colors";
 // @ts-expect-error: Check if ECT has types or if it is a better alternative
 import ECT from "ect";
-const settingsContract: Contract<CustomGeneratorSettings> = objOf({
-  generatorType: str,
-  priority: num,
-  templateDir: str,
-  outputDir: str,
-  copyAssets: bool,
-  files: arrOf(str),
-});
+import * as S from "@effect/schema/Schema";
+import { Schema } from "@effect/schema/Schema";
+
+const settingsSchema: Schema<CustomGeneratorSettings> = S.Struct({
+  generatorType: S.String,
+  priority: S.Number,
+  templateDir: S.String,
+  outputDir: S.String,
+  copyAssets: S.Boolean,
+  files: S.Array(S.String),
+}).annotations({ title: "CustomGeneratorSettings" });
 
 interface CustomGeneratorSettings extends BaseGeneratorSettings {
   templateDir: string;
   outputDir: string;
   copyAssets: boolean;
-  files: string[];
+  files: readonly string[];
 }
-
+// TODO: Create an interface for the Plugin type import
 export default {
+  // TODO: Return Effect so we can avoid `fromUnknownWithSchema`
   createGenerator: function (metadata: Metadata, projectSettings: Settings, generatorSettings: unknown) {
-    return new CustomGenerator(fromUnknown(settingsContract)(generatorSettings));
+    return new CustomGenerator(fromUnknownWithSchema(settingsSchema)(generatorSettings));
   },
-  contract: settingsContract,
+  schema: settingsSchema,
 };
 
 const { green, grey } = colors;
