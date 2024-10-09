@@ -1,7 +1,7 @@
 import { Task } from "@ts-task/task";
 import { BaseGeneratorSettings, Settings } from "../../config.js";
 import { Metadata } from "../../metadata/metadata.js";
-import { fromUnknownWithSchema } from "../../utils/parmenides/from-unknown.js";
+import { fromUnknownWithSchema } from "../../utils/effect/from-unknown.js";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/write-file-create-dir.js";
 import colors from "colors";
 import * as S from "@effect/schema/Schema";

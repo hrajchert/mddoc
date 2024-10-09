@@ -5,7 +5,7 @@ import { readFile } from "../utils/ts-task-fs/read-file.js";
 // @ts-expect-error TODO: Update markdown to markdown-it or similar
 import { markdown } from "markdown";
 import colors from "colors";
-import { fromUnknownWithSchema } from "../utils/parmenides/from-unknown.js";
+import { fromUnknownWithSchema } from "../utils/effect/from-unknown.js";
 import { CodeReferenceAttr, isCodeReference, JSonML, JSonMLNode, JSonMLSchema } from "./jsonml.js";
 
 const { yellow, grey } = colors;
@@ -141,12 +141,6 @@ export class MarkdownFileReader {
         // Get the attributes from the jsonml
 
         const attr = fromUnknownWithSchema(CodeReferenceAttr)(JSON.parse("{" + mlBlock[1] + "}"));
-
-        // Each attribute must have a src and a ref
-        // TODO: add parmenides to check the reference is correct
-        if (typeof attr.src === "undefined" || typeof attr.ref === "undefined") {
-          throw new Error("Invalid reference\n" + mlBlock[1]);
-        }
 
         const referingBlocks =
           attr.hasOwnProperty("referingBlocks") && typeof attr.referingBlocks === "number" ? attr.referingBlocks : 1;

@@ -33,7 +33,6 @@
     "effect": "^3.8.4",
     "findup": "^0.1.5",
     "markdown": "~0.5.0",
-    "parmenides": "0.0.2",
     "pretty-error": "^4.0.0",
     "typescript": "^5.6.2"
   },
