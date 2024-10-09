@@ -1,9 +1,9 @@
 import { Task } from "@ts-task/task";
-import { VerboseSettings } from "../../index.js";
 import { walkDir } from "../utils/ts-task-fs-utils/walk-dir.js";
 import { MarkdownFileReader } from "./markdown-file-reader.js";
 import { EventPromiseMixin } from "../EventPromise.js";
 import { Prettify } from "../utils/typescript.js";
+import { VerboseSettings } from "../lib/index.js";
 
 export type MarkdownReaderSettings = Prettify<
   VerboseSettings & {

@@ -1,13 +1,13 @@
 import { Task, UnknownError } from "@ts-task/task";
-import { includeCode } from "./src/code-includer.js";
-import { CodeReaderError, readCodeReferences } from "./src/code-reader/code-reader.js";
-import { Settings } from "./src/config.js";
-import { getGeneratorManager } from "./src/generator/generator-manager.js";
-import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from "./src/markdown-parser/markdown-reader.js";
-import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from "./src/metadata/metadata-manager.js";
-import { renderError } from "./src/utils/explain.js";
+import { includeCode } from "../code-includer.js";
+import { CodeReaderError, readCodeReferences } from "../code-reader/code-reader.js";
+import { Settings } from "../config.js";
+import { getGeneratorManager } from "../generator/generator-manager.js";
+import { MarkdownReaderError, MarkdownReaderSettings, parseMarkdownFiles } from "../markdown-parser/markdown-reader.js";
+import { MetadataManager, MetadataManagerSettings, saveMetadataTo } from "../metadata/metadata-manager.js";
+import { renderError } from "../utils/explain.js";
 import colors from "colors";
-import { calculateStats } from "./src/metadata/stats.js";
+import { calculateStats } from "../metadata/stats.js";
 
 const GeneratorManager = getGeneratorManager();
 

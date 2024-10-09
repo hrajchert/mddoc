@@ -1,13 +1,13 @@
 // #!/usr/bin/env node
 
-import * as mddoc from "./index.js";
-import { loadConfig } from "./src/config.js";
-import { toEffect } from "./src/utils/effect/ts-task.js";
-import { explain } from "./src/utils/explain.js";
-import { sequence } from "./src/utils/ts-task-utils/sequence.js";
+import * as mddoc from "../lib/index.js";
+import { loadConfig } from "../config.js";
+import { toEffect } from "../utils/effect/ts-task.js";
+import { explain } from "../utils/explain.js";
+import { sequence } from "../utils/ts-task-utils/sequence.js";
 import { Options, Command } from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
-import { Console, Effect, pipe, Option } from "effect";
+import { Console, Effect, pipe } from "effect";
 import * as R from "effect/Record";
 
 // Define the top-level command

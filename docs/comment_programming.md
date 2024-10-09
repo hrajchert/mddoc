@@ -1,12 +1,3 @@
-Eventually this will be separated between library and application, for now they are together for simplicity.
-The library will be in charge of generating and interpreting the metadata.
-
-{%code_todo
-    "src" : "mddoc.ts",
-    "ref" : {
-        "text" : "import * as mddoc from \"./index"
-    }
-%}
 
 For now the tool part should have a flow like this
 

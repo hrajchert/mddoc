@@ -1,5 +1,5 @@
 import { Task } from "@ts-task/task";
-import { VerboseSettings } from "../../index.js";
+import { VerboseSettings } from "../lib/index.js";
 import { Metadata } from "../metadata/metadata.js";
 import { CodeFileReader } from "./code-file-reader.js";
 import { EventPromiseMixin } from "../EventPromise.js";
