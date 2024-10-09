@@ -124,7 +124,7 @@ app.directive("conceptMap", function($state) {
             }, {
                 title: "Markdown Parser",
                 description: "File that parses markdown",
-                fragment: "src/md_parser",
+                fragment: "src/markdown-parser",
                 pos: {
                     x: "25%",
                     y: "75%"
@@ -133,7 +133,7 @@ app.directive("conceptMap", function($state) {
             {
                 title: "Code Reader",
                 description: "File that reads code.",
-                fragment: "src/CodeReader.js",
+                fragment: "src/code-reader",
                 pos: {
                     x: "75%",
                     y: "75%"

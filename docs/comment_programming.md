@@ -1,4 +1,6 @@
+This document describes several aspects of the `mddoc` tool. It is intended to guide the development of the tool.
 
+## General flow
 For now the tool part should have a flow like this
 
 1. Read the configuration *done*{: .done }
@@ -19,22 +21,9 @@ to read the Markdowns we need to
 1. Parse the markdown         *done*{: .done }
 1. Interpret the JsonML     *done*{: .done }
 
-en la interpretacion del JsonML se construye una intencion de leer archivos de codigo
+While we interpret the JSonML we build a plan to read the code.
 
-En principio hablo de swapear la metadata y de leer la metadata anterior porque siento que la **generacion** de la documentacion
-debe ser un proceso "comiteable". Pero con un concepto de comit mas arriba que el comit the git/svn. Me gustaria en principio que cada
-vez que se corra la documentacion se genere en un lugar temporal, y solo si se corre como `mddoc --save` o algo asi, se salve la metadata
-y se empieze a fijar el tema de los cambios.
-
-
-*Deberia poder regenerar la documentación solamente leyendo la metadata? Osea, sin releer ni los archivos ni el codigo?*{: .question}
-
-Por un lado suena interesante como concepto, pero trae como problema que tendria que guardar el JsonML como metadata tmb, cosa que no quiero hacer.
-Si no guardo el JsonML tendria que estar fijandome si el archivo en el cual estoy basado, cambio o no. Osea, en un principio parece que no.
-{: .answer}
-
-Acordarse de guardar por archivo el hash del archivo para ver si tiene que volverse a procesar o no.
-
+I mention "swap" the metadata because I want the **generation** to be a commitable process.
 
 
 ## Read the configuration
@@ -377,3 +366,12 @@ No se si ya lo puse en otro lado, pero queria recordarme que quiero guardar hash
 
 Tener en cuenta esto para hacer diffs
 https://github.com/kpdecker/jsdiff
+
+
+### Questions
+
+*Should I be able to regenerate the documentation just by reading the metadata? I mean, without reading the files or the code?*{: .question}
+
+On one hand it sounds interesting as a concept, but it brings problems like I would have to save the JsonML as metadata too, which I don't want to do.
+If I don't save the JsonML I would have to be looking at the files to see if the source base changed or not.
+{: .answer}

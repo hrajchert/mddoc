@@ -9,7 +9,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/ts-dist/mddoc.js",
+            "program": "${workspaceFolder}/ts-dist/cli/mddoc.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],
