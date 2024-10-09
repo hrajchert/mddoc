@@ -1,15 +1,14 @@
-import { isObject } from "../utils/is-object.js";
 import { CodeFileReader, IFindResult } from "./code-file-reader.js";
 import { IQueriable, IRange } from "./reader-utils.js";
-
+import * as S from "@effect/schema/Schema";
 // The starting and ending line to reference separated by a dash (ex "2-24")
 export interface ICodeFinderLineQuery {
   line: string; // '2-14'
 }
 
-export function isLineQuery(query: unknown): query is ICodeFinderLineQuery {
-  return isObject(query) && query.hasOwnProperty("line");
-}
+export const ICodeFinderLineQuerySchema = S.Struct({ line: S.String });
+
+export const isLineQuery = S.is(ICodeFinderLineQuerySchema);
 
 export class CodeFinderQueryLine implements IQueriable {
   firstLine: number;

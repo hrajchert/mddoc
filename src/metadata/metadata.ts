@@ -1,10 +1,7 @@
 import { IFileReaderQuery } from "../code-reader/code-finder-query-js-text.js";
 import { ICodeFinderLineQuery } from "../code-reader/code-finder-query-line.js";
 import { MarkdownReference } from "../markdown-parser/index.js";
-
-// TODO: JSonML should be in a markdown parsing folder and in here we should have a mddoc DSL instead.
-// TODO: convert any to unknown and check stuff. This structure is holding other stuff as well (refhash??)
-export type JSonML = Array<string | any[] | { refhash?: string; id?: string; class?: string }>;
+import { JSonML } from "../markdown-parser/jsonml.js";
 
 export type Directive = "code_inc" | "code_ref" | "code_todo" | "code_warning";
 
@@ -81,6 +78,10 @@ interface NotFoundReference {
 }
 
 export interface Metadata {
+  // TODO: I think the metadata should be conformed by the plugins adding data. So
+  //       this should probably be added from a plugin.
+  // NOTE: This the parsed Markdown files from the markdown-parser with the code-includer references replaced.
+
   // The JsonML that later on will become the HTML
   jsonml: {
     [plainFileName: string]: JSonML;

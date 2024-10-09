@@ -9,21 +9,17 @@ otro que me de los bloques de codigo a remplazar
 export function includeCode(metadata: Metadata) {
   for (const mdFile in metadata.hrMd) {
     const refs = metadata.hrMd[mdFile].refs;
-    const what = Object.keys(refs);
-    for (let i = 0; i < what.length; i++) {
+    for (let i = 0; i < refs.length; i++) {
       const ref = refs[i];
       if (ref.status === "found" && ref.directive === "code_inc") {
         // TODO: add an includer / formatter
         const snippet = metadata.hrCode[ref.src].refs[ref.refhash].snippet;
-        ref.jsonml[0] = "code_block";
-        ref.jsonml[1] = snippet;
+        ref.jsonml = ["code_block", snippet];
       } else if (
         ref.status === "found" &&
         (ref.directive === "code_ref" || ref.directive === "code_todo" || ref.directive === "code_warning")
       ) {
-        ref.jsonml[0] = "div";
-        ref.jsonml[1] = { id: ref.refhash, class: "code_ref" };
-        ref.jsonml[2] = "";
+        ref.jsonml = ["div", { id: ref.refhash, class: "code_ref" }, ""];
       }
     }
   }

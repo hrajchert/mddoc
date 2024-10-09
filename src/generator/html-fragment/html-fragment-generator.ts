@@ -42,7 +42,6 @@ export class HtmlFragmentGenerator {
     const tasks: ReturnType<typeof writeFileCreateDir>[] = [];
 
     self.metadata.renderedFragments = {};
-
     // For each markdown, create the html fragment
     for (const mdTemplate in self.metadata.jsonml) {
       try {

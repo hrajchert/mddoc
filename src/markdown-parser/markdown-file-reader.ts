@@ -1,10 +1,12 @@
 import * as crypto from "crypto";
-import { Directive, JSonML, RefQuery } from "../metadata/metadata.js";
+import { Directive, RefQuery } from "../metadata/metadata.js";
 import { readFile } from "../utils/ts-task-fs/read-file.js";
 
 // @ts-expect-error TODO: Update markdown to markdown-it or similar
 import { markdown } from "markdown";
 import colors from "colors";
+import { fromUnknownWithSchema } from "../utils/parmenides/from-unknown.js";
+import { CodeReferenceAttr, isCodeReference, JSonML, JSonMLNode, JSonMLSchema } from "./jsonml.js";
 
 const { yellow, grey } = colors;
 
@@ -39,8 +41,8 @@ export interface BaseMarkdownReference {
   directive: Directive;
 
   // TODO: this dont end up in the saved file, should model it another way
-  jsonml: JSonML;
-  refMl: JSonML;
+  jsonml: JSonMLNode;
+  refMl: JSonMLNode[];
 }
 
 export interface PendingMarkdownReference extends BaseMarkdownReference {
@@ -123,6 +125,9 @@ export class MarkdownFileReader {
   private _doGetReferences(jsonml?: JSonML) {
     if (typeof jsonml === "undefined") throw "jsonml shouldnt be undefined";
 
+    // Validate that jsonml is valid. Normally I would re-assing but there is something
+    // failing when I do that.
+    fromUnknownWithSchema(JSonMLSchema)(jsonml);
     const references: MarkdownReference[] = [];
     // For each markdown block
     for (let blockNumber = 1; blockNumber < jsonml.length; blockNumber++) {
@@ -132,10 +137,10 @@ export class MarkdownFileReader {
         continue;
       }
       // See if this block is a code reference block
-      if (mlBlock[0] === "code_reference") {
+      if (isCodeReference(mlBlock)) {
         // Get the attributes from the jsonml
 
-        const attr = JSON.parse("{" + mlBlock[1] + "}");
+        const attr = fromUnknownWithSchema(CodeReferenceAttr)(JSON.parse("{" + mlBlock[1] + "}"));
 
         // Each attribute must have a src and a ref
         // TODO: add parmenides to check the reference is correct
@@ -143,13 +148,11 @@ export class MarkdownFileReader {
           throw new Error("Invalid reference\n" + mlBlock[1]);
         }
 
-        const referingBlocks: number = attr.hasOwnProperty("referingBlocks") ? attr.referingBlocks : 1;
-        let referencingMl: JSonML | null = null;
+        const referingBlocks =
+          attr.hasOwnProperty("referingBlocks") && typeof attr.referingBlocks === "number" ? attr.referingBlocks : 1;
+        let referencingMl: JSonMLNode[] | null = null;
         if (blockNumber > referingBlocks) {
-          referencingMl = [];
-          for (let i = blockNumber - referingBlocks; i < blockNumber; i++) {
-            referencingMl.push(jsonml[i]);
-          }
+          referencingMl = jsonml.slice(blockNumber - referingBlocks, blockNumber) as JSonMLNode[];
         }
 
         // Interpret the reference

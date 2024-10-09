@@ -27,6 +27,6 @@ Improve the error handling when the block is not valid JSON
     "src" : "src/markdown-parser/markdown-file-reader.ts",
     "priority" : 3,
     "ref" : {
-        "text" : "const attr = JSON.parse"
+        "text" : "const attr = fromUnknownWithSchema(CodeReferenceAttr)"
     }
 %}

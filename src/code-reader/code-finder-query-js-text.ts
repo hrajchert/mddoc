@@ -1,7 +1,7 @@
 import * as ts from "typescript";
-import { isObject } from "../utils/is-object.js";
 import { CodeFileReader, IFindResult } from "./code-file-reader.js";
 import { IQueriable, IRange, isOutOfRange } from "./reader-utils.js";
+import * as S from "@effect/schema/Schema";
 
 /**
  * This is a plain text search in the document.
@@ -10,9 +10,9 @@ export interface IFileReaderQuery {
   text: string;
 }
 
-export function isTextQuery(query: unknown): query is IFileReaderQuery {
-  return isObject(query) && query.hasOwnProperty("text");
-}
+export const IFileReaderQuerySchema = S.Struct({ text: S.String });
+
+export const isTextQuery = S.is(IFileReaderQuerySchema);
 
 export class CodeFinderQueryJsText implements IQueriable {
   queryRange?: IRange;

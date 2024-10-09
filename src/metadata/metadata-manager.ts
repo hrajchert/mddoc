@@ -6,7 +6,8 @@ import { writeFileCreateDir } from "../utils/ts-task-fs-utils/write-file-create-
 import colors from "colors";
 import * as EventPromise from "../EventPromise.js";
 import { EventPromiseMixin } from "../EventPromise.js";
-import { JSonML, Metadata } from "./metadata.js";
+import { Metadata } from "./metadata.js";
+import { JSonML } from "../markdown-parser/jsonml.js";
 const { green, grey } = colors;
 
 export interface MetadataManagerSettings {

@@ -77,7 +77,6 @@ export class GeneratorManager {
     else {
       genpath = normalizeProjectGeneratorPath(`./node_modules/${generatorType}`, basePath);
       try {
-        console.log("findGeneratorFactory", generatorType, genpath);
         generator = await registerGenerator(generatorType, genpath);
       } catch (err: FixAnyTypeScriptVersion) {
         console.error(err);
