@@ -10,6 +10,7 @@ import colors from "colors";
 import ECT from "ect";
 import * as S from "@effect/schema/Schema";
 import { Schema } from "@effect/schema/Schema";
+import { FixMeAny } from "../../utils/typescript.js";
 
 const settingsSchema: Schema<CustomGeneratorSettings> = S.Struct({
   generatorType: S.String,
@@ -40,13 +41,13 @@ const { green, grey } = colors;
 interface HtmlWriterFileOptions {
   inputFile: string;
   outputFile: string;
-  renderer: any;
+  renderer: FixMeAny;
 }
 
 class HtmlWriterFile {
   inputFile: string;
   outputFile: string;
-  renderer: any;
+  renderer: FixMeAny;
   helpers: unknown;
 
   constructor(options: HtmlWriterFileOptions) {
@@ -77,7 +78,7 @@ class HtmlWriterFile {
 }
 
 class CustomGenerator {
-  renderer: any;
+  renderer: FixMeAny;
 
   constructor(private generatorSettings: CustomGeneratorSettings) {
     // TODO: this should be in the HtmlWriterFile, but i dont want to create

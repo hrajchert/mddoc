@@ -5,7 +5,7 @@ import { delay } from "./utils/promises/delay.js";
 describe("EventPromise", function () {
   describe("creation", function () {
     test("should mix on a OL", function () {
-      var obj = {};
+      const obj = {};
       EventPromise.mixin(obj);
       expect(obj).toHaveProperty("on");
       expect(obj).toHaveProperty("trigger");
@@ -13,7 +13,7 @@ describe("EventPromise", function () {
   });
 
   describe("on method", function () {
-    var obj: EventPromiseMixin;
+    let obj: EventPromiseMixin;
     beforeEach(function () {
       obj = EventPromise.create();
     });
@@ -34,7 +34,7 @@ describe("EventPromise", function () {
     });
 
     test("should call multiple handlers", function (done) {
-      var h1 = defer<number>(),
+      const h1 = defer<number>(),
         h2 = defer<string>();
 
       obj.on("myEvent", "handler1", function () {
@@ -55,7 +55,7 @@ describe("EventPromise", function () {
     });
 
     test("should call the handlers in respecting order", function (done) {
-      var handler2Called = false;
+      let handler2Called = false;
       // Define handler1 that depends on handler 2 to be called first
       obj.on(
         "myEvent",
@@ -84,7 +84,7 @@ describe("EventPromise", function () {
     });
 
     test("should return a promise that is resolved once all handlers are resolved", function (done) {
-      var h1Called = false,
+      let h1Called = false,
         h2Called = false;
 
       obj.on("myEvent", "handler1", async function () {

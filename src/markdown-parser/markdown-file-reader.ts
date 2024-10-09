@@ -143,7 +143,9 @@ export class MarkdownFileReader {
         const attr = fromUnknownWithSchema(CodeReferenceAttr)(JSON.parse("{" + mlBlock[1] + "}"));
 
         const referingBlocks =
-          attr.hasOwnProperty("referingBlocks") && typeof attr.referingBlocks === "number" ? attr.referingBlocks : 1;
+          Object.prototype.hasOwnProperty.call(attr, "referingBlocks") && typeof attr.referingBlocks === "number"
+            ? attr.referingBlocks
+            : 1;
         let referencingMl: JSonMLNode[] | null = null;
         if (blockNumber > referingBlocks) {
           referencingMl = jsonml.slice(blockNumber - referingBlocks, blockNumber) as JSonMLNode[];

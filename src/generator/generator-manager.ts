@@ -6,7 +6,6 @@ import * as path from "path";
 import { sequence } from "../utils/ts-task-utils/sequence.js";
 
 import * as GeneratorHelperManager from "./generator-helper-manager.js";
-import { FixAnyTypeScriptVersion } from "../utils/typescript.js";
 import { Schema } from "@effect/schema/Schema";
 
 interface Generator {
@@ -18,7 +17,7 @@ interface GeneratorFactory {
   /**
    * Method to create a Generator
    */
-  createGenerator: Function;
+  createGenerator: (metadata: Metadata, projectSettings: Settings, generatorSettings: unknown) => Generator;
 
   /**
    * Schema to see if the generator settings are the correct ones
@@ -78,7 +77,7 @@ export class GeneratorManager {
       genpath = normalizeProjectGeneratorPath(`./node_modules/${generatorType}`, basePath);
       try {
         generator = await registerGenerator(generatorType, genpath);
-      } catch (err: FixAnyTypeScriptVersion) {
+      } catch (err: unknown) {
         console.error(err);
         if (err instanceof Error && err.message.includes(genpath)) {
           throw new Error(`Generator ${generatorType} not defined`);

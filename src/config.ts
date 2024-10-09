@@ -4,7 +4,7 @@ import { findup } from "./utils/ts-task-fs-utils/findup.js";
 import { toEffect } from "./utils/effect/ts-task.js";
 import { Schema } from "@effect/schema/Schema";
 import * as S from "@effect/schema/Schema";
-import { Console, Effect, pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as R from "effect/Record";
 import { ParseError } from "@effect/schema/ParseResult";
 

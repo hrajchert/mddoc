@@ -62,7 +62,7 @@ export class CodeFileReader {
       throw "Source should be defined";
     }
 
-    if (!this.hasOwnProperty("_lines")) {
+    if (!Object.prototype.hasOwnProperty.call(this, "_lines")) {
       // console.log("Calculating lines!".inverse);
       const _lines = [];
       let charNumber = 0;

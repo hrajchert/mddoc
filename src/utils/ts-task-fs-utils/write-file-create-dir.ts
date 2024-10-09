@@ -54,7 +54,7 @@ const _dirsChecked: DirDictionary = {};
 
 function _createDirIfNeeded(path: string) {
   // If we have a request to check the path,  respond that directly
-  if (!_dirsChecked.hasOwnProperty(path)) {
+  if (!Object.prototype.hasOwnProperty.call(_dirsChecked, path)) {
     // If not, check and store the promise
     _dirsChecked[path] = _doCreateDirIfNeeded(path).pipe(share());
   }

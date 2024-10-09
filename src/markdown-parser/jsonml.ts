@@ -1,5 +1,5 @@
-import { IFileReaderQuery, IFileReaderQuerySchema } from "../code-reader/code-finder-query-js-text.js";
-import { ICodeFinderLineQuery, ICodeFinderLineQuerySchema } from "../code-reader/code-finder-query-line.js";
+import { IFileReaderQuerySchema } from "../code-reader/code-finder-query-js-text.js";
+import { ICodeFinderLineQuerySchema } from "../code-reader/code-finder-query-line.js";
 import * as S from "@effect/schema/Schema";
 
 function JSonMLNode<K extends string, T>(nodeName: K, schema: S.Schema<T>): S.Schema<readonly [K, ...T[]]> {

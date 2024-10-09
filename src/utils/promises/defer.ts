@@ -9,7 +9,7 @@ export type DeferredPromise<T> = {
 };
 
 export function defer<T>(): DeferredPromise<T> {
-  let deferred = {} as DeferredPromise<T>;
+  const deferred = {} as DeferredPromise<T>;
 
   const promise = new Promise<T>((res, rej) => {
     deferred.resolve = res;

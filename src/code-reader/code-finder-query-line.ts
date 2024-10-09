@@ -18,7 +18,7 @@ export class CodeFinderQueryLine implements IQueriable {
     public codeFileReader: CodeFileReader,
     query: ICodeFinderLineQuery,
   ) {
-    if (!query.hasOwnProperty("line")) {
+    if (!Object.prototype.hasOwnProperty.call(query, "line")) {
       throw new Error("Line is mandatory!");
     }
 
