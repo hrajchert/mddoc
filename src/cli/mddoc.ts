@@ -1,6 +1,6 @@
 // #!/usr/bin/env node
 
-import * as mddoc from "../lib/index.js";
+import * as mddoc from "../core/index.js";
 import { loadConfig } from "../config.js";
 import { toEffect } from "../utils/effect/ts-task.js";
 import { explain } from "../utils/explain.js";

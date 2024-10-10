@@ -3,7 +3,7 @@ import { walkDir } from "../utils/ts-task-fs-utils/walk-dir.js";
 import { MarkdownFileReader } from "./markdown-file-reader.js";
 import { EventPromiseMixin } from "../EventPromise.js";
 import { Prettify } from "../utils/typescript.js";
-import { VerboseSettings } from "../lib/index.js";
+import { VerboseSettings } from "../core/index.js";
 
 export type MarkdownReaderSettings = Prettify<
   VerboseSettings & {
