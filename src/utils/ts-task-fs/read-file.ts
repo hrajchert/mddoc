@@ -1,5 +1,7 @@
-import { Task } from "@ts-task/task";
 import * as fs from "fs";
+
+import { Task } from "@ts-task/task";
+
 import { AnyWontFix } from "../typescript.js";
 
 // This file should be removed when the code is migrated to effect

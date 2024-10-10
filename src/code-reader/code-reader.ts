@@ -1,8 +1,10 @@
 import { Task } from "@ts-task/task";
+
 import { VerboseSettings } from "../core/index.js";
-import { Metadata } from "../metadata/metadata.js";
-import { CodeFileReader } from "./code-file-reader.js";
 import { EventPromiseMixin } from "../EventPromise.js";
+import { Metadata } from "../metadata/metadata.js";
+
+import { CodeFileReader } from "./code-file-reader.js";
 
 export function readCodeReferences(metadata: Metadata, settings: VerboseSettings, store: EventPromiseMixin) {
   const hrCode = metadata.hrCode;

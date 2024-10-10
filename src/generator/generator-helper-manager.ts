@@ -1,7 +1,8 @@
-import { JSonML } from "../markdown-parser/jsonml.js";
-import { Metadata } from "../metadata/metadata.js";
 // @ts-expect-error TODO: Update markdown to markdown-it or similar
 import { markdown } from "markdown";
+
+import { JSonML } from "../markdown-parser/jsonml.js";
+import { Metadata } from "../metadata/metadata.js";
 
 const getHtml = (metadata: Metadata) => (mdTemplate: string) => {
   let tree;

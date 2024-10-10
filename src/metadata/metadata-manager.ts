@@ -1,13 +1,17 @@
 import * as crypto from "crypto";
-import { CodeFileReader } from "../code-reader/code-file-reader.js";
-import { FoundMarkdownReference, MarkdownFileReader, NotFoundMarkdownReference } from "../markdown-parser/index.js";
-import { tap } from "../utils/tap.js";
-import { writeFileCreateDir } from "../utils/ts-task-fs-utils/write-file-create-dir.js";
+
 import colors from "colors";
+
+import { CodeFileReader } from "../code-reader/code-file-reader.js";
 import * as EventPromise from "../EventPromise.js";
 import { EventPromiseMixin } from "../EventPromise.js";
-import { Metadata } from "./metadata.js";
+import { FoundMarkdownReference, MarkdownFileReader, NotFoundMarkdownReference } from "../markdown-parser/index.js";
 import { JSonML } from "../markdown-parser/jsonml.js";
+import { tap } from "../utils/tap.js";
+import { writeFileCreateDir } from "../utils/ts-task-fs-utils/write-file-create-dir.js";
+
+import { Metadata } from "./metadata.js";
+
 const { green, grey } = colors;
 
 export interface MetadataManagerSettings {

@@ -1,12 +1,13 @@
-import { getGeneratorManager } from "./generator/generator-manager.js";
-import { renderError } from "./utils/explain.js";
-import { findup } from "./utils/ts-task-fs-utils/findup.js";
-import { toEffect } from "./utils/effect/ts-task.js";
+import { ParseError } from "@effect/schema/ParseResult";
 import { Schema } from "@effect/schema/Schema";
 import * as S from "@effect/schema/Schema";
 import { Effect, pipe } from "effect";
 import * as R from "effect/Record";
-import { ParseError } from "@effect/schema/ParseResult";
+
+import { getGeneratorManager } from "./generator/generator-manager.js";
+import { toEffect } from "./utils/effect/ts-task.js";
+import { renderError } from "./utils/explain.js";
+import { findup } from "./utils/ts-task-fs-utils/findup.js";
 
 const DEFAULT_PRIORITY = 100;
 

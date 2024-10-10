@@ -1,15 +1,15 @@
+import * as S from "@effect/schema/Schema";
+import { Schema } from "@effect/schema/Schema";
 import { Task } from "@ts-task/task";
+import colors from "colors";
+// @ts-expect-error TODO: Update markdown to markdown-it or similar
+import { markdown } from "markdown";
+
 import { BaseGeneratorSettings, Settings } from "../../config.js";
 import { Metadata } from "../../metadata/metadata.js";
 import { fromUnknownWithSchema } from "../../utils/effect/from-unknown.js";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/write-file-create-dir.js";
-import colors from "colors";
-import * as S from "@effect/schema/Schema";
-import { Schema } from "@effect/schema/Schema";
 
-// TODO: remove
-// @ts-expect-error TODO: Update markdown to markdown-it or similar
-import { markdown } from "markdown";
 // TODO: remove and use something like @effect/printer
 const { red } = colors;
 

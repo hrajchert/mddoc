@@ -1,7 +1,8 @@
 import { UnknownError } from "@ts-task/task";
+import PrettyError from "pretty-error";
+
 // TODO: Remove isObject
 import { isObject } from "./is-object.js";
-import PrettyError from "pretty-error";
 
 const pe = new PrettyError();
 

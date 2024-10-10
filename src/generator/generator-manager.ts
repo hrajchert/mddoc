@@ -1,12 +1,13 @@
+import * as path from "path";
+
+import { Schema } from "@effect/schema/Schema";
 import { Task, UnknownError } from "@ts-task/task";
+
 import { BaseGeneratorSettings, Settings } from "../config.js";
 import { Metadata } from "../metadata/metadata.js";
-
-import * as path from "path";
 import { sequence } from "../utils/ts-task-utils/sequence.js";
 
 import * as GeneratorHelperManager from "./generator-helper-manager.js";
-import { Schema } from "@effect/schema/Schema";
 
 interface Generator {
   generate: (helpers?: unknown) => Task<void, UnknownError>;

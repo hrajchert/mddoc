@@ -1,9 +1,11 @@
-import { Task } from "@ts-task/task";
-import { assertFork, jestAssertNever } from "../testing-utils.js";
-import { sequence } from "./sequence.js";
 import { jest } from "@jest/globals";
+import { Task } from "@ts-task/task";
 import { FunctionLike } from "jest-mock";
+
+import { assertFork, jestAssertNever } from "../testing-utils.js";
 import { FixAnyTypeScriptVersion } from "../typescript.js";
+
+import { sequence } from "./sequence.js";
 
 const asStep = <T extends FunctionLike>(mock: jest.Mock<T>) => mock as () => T;
 

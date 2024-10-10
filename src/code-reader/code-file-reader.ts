@@ -1,15 +1,18 @@
+import * as crypto from "crypto";
+
 import { Task } from "@ts-task/task";
+import { caseError } from "@ts-task/utils";
+import colors from "colors";
 import * as ts from "typescript";
+
 import { InverseReference } from "../metadata/metadata.js";
+import { isErrnoException } from "../utils/is-errno-exception.js";
 import { readFile } from "../utils/ts-task-fs/read-file.js";
+
 import { CodeFinderQueryJsText, isTextQuery } from "./code-finder-query-js-text.js";
 import { CodeFinderQueryLine, isLineQuery } from "./code-finder-query-line.js";
 import { IQueriable, IRange } from "./reader-utils.js";
 
-import { caseError } from "@ts-task/utils";
-import * as crypto from "crypto";
-import { isErrnoException } from "../utils/is-errno-exception.js";
-import colors from "colors";
 const { grey, blue } = colors;
 export interface IFoundResult {
   found: true;

@@ -1,7 +1,8 @@
+import * as S from "@effect/schema/Schema";
 import * as ts from "typescript";
+
 import { CodeFileReader, IFindResult } from "./code-file-reader.js";
 import { IQueriable, IRange, isOutOfRange } from "./reader-utils.js";
-import * as S from "@effect/schema/Schema";
 
 /**
  * This is a plain text search in the document.

@@ -1,5 +1,6 @@
-import { Task } from "@ts-task/task";
 import * as fs from "fs";
+
+import { Task } from "@ts-task/task";
 
 export function readdir(path: string) {
   return new Task<string[], NodeJS.ErrnoException>((resolve, reject) => {

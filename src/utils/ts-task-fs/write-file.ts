@@ -1,6 +1,7 @@
-import { Task } from "@ts-task/task";
 import * as fs from "fs";
 import { WriteFileOptions } from "fs";
+
+import { Task } from "@ts-task/task";
 
 export interface IWriteFileOptions {
   encoding?: string | null;

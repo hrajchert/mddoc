@@ -1,6 +1,8 @@
+import * as S from "@effect/schema/Schema";
+import { Schema } from "@effect/schema/Schema";
+
 import { IFileReaderQuerySchema } from "../code-reader/code-finder-query-js-text.js";
 import { ICodeFinderLineQuerySchema } from "../code-reader/code-finder-query-line.js";
-import * as S from "@effect/schema/Schema";
 
 function JSonMLNode<K extends string, T>(nodeName: K, schema: S.Schema<T>): S.Schema<readonly [K, ...T[]]> {
   return S.Tuple([S.Literal(nodeName)], schema).annotations({ identifier: `Node ${nodeName}` });
@@ -59,6 +61,6 @@ const JElement = S.Union(
 export type JSonMLNode = S.Schema.Type<typeof JElement>;
 
 export const JSonMLSchema = JSonMLNode("markdown", JElement);
-export interface JSonML extends S.Schema.Type<typeof JSonMLSchema> {}
+export interface JSonML extends Schema.Type<typeof JSonMLSchema> {}
 
 export const isCodeReference = S.is(JCodeReference);

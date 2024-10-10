@@ -1,11 +1,13 @@
 import * as crypto from "crypto";
-import { Directive, RefQuery } from "../metadata/metadata.js";
-import { readFile } from "../utils/ts-task-fs/read-file.js";
 
+import colors from "colors";
 // @ts-expect-error TODO: Update markdown to markdown-it or similar
 import { markdown } from "markdown";
-import colors from "colors";
+
+import { Directive, RefQuery } from "../metadata/metadata.js";
 import { fromUnknownWithSchema } from "../utils/effect/from-unknown.js";
+import { readFile } from "../utils/ts-task-fs/read-file.js";
+
 import { CodeReferenceAttr, isCodeReference, JSonML, JSonMLNode, JSonMLSchema } from "./jsonml.js";
 
 const { yellow, grey } = colors;

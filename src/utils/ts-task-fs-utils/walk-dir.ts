@@ -1,8 +1,11 @@
-import { Task, UnknownError } from "@ts-task/task";
 import * as fs from "fs";
+
+import { Task, UnknownError } from "@ts-task/task";
+import * as A from "effect/Array";
+
 import { readdir } from "../ts-task-fs/readdir.js";
 import { stat } from "../ts-task-fs/stat.js";
-import * as A from "effect/Array";
+
 interface WalkDirOptions {
   exclude?: string | readonly string[];
 }

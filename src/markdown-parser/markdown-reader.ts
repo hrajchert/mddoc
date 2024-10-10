@@ -1,9 +1,11 @@
 import { Task } from "@ts-task/task";
-import { walkDir } from "../utils/ts-task-fs-utils/walk-dir.js";
-import { MarkdownFileReader } from "./markdown-file-reader.js";
-import { EventPromiseMixin } from "../EventPromise.js";
-import { Prettify } from "../utils/typescript.js";
+
 import { VerboseSettings } from "../core/index.js";
+import { EventPromiseMixin } from "../EventPromise.js";
+import { walkDir } from "../utils/ts-task-fs-utils/walk-dir.js";
+import { Prettify } from "../utils/typescript.js";
+
+import { MarkdownFileReader } from "./markdown-file-reader.js";
 
 export type MarkdownReaderSettings = Prettify<
   VerboseSettings & {

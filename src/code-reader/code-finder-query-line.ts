@@ -1,6 +1,7 @@
+import * as S from "@effect/schema/Schema";
+
 import { CodeFileReader, IFindResult } from "./code-file-reader.js";
 import { IQueriable, IRange } from "./reader-utils.js";
-import * as S from "@effect/schema/Schema";
 // The starting and ending line to reference separated by a dash (ex "2-24")
 export interface ICodeFinderLineQuery {
   line: string; // '2-14'

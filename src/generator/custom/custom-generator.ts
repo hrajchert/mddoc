@@ -1,15 +1,16 @@
+import * as S from "@effect/schema/Schema";
+import { Schema } from "@effect/schema/Schema";
 import { Task, UnknownError } from "@ts-task/task";
+import colors from "colors";
+// @ts-expect-error: Check if ECT has types or if it is a better alternative
+import ECT from "ect";
+
 import { BaseGeneratorSettings, Settings } from "../../config.js";
 import { Metadata } from "../../metadata/metadata.js";
 import { fromUnknownWithSchema } from "../../utils/effect/from-unknown.js";
 import { tap } from "../../utils/tap.js";
 import { copyDir } from "../../utils/ts-task-fs-utils/copy-dir.js";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/write-file-create-dir.js";
-import colors from "colors";
-// @ts-expect-error: Check if ECT has types or if it is a better alternative
-import ECT from "ect";
-import * as S from "@effect/schema/Schema";
-import { Schema } from "@effect/schema/Schema";
 import { FixMeAny } from "../../utils/typescript.js";
 
 const settingsSchema: Schema<CustomGeneratorSettings> = S.Struct({

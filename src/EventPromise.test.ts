@@ -2,6 +2,7 @@ import * as EventPromise from "./EventPromise.js";
 import { EventPromiseMixin } from "./EventPromise.js";
 import { defer } from "./utils/promises/defer.js";
 import { delay } from "./utils/promises/delay.js";
+
 describe("EventPromise", function () {
   describe("creation", function () {
     test("should mix on a OL", function () {
