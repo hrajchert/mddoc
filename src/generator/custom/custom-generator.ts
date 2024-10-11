@@ -18,14 +18,14 @@ const settingsSchema: Schema<CustomGeneratorSettings> = S.Struct({
   priority: S.Number,
   templateDir: S.String,
   outputDir: S.String,
-  copyAssets: S.Boolean,
+  copyAssets: S.optional(S.Boolean),
   files: S.Array(S.String),
 }).annotations({ title: "CustomGeneratorSettings" });
 
 interface CustomGeneratorSettings extends BaseGeneratorSettings {
   templateDir: string;
   outputDir: string;
-  copyAssets: boolean;
+  copyAssets?: boolean | undefined;
   files: readonly string[];
 }
 // TODO: Create an interface for the Plugin type import
@@ -99,8 +99,8 @@ class CustomGenerator {
   generate(helpers: unknown) {
     const self = this;
     const tasks: Task<unknown, NodeJS.ErrnoException | UnknownError>[] = [];
-
-    if (self.generatorSettings.copyAssets) {
+    const copyAssets = self.generatorSettings.copyAssets ?? false;
+    if (copyAssets) {
       tasks.push(self.copyAssets());
     }
 

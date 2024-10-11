@@ -163,7 +163,7 @@ function validateGenerators(config: ConfigFileWithDefaults) {
         };
         return yield* decodeUnknownOrError({
           schema: generatorFactory.schema,
-          options: { onExcessProperty: "preserve" },
+          options: { onExcessProperty: "error" },
           onError: (err) => new GeneratorConfigError(genName, err),
         })(generatorWithDefaults);
       }),

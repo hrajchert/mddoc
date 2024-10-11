@@ -52,15 +52,13 @@ const cli = (args: string[]) =>
       name: "mddoc",
       version: "0.0.2",
     }),
-    Effect.tapBoth({
-      onFailure: (err) => {
-        if (isExplainable(err)) {
-          return Console.error(err.explain());
-        } else {
-          return Console.error("ups, improve this");
-        }
-      },
-      onSuccess: () => Console.log("MDDoc finished successfully 🎉"),
+    Effect.andThen(() => Console.log("MDDoc finished successfully 🎉")),
+    Effect.catchAll((err) => {
+      if (isExplainable(err)) {
+        return Console.error(err.explain());
+      } else {
+        return Console.error("ups, improve this");
+      }
     }),
   );
 
