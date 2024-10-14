@@ -110,8 +110,6 @@ export class MarkdownFileReader {
 
       // Parse the markdown into JsonML
       self.jsonml = markdown.parse(markdownFile, "miMkd");
-
-      // Indicate the job is done
       return self;
     });
   }

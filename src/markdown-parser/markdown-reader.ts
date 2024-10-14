@@ -54,10 +54,6 @@ export function parseMarkdownFiles(settings: MarkdownReaderSettings, store: Even
           const reader = new MarkdownFileReader(plainFileName, completeFileName);
           reader.setVerbose(settings.verbose);
 
-          // const fileReader = yield* toEffect(reader.parse());
-          // return yield* Eff.mapError((error) => new MarkdownReaderError(error, reader, completeFileName))(
-          //   Eff.promise(() => store.trigger("md-file-parsed", fileReader)),
-          // );
           return yield* pipe(
             toEffect(reader.parse()),
             Eff.andThen((fileReader) => Eff.promise(() => store.trigger("md-file-parsed", fileReader))),

@@ -1,27 +1,29 @@
+import { Cause } from "effect/Cause";
+import * as C from "effect/Cause";
 import { Effect } from "effect/Effect";
 import * as Eff from "effect/Effect";
 import { pipe } from "effect/Function";
 
-import { Explainable, isExplainable, renderError } from "../utils/explain.js";
+import { Explainable, renderError } from "../utils/explain.js";
 
 export class StepError {
   _tag = "StepError";
 
   constructor(
     public step: string,
-    public err: unknown,
+    public err: Cause<Explainable>,
   ) {}
 
   explain() {
-    let ans = `There was a problem in the step "${this.step}"\n`;
-    if (this.err instanceof Error) {
-      ans += renderError(this.err);
-    } else if (isExplainable(this.err)) {
-      ans += this.err.explain();
-    } else {
-      ans += `Unknown error: ${this.err}`;
-    }
-    return ans;
+    const message = C.match(this.err, {
+      onEmpty: "empty cause",
+      onFail: (e) => e.explain(),
+      onDie: (e) => `Unknown error: ${renderError(e)}`,
+      onInterrupt: () => "Fiber interrupted",
+      onSequential: (left, right) => `${left} then ${right}`,
+      onParallel: (left, right) => `${left} and ${right}`,
+    });
+    return `There was a problem in the step "${this.step}"\n: ${message}`;
   }
 }
 
@@ -36,7 +38,7 @@ export function runSteps(steps: Step[]): Effect<void, StepError> {
     Eff.all(
       steps.map((s) =>
         pipe(
-          s.step,
+          Eff.sandbox(s.step),
           Eff.mapError((e) => new StepError(s.name, e)),
         ),
       ),

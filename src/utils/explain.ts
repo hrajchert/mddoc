@@ -18,6 +18,7 @@ export function explain<T extends Explainable>(error: T) {
   }
 }
 
-export function renderError(error: Error) {
-  return pe.render(error);
+export function renderError(error: unknown) {
+  const wrappedError = error instanceof Error ? error : new Error(String(error));
+  return pe.render(wrappedError);
 }
