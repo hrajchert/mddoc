@@ -7,7 +7,7 @@ import { isObject } from "../is-object.js";
 const isUnknownError = (err: unknown): err is UnknownError =>
   isObject(err) && "errorType" in err && err.errorType === "UnknownError";
 
-export function toEffect<V, E>(task: Task<V, E | UnknownError>): Effect<V, E> {
+export function toEffect<V, E = never>(task: Task<V, E | UnknownError>): Effect<V, E> {
   return E.async<V, E>((resume) => {
     task.fork(
       (err) => {

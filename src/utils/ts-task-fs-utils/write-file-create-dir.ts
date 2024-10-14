@@ -1,18 +1,23 @@
 import { Task } from "@ts-task/task";
 import { share } from "@ts-task/utils";
+import { pipe, Data } from "effect";
+import * as Eff from "effect/Effect";
 
+import { toEffect } from "../effect/ts-task.js";
 import { mkdir } from "../ts-task-fs/mkdir.js";
 import { stat } from "../ts-task-fs/stat.js";
 import { writeFile } from "../ts-task-fs/write-file.js";
 import { taskReduce } from "../ts-task-utils/task-reduce.js";
 
+// TODO: Re-write using Effect.
 /**
  * Writes the contents of data in a file with filename. It creates
  * any directory it needs in order to create the file
  * @param path The path of the file to write
  * @param data The data to write
+ * @deprecated
  */
-export function writeFileCreateDir(path: string, data: string | Buffer) {
+export function writeFileCreateDirTask(path: string, data: string | Buffer) {
   const trimmedPath = path.trim();
   // Don't allow absolute paths, for now
 
@@ -43,6 +48,25 @@ export function writeFileCreateDir(path: string, data: string | Buffer) {
   return dirReady.chain(function () {
     return writeFile(trimmedPath, data);
   });
+}
+
+/**
+ * Writes the contents of data in a file with filename. It creates
+ * any directory it needs in order to create the file
+ * @param path The path of the file to write
+ * @param data The data to write
+ */
+export function writeFileCreateDir(path: string, data: string | Buffer) {
+  return pipe(
+    toEffect(writeFileCreateDirTask(path, data)),
+    Eff.mapError((err) => new WriteFileError({ fsError: err, path })),
+  );
+}
+
+class WriteFileError extends Data.TaggedError("WriteFileError")<{ fsError: NodeJS.ErrnoException; path: string }> {
+  explain() {
+    return `Could not write to file ${this.path}: ${this.fsError.message}`;
+  }
 }
 
 // Holds the directories checked to see if needed to be created

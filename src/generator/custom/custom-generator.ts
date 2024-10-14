@@ -1,17 +1,19 @@
 import * as S from "@effect/schema/Schema";
 import { Schema } from "@effect/schema/Schema";
-import { Task, UnknownError } from "@ts-task/task";
 import colors from "colors";
 // @ts-expect-error: Check if ECT has types or if it is a better alternative
 import ECT from "ect";
+import { pipe } from "effect";
+import * as Eff from "effect/Effect";
+import { Effect } from "effect/Effect";
 
 import { BaseGeneratorSettings, Settings } from "../../config.js";
 import { Metadata } from "../../metadata/metadata.js";
 import { fromUnknownWithSchema } from "../../utils/effect/from-unknown.js";
-import { tap } from "../../utils/tap.js";
+import { Explainable } from "../../utils/explain.js";
 import { copyDir } from "../../utils/ts-task-fs-utils/copy-dir.js";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/write-file-create-dir.js";
-import { FixMeAny } from "../../utils/typescript.js";
+import { Generator } from "../generator-manager.js";
 
 const settingsSchema: Schema<CustomGeneratorSettings> = S.Struct({
   generatorType: S.String,
@@ -39,27 +41,25 @@ export default {
 
 const { green, grey } = colors;
 
+// Deduced from the ECT source code. TODO: Change
+// https://github.com/baryshev/ect/blob/master/lib/ect.js
+type Renderer = {
+  render: (template: string, options: unknown) => string;
+};
+
 interface HtmlWriterFileOptions {
   inputFile: string;
   outputFile: string;
-  renderer: FixMeAny;
+  renderer: Renderer;
 }
 
 class HtmlWriterFile {
   inputFile: string;
   outputFile: string;
-  renderer: FixMeAny;
+  renderer: Renderer;
   helpers: unknown;
 
   constructor(options: HtmlWriterFileOptions) {
-    // TODO: This shouldnt be necesary here, it should be cached way above
-    if (!("inputFile" in options)) {
-      throw new Error("You need to specify an input file");
-    }
-    if (!("outputFile" in options)) {
-      throw new Error("You need to specify an output file");
-    }
-
     this.inputFile = options.inputFile;
     this.outputFile = options.outputFile;
     this.renderer = options.renderer;
@@ -71,15 +71,16 @@ class HtmlWriterFile {
 
   render() {
     const self = this;
-    return Task.resolve(this)
-      .map(({ inputFile, helpers }) => this.renderer.render(inputFile, { mddoc: helpers }))
-      .chain((html) => writeFileCreateDir(self.outputFile, html))
-      .map(tap((_) => console.log(green("We wrote ") + grey(self.outputFile))));
+    return Eff.gen(function* () {
+      const html = self.renderer.render(self.inputFile, { mddoc: self.helpers });
+      yield* writeFileCreateDir(self.outputFile, html);
+      console.log(green("We wrote ") + grey(self.outputFile));
+    });
   }
 }
 
-class CustomGenerator {
-  renderer: FixMeAny;
+class CustomGenerator implements Generator {
+  renderer: Renderer;
 
   constructor(private generatorSettings: CustomGeneratorSettings) {
     // TODO: this should be in the HtmlWriterFile, but i dont want to create
@@ -88,38 +89,43 @@ class CustomGenerator {
   }
 
   copyAssets() {
-    const inputDir = this.generatorSettings.templateDir;
-    const outputDir = this.generatorSettings.outputDir;
-    // Not sure about the partials one...
-    const assetRe = /\/(css|js|images|fonts)\//;
+    const self = this;
+    return Eff.gen(function* () {
+      const inputDir = self.generatorSettings.templateDir;
+      const outputDir = self.generatorSettings.outputDir;
+      // Not sure about the partials one...
+      const assetRe = /\/(css|js|images|fonts)\//;
 
-    return copyDir(inputDir, outputDir, assetRe);
+      return yield* copyDir(inputDir, outputDir, assetRe);
+    });
   }
 
   generate(helpers: unknown) {
     const self = this;
-    const tasks: Task<unknown, NodeJS.ErrnoException | UnknownError>[] = [];
-    const copyAssets = self.generatorSettings.copyAssets ?? false;
-    if (copyAssets) {
-      tasks.push(self.copyAssets());
-    }
+    return Eff.gen(function* () {
+      const tasks: Effect<unknown, Explainable>[] = [];
+      const copyAssets = self.generatorSettings.copyAssets ?? false;
+      if (copyAssets) {
+        tasks.push(self.copyAssets());
+      }
 
-    // TODO: Remove the files settings, probably walk the dir for .tpl files
-    for (let i = 0; i < self.generatorSettings.files.length; i++) {
-      // Create the object in charge of rendering the html
-      const renderObject = new HtmlWriterFile({
-        inputFile: self.generatorSettings.files[i] + ".tpl",
-        outputFile: self.generatorSettings.outputDir + "/" + self.generatorSettings.files[i] + ".html",
-        renderer: self.renderer,
-      });
+      // TODO: Remove the files settings, probably walk the dir for .tpl files
+      for (let i = 0; i < self.generatorSettings.files.length; i++) {
+        // Create the object in charge of rendering the html
+        const renderObject = new HtmlWriterFile({
+          inputFile: self.generatorSettings.files[i] + ".tpl",
+          outputFile: self.generatorSettings.outputDir + "/" + self.generatorSettings.files[i] + ".html",
+          renderer: self.renderer,
+        });
 
-      // ...
-      renderObject.setHelpers(helpers);
+        // ...
+        renderObject.setHelpers(helpers);
 
-      // Generate the html
-      tasks.push(renderObject.render());
-    }
+        // Generate the html
+        tasks.push(renderObject.render());
+      }
 
-    return Task.all(tasks);
+      return yield* pipe(Eff.all(tasks), Eff.asVoid);
+    });
   }
 }

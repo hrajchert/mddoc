@@ -1,16 +1,17 @@
 import * as path from "path";
 
 import { Schema } from "@effect/schema/Schema";
-import { Task, UnknownError } from "@ts-task/task";
+import * as Eff from "effect/Effect";
+import { Effect } from "effect/Effect";
 
 import { BaseGeneratorSettings, Settings } from "../config.js";
 import { Metadata } from "../metadata/metadata.js";
-import { sequence } from "../utils/ts-task-utils/sequence.js";
+import { Explainable } from "../utils/explain.js";
 
 import * as GeneratorHelperManager from "./generator-helper-manager.js";
 
-interface Generator {
-  generate: (helpers?: unknown) => Task<void, UnknownError>;
+export interface Generator {
+  generate: (helpers?: unknown) => Effect<void, Explainable>;
 }
 
 // TODO: Move to a plugin interface file.
@@ -122,13 +123,19 @@ export class GeneratorManager {
 
   generate() {
     const self = this;
-    const steps = self.generators.map((generator) => () => {
-      if (self.metadata === null) throw "metadata shouldnt be null";
-      const helpers = GeneratorHelperManager.getRenderHelpers(self.metadata);
-      console.log("Executing the generator: " + generator.generatorName);
-      return generator.generatorObject.generate(helpers);
+    return Eff.gen(function* () {
+      const steps = self.generators.map((generator) =>
+        Eff.gen(function* () {
+          if (self.metadata === null) {
+            return yield* Eff.die("metadata shouldnt be null");
+          }
+          const helpers = GeneratorHelperManager.getRenderHelpers(self.metadata);
+          return yield* generator.generatorObject.generate(helpers);
+        }),
+      );
+
+      return yield* Eff.all(steps);
     });
-    return sequence(steps);
   }
 }
 

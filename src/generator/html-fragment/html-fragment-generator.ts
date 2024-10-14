@@ -1,7 +1,7 @@
 import * as S from "@effect/schema/Schema";
 import { Schema } from "@effect/schema/Schema";
-import { Task } from "@ts-task/task";
-import colors from "colors";
+import { pipe, Data } from "effect";
+import * as Eff from "effect/Effect";
 // @ts-expect-error TODO: Update markdown to markdown-it or similar
 import { markdown } from "markdown";
 
@@ -9,9 +9,7 @@ import { BaseGeneratorSettings, Settings } from "../../config.js";
 import { Metadata } from "../../metadata/metadata.js";
 import { fromUnknownWithSchema } from "../../utils/effect/from-unknown.js";
 import { writeFileCreateDir } from "../../utils/ts-task-fs-utils/write-file-create-dir.js";
-
-// TODO: remove and use something like @effect/printer
-const { red } = colors;
+import { Generator } from "../generator-manager.js";
 
 const settingsSchema: Schema<HtmlFragmentGeneratorSettings> = S.Struct({
   outputDir: S.String,
@@ -31,7 +29,7 @@ export default {
   schema: settingsSchema,
 };
 
-export class HtmlFragmentGenerator {
+export class HtmlFragmentGenerator implements Generator {
   constructor(
     private metadata: Metadata,
     projectSettings: Settings,
@@ -39,27 +37,36 @@ export class HtmlFragmentGenerator {
   ) {}
   generate() {
     const self = this;
-    const tasks: ReturnType<typeof writeFileCreateDir>[] = [];
+    return Eff.gen(function* () {
+      // const tasks: ReturnType<typeof writeFileCreateDir>[] = [];
 
-    self.metadata.renderedFragments = {};
-    // For each markdown, create the html fragment
-    for (const mdTemplate in self.metadata.jsonml) {
-      try {
-        const tree = markdown.toHTMLTree(self.metadata.jsonml[mdTemplate]);
-        const html = markdown.renderJsonML(tree);
+      self.metadata.renderedFragments = {};
+      // For each markdown, create the html fragment
+      const tasks = Object.entries(self.metadata.jsonml).map(([mdTemplateName, mdTemplateFile]) =>
+        Eff.gen(function* () {
+          const html = yield* Eff.try({
+            try: () => {
+              const tree = markdown.toHTMLTree(mdTemplateFile);
+              return markdown.renderJsonML(tree);
+            },
+            catch: (err) => new RenderHtmlFragmentError({ err, templateName: mdTemplateName }),
+          });
+          const outputFilename = self.generatorSettings.outputDir + "/" + mdTemplateName + ".html";
+          // mhmhmh TODO: This is sooo hardcoded
+          // @ts-expect-error renderedFragments is possibly undefined, improve this
+          self.metadata.renderedFragments[mdTemplateName] = "fragment/" + mdTemplateName + ".html";
+          yield* writeFileCreateDir(outputFilename, html);
+        }),
+      );
 
-        const outputFilename = self.generatorSettings.outputDir + "/" + mdTemplate + ".html";
-        // mhmhmh TODO: This is sooo hardcoded
-        self.metadata.renderedFragments[mdTemplate] = "fragment/" + mdTemplate + ".html";
+      return yield* pipe(Eff.all(tasks), Eff.asVoid);
+    });
+  }
+}
 
-        tasks.push(writeFileCreateDir(outputFilename, html));
-      } catch (e) {
-        // TODO: Catch this better
-        console.log(red("Problem with ") + mdTemplate);
-        throw e;
-      }
-    }
-
-    return Task.all(tasks);
+class RenderHtmlFragmentError extends Data.TaggedError("RenderHtmlFragmentError")<{ templateName: string; err: unknown }> {
+  explain() {
+    const reason = this.err instanceof Error ? this.err.message : String(this.err);
+    return `Could not render ${this.templateName}: ${reason}`;
   }
 }

@@ -1,4 +1,8 @@
 import { Task } from "@ts-task/task";
+import { pipe, Data } from "effect";
+import * as Eff from "effect/Effect";
+
+import { toEffect } from "../effect/ts-task.js";
 
 import { copyFile } from "./copy-file.js";
 import { walkDir } from "./walk-dir.js";
@@ -8,7 +12,7 @@ import { walkDir } from "./walk-dir.js";
  * Copies the files from src_dir to dst_dir, creating the necesary folders in dst_dir to make that happen
  */
 // TODO: change matchRe for the classical include exclude folders
-export function copyDir(src: string, dst: string, matchRe: string | RegExp) {
+function copyDirTask(src: string, dst: string, matchRe: string | RegExp) {
   // Precalculate the lenght of the name of the src dir
   const dirNameLength = src.length;
 
@@ -28,4 +32,17 @@ export function copyDir(src: string, dst: string, matchRe: string | RegExp) {
     }
     return Task.all(promises);
   });
+}
+
+export function copyDir(src: string, dst: string, matchRe: string | RegExp) {
+  return pipe(
+    toEffect(copyDirTask(src, dst, matchRe)),
+    Eff.mapError((err) => new CopyDirError({ src, dst, err })),
+  );
+}
+
+class CopyDirError extends Data.TaggedError("CopyDirError")<{ src: string; dst: string; err: NodeJS.ErrnoException }> {
+  explain() {
+    return `Could not copy dir from ${this.src} to ${this.dst}: ${this.err.message}`;
+  }
 }

@@ -1,17 +1,17 @@
 import * as crypto from "crypto";
 
 import colors from "colors";
+import { Data, pipe } from "effect";
+import * as Eff from "effect/Effect";
 
 import { CodeFileReader } from "../code-reader/code-file-reader.js";
 import * as EventPromise from "../EventPromise.js";
 import { EventPromiseMixin } from "../EventPromise.js";
 import { FoundMarkdownReference, MarkdownFileReader, NotFoundMarkdownReference } from "../markdown-parser/index.js";
 import { JSonML } from "../markdown-parser/jsonml.js";
-import { tap } from "../utils/tap.js";
 import { writeFileCreateDir } from "../utils/ts-task-fs-utils/write-file-create-dir.js";
 
 import { Metadata } from "./metadata.js";
-
 const { green, grey } = colors;
 
 export interface MetadataManagerSettings {
@@ -19,11 +19,24 @@ export interface MetadataManagerSettings {
 }
 
 export function saveMetadataTo(metadata: Metadata, outputDir: string) {
-  const metadataFileName = `${outputDir}/metadata.json`;
-  const metadataStr = JSON.stringify(metadata, null, "    ");
-  return writeFileCreateDir(metadataFileName, metadataStr).map(
-    tap((_) => console.log(green("Metadata written to ") + grey(metadataFileName))),
-  );
+  return Eff.gen(function* () {
+    const metadataFileName = `${outputDir}/metadata.json`;
+    const metadataStr = JSON.stringify(metadata, null, "    ");
+    yield* pipe(
+      writeFileCreateDir(metadataFileName, metadataStr),
+      Eff.mapError((error) => new SaveMetadataError({ message: error.message, outputDir })),
+    );
+    console.log(green("Metadata written to ") + grey(metadataFileName));
+  });
+}
+
+export class SaveMetadataError extends Data.TaggedError("SaveMetadataError")<{
+  message: string;
+  outputDir: string;
+}> {
+  explain() {
+    return `Error saving the metadata to ${this.outputDir}\n${this.message}`;
+  }
 }
 
 export class MetadataManager {

@@ -4,7 +4,7 @@ import { isObject } from "./is-object.js";
 
 const pe = new PrettyError();
 
-interface Explainable {
+export interface Explainable {
   explain: () => string;
 }
 

@@ -6,9 +6,8 @@ import * as R from "effect/Record";
 
 import { loadConfig } from "../config.js";
 import * as mddoc from "../core/index.js";
-import { toEffect } from "../utils/effect/ts-task.js";
+import { runSteps } from "../core/steps.js";
 import { isExplainable } from "../utils/explain.js";
-import { sequence } from "../utils/ts-task-utils/sequence.js";
 
 // Define the top-level command
 const inputDir = Options.text("inputDir").pipe(
@@ -35,13 +34,12 @@ const command = Command.make("mddoc", { inputDir, outputDir }, (args) =>
       mddoc.readCode(config, mgr),
       mddoc.saveMetadata(config, mgr),
       mddoc.replaceReferences(mgr),
-      mddoc.generateOutput,
+      mddoc.generateOutput(),
       mddoc.reportNotFound(mgr),
       mddoc.reportStats(mgr),
     ];
-
     // Run each step
-    yield* toEffect(sequence(steps));
+    yield* runSteps(steps);
   }),
 );
 // Set up the CLI application
